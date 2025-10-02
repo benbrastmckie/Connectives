@@ -29,7 +29,8 @@ class CompositionTree:
     def __init__(self, function: Connective,
                  left_child: Optional['CompositionTree'] = None,
                  right_child: Optional['CompositionTree'] = None,
-                 middle_child: Optional['CompositionTree'] = None):
+                 middle_child: Optional['CompositionTree'] = None,
+                 var_index: Optional[int] = None):
         """
         Initialize a composition tree node.
 
@@ -38,11 +39,13 @@ class CompositionTree:
             left_child: Left child tree (for binary/ternary functions)
             right_child: Right child tree (for binary/ternary functions)
             middle_child: Middle child tree (for ternary functions)
+            var_index: Variable index for leaf nodes (0=x, 1=y, 2=z, etc.)
         """
         self.function = function
         self.left_child = left_child
         self.right_child = right_child
         self.middle_child = middle_child
+        self.var_index = var_index
 
     def to_formula(self) -> str:
         """
@@ -51,6 +54,11 @@ class CompositionTree:
         Returns:
             String representation like "NOT(AND(x, y))"
         """
+        # Check if this is a leaf variable node
+        if self.var_index is not None:
+            var_names = ['x', 'y', 'z', 'w', 'v']
+            return var_names[self.var_index]
+
         if self.function.arity == 0:
             # Constant (nullary)
             return self.function.name
@@ -58,7 +66,7 @@ class CompositionTree:
         elif self.function.arity == 1:
             # Unary function
             if self.left_child is None:
-                # Leaf node - input variable
+                # Leaf node - shouldn't happen if var_index is set properly
                 return "x"
             else:
                 child_formula = self.left_child.to_formula()
@@ -105,13 +113,17 @@ class CompositionTree:
         Returns:
             Output value (0 or 1)
         """
+        # Check if this is a leaf variable node
+        if self.var_index is not None:
+            return inputs[self.var_index]
+
         if self.function.arity == 0:
             # Constant
             return self.function.evaluate(())
 
         elif self.function.arity == 1:
             if self.left_child is None:
-                # Leaf - input variable (assume first input for unary)
+                # Leaf - shouldn't happen if var_index is set properly
                 return inputs[0]
             else:
                 child_result = self.left_child.evaluate(inputs)
@@ -325,7 +337,11 @@ def _encode_tree_structure(solver: Solver, tree_struct: Dict[str, Any],
         for inp in input_assignments:
             # Map leaf to input variable
             # For binary: first two leaves map to x and y
-            if num_inputs == 1:
+            if num_inputs == 0:
+                # Nullary (constant) - no variables, this shouldn't happen
+                # but handle gracefully
+                var_value = 0
+            elif num_inputs == 1:
                 var_value = inp[0]
             else:
                 var_value = inp[leaf_idx % num_inputs]
@@ -428,3 +444,197 @@ def _encode_target_match(solver: Solver, tree_struct: Dict[str, Any],
             solver.add(root_out_var)
         else:
             solver.add(Not(root_out_var))
+
+
+def _extract_witness_from_model(model, tree_struct: Dict[str, Any],
+                                  basis: List[Connective],
+                                  choices: Dict[Tuple[int, int], Any],
+                                  num_inputs: int) -> CompositionTree:
+    """
+    Extract a composition tree witness from a satisfying Z3 model.
+
+    Args:
+        model: Z3 model (from solver.model())
+        tree_struct: Tree structure from _build_tree_structure
+        basis: List of basis connectives
+        choices: Choice variables from _encode_tree_choices
+        num_inputs: Number of inputs (arity of target connective)
+
+    Returns:
+        CompositionTree representing the witness composition
+    """
+    from z3 import is_true
+
+    # Map node index to CompositionTree
+    node_trees = {}
+    leaves = tree_struct['leaves']
+
+    # Process nodes in reverse order (leaves first, then parents)
+    # This ensures children are processed before parents
+    nodes_by_depth = {}
+    for node in tree_struct['nodes']:
+        depth = tree_struct['depth_of'][node]
+        if depth not in nodes_by_depth:
+            nodes_by_depth[depth] = []
+        nodes_by_depth[depth].append(node)
+
+    # Process from deepest to shallowest
+    max_depth = max(nodes_by_depth.keys())
+    for depth in range(max_depth, -1, -1):
+        for node in nodes_by_depth[depth]:
+            # Find which function is selected at this node
+            selected_func = None
+            for func_idx, func in enumerate(basis):
+                choice_var = choices[(node, func_idx)]
+                if is_true(model.eval(choice_var)):
+                    selected_func = func
+                    break
+
+            if selected_func is None:
+                raise ValueError(f"No function selected for node {node}")
+
+            # Get children
+            node_children = tree_struct['children'][node]
+
+            if not node_children:
+                # Leaf node - compute var_index
+                if num_inputs > 0:
+                    leaf_idx = leaves.index(node)
+                    var_idx = leaf_idx % num_inputs
+                    node_trees[node] = CompositionTree(selected_func, var_index=var_idx)
+                else:
+                    # Nullary target (constant) - no variables
+                    node_trees[node] = CompositionTree(selected_func)
+            elif selected_func.arity == 1 and len(node_children) >= 1:
+                # Unary function - one child
+                left_child = node_children[0]
+                node_trees[node] = CompositionTree(
+                    selected_func,
+                    left_child=node_trees[left_child]
+                )
+            elif selected_func.arity == 2 and len(node_children) >= 2:
+                # Binary function - two children
+                left_child = node_children[0]
+                right_child = node_children[1]
+                node_trees[node] = CompositionTree(
+                    selected_func,
+                    left_child=node_trees[left_child],
+                    right_child=node_trees[right_child]
+                )
+            elif selected_func.arity == 0:
+                # Constant - no children needed
+                node_trees[node] = CompositionTree(selected_func)
+            else:
+                raise ValueError(f"Unsupported arity {selected_func.arity} for node {node}")
+
+    # Return root tree
+    return node_trees[0]
+
+
+def _verify_witness(witness: CompositionTree, target: Connective) -> bool:
+    """
+    Verify that a witness composition tree produces the target truth table.
+
+    Args:
+        witness: CompositionTree to verify
+        target: Target connective
+
+    Returns:
+        True if witness is correct, False otherwise
+
+    Raises:
+        ValueError: If witness is invalid
+    """
+    num_inputs = target.arity
+
+    # Check all input assignments
+    for i in range(2 ** num_inputs):
+        inp = tuple((i >> (num_inputs - 1 - k)) & 1 for k in range(num_inputs))
+
+        # Evaluate witness and target
+        witness_out = witness.evaluate(inp)
+        target_out = target.evaluate(inp)
+
+        if witness_out != target_out:
+            raise ValueError(
+                f"Witness failed for input {inp}: "
+                f"witness={witness_out}, target={target_out}\n"
+                f"Witness formula: {witness.to_formula()}"
+            )
+
+    return True
+
+
+def is_definable_z3_sat(target: Connective, basis: List[Connective],
+                         max_depth: int = 3, timeout_ms: int = 5000) -> Tuple[bool, Optional[CompositionTree]]:
+    """
+    Check if target is definable from basis using Z3 SAT encoding.
+
+    Uses iterative deepening: tries depth 1, then 2, then 3, etc.
+    Returns as soon as a witness is found.
+
+    Args:
+        target: Target connective to define
+        basis: List of basis connectives
+        max_depth: Maximum composition depth to try (default 3)
+        timeout_ms: Timeout in milliseconds for each depth (default 5000)
+
+    Returns:
+        (True, witness) if target is definable, (False, None) otherwise
+    """
+    from z3 import sat, unsat, unknown
+
+    # Iterative deepening
+    for depth in range(1, max_depth + 1):
+        try:
+            # Build solver for this depth
+            solver = Solver()
+            solver.set("timeout", timeout_ms)
+
+            # Build tree structure
+            tree_struct = _build_tree_structure(depth)
+
+            # Encode constraints
+            choices = _encode_tree_choices(solver, tree_struct, basis)
+            outputs = _encode_tree_outputs(solver, tree_struct, basis, target, choices)
+            _encode_tree_structure(solver, tree_struct, basis, target, choices, outputs)
+            _encode_target_match(solver, tree_struct, target, outputs)
+
+            # Check satisfiability
+            result = solver.check()
+
+            if result == sat:
+                # Extract witness
+                model = solver.model()
+                witness = _extract_witness_from_model(
+                    model, tree_struct, basis, choices, target.arity
+                )
+
+                # Verify witness
+                _verify_witness(witness, target)
+
+                return (True, witness)
+
+            elif result == unsat:
+                # No composition at this depth, try deeper
+                continue
+
+            elif result == unknown:
+                # Timeout or other issue - conservative False
+                import logging
+                logging.warning(
+                    f"Z3 returned 'unknown' at depth {depth} for target {target.name} "
+                    f"(timeout={timeout_ms}ms)"
+                )
+                continue
+
+        except Exception as e:
+            # Catch any Z3 errors and return conservative False
+            import logging
+            logging.error(
+                f"Z3 error at depth {depth} for target {target.name}: {e}"
+            )
+            continue
+
+    # No witness found at any depth
+    return (False, None)
