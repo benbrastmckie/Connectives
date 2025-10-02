@@ -15,24 +15,23 @@ import itertools
 
 def is_definable(target: Connective, basis: List[Connective],
                 max_depth: int = 3, timeout_ms: int = 5000,
-                use_z3: Optional[bool] = None) -> bool:
+                use_z3: bool = False) -> bool:
     """
     Check if target connective is definable from basis connectives.
 
-    Uses bounded composition search with either pattern enumeration (default)
-    or Z3 SAT encoding. The strategy can be selected automatically based on
-    problem characteristics or specified explicitly.
+    Uses pattern enumeration by default (proven correct for arity ≤3).
+    Z3 SAT encoding available for explicit use when needed (e.g., arity ≥4).
 
-    Adaptive Strategy Selection (when use_z3=None):
-    - Arity >= 4 or basis size > 20: use Z3 SAT backend
-    - Otherwise: use pattern enumeration (faster for small problems)
+    Strategy Selection:
+    - use_z3=False (default): use pattern enumeration
+    - use_z3=True: use Z3 SAT backend
 
     Args:
         target: Connective to try to define
         basis: List of connectives to use as basis
         max_depth: Maximum composition depth to try
         timeout_ms: Solver timeout in milliseconds
-        use_z3: Force Z3 (True) or pattern enumeration (False), or auto-select (None)
+        use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
 
     Returns:
         True if target is definable from basis within the depth bound
@@ -43,12 +42,6 @@ def is_definable(target: Connective, basis: List[Connective],
     # Quick check: if target is in basis, it's trivially definable
     if target in basis:
         return True
-
-    # Adaptive strategy selection
-    if use_z3 is None:
-        # Auto-select based on problem characteristics
-        # Z3 is better for: high arity (>=4) or large basis (>20)
-        use_z3 = target.arity >= 4 or len(basis) > 20
 
     # Dispatch to appropriate backend
     if use_z3:
@@ -63,14 +56,15 @@ def is_definable(target: Connective, basis: List[Connective],
             return definable
         except ImportError:
             # Fall back to pattern enumeration if Z3 not available
+            import warnings
+            warnings.warn("Z3 backend requested but not available, falling back to pattern enumeration")
             use_z3 = False
 
-    if not use_z3:
-        # Use pattern enumeration
-        for depth in range(1, max_depth + 1):
-            if _is_definable_at_depth(target, basis, depth, timeout_ms):
-                return True
-        return False
+    # Use pattern enumeration (default)
+    for depth in range(1, max_depth + 1):
+        if _is_definable_at_depth(target, basis, depth, timeout_ms):
+            return True
+    return False
 
 
 def _is_definable_at_depth(target: Connective, basis: List[Connective],
@@ -834,7 +828,7 @@ def _try_f_proj_composed(target: Connective,
 def is_independent(connectives: List[Connective],
                   max_depth: int = 3,
                   timeout_ms: int = 5000,
-                  use_z3: Optional[bool] = None) -> bool:
+                  use_z3: bool = False) -> bool:
     """
     Check if a set of connectives is independent.
 
@@ -845,7 +839,7 @@ def is_independent(connectives: List[Connective],
         connectives: List of connectives to check
         max_depth: Maximum composition depth for definability checking
         timeout_ms: Solver timeout per check
-        use_z3: Force Z3 (True) or pattern enumeration (False), or auto-select (None)
+        use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
 
     Returns:
         True if the set is independent
