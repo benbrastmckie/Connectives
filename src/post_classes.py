@@ -261,14 +261,107 @@ def get_missing_classes(connectives: List[Connective]) -> Set[str]:
     return missing
 
 
+def _compute_under_permutation(truth_table: int, arity: int,
+                               permutation: Tuple[int, ...]) -> int:
+    """
+    Compute truth table under variable permutation.
+
+    Args:
+        truth_table: Original truth table as integer
+        arity: Number of variables
+        permutation: Permutation tuple (e.g., (1,0) swaps x and y)
+
+    Returns:
+        New truth table value under permutation
+    """
+    if arity == 0:
+        return truth_table
+
+    num_rows = 2 ** arity
+    new_table = 0
+
+    for row in range(num_rows):
+        # Extract input values for this row
+        inputs = tuple((row >> (arity - 1 - k)) & 1 for k in range(arity))
+
+        # Apply permutation
+        permuted_inputs = tuple(inputs[permutation[k]] for k in range(arity))
+
+        # Compute permuted row index
+        permuted_row = sum(permuted_inputs[k] << (arity - 1 - k) for k in range(arity))
+
+        # Get output bit from original table at permuted row
+        output_bit = (truth_table >> permuted_row) & 1
+
+        # Set bit in new table at current row
+        if output_bit:
+            new_table |= (1 << row)
+
+    return new_table
+
+
+def _compute_under_negation(truth_table: int, arity: int,
+                            negation_mask: Tuple[int, ...]) -> int:
+    """
+    Compute truth table under variable/output negation.
+
+    Args:
+        truth_table: Original truth table as integer
+        arity: Number of variables
+        negation_mask: Tuple of 0/1 indicating which vars to negate
+                      Last element negates output
+
+    Returns:
+        New truth table value under negation
+    """
+    if arity == 0:
+        # Nullary: only output negation matters
+        if len(negation_mask) > 0 and negation_mask[0]:
+            return truth_table ^ 1
+        return truth_table
+
+    num_rows = 2 ** arity
+    new_table = 0
+
+    # Split mask into input negations and output negation
+    input_negations = negation_mask[:arity]
+    negate_output = negation_mask[arity] if len(negation_mask) > arity else 0
+
+    for row in range(num_rows):
+        # Extract input values
+        inputs = tuple((row >> (arity - 1 - k)) & 1 for k in range(arity))
+
+        # Apply input negations
+        negated_inputs = tuple(inputs[k] ^ input_negations[k] for k in range(arity))
+
+        # Compute negated row index
+        negated_row = sum(negated_inputs[k] << (arity - 1 - k) for k in range(arity))
+
+        # Get output bit from original table
+        output_bit = (truth_table >> negated_row) & 1
+
+        # Apply output negation
+        if negate_output:
+            output_bit ^= 1
+
+        # Set bit in new table
+        if output_bit:
+            new_table |= (1 << row)
+
+    return new_table
+
+
 def equivalence_class_representative(connective: Connective) -> int:
     """
     Get a canonical representative for the equivalence class of a connective.
 
-    Two connectives are equivalent if one can be obtained from the other by:
+    Two connectives are equivalent for search purposes if one can be obtained
+    from the other by:
     - Permuting variables
-    - Negating variables
-    - Negating the output
+    - Negating input variables
+
+    Note: Output negation is NOT included, as NOT(f) is functionally distinct
+    from f for building complete sets.
 
     This function returns a canonical form (smallest truth table value)
     among all equivalent connectives.
@@ -279,10 +372,29 @@ def equivalence_class_representative(connective: Connective) -> int:
     Returns:
         Truth table value of canonical representative
     """
-    # For now, just return the connective itself
-    # Full symmetry breaking would require checking all permutations/negations
-    # This is a placeholder for potential optimization in Phase 7
-    return connective.truth_table_int
+    import itertools
+
+    arity = connective.arity
+    truth_table = connective.truth_table_int
+    min_table = truth_table
+
+    # Generate all permutations of variables
+    for perm in itertools.permutations(range(arity)):
+        permuted_table = _compute_under_permutation(truth_table, arity, perm)
+
+        # For each permutation, try all INPUT negation patterns
+        # Negation mask: only input negations (no output negation)
+        for neg_mask_val in range(2 ** arity):
+            # Build negation mask with no output negation
+            neg_mask = tuple((neg_mask_val >> k) & 1 for k in range(arity)) + (0,)
+
+            negated_table = _compute_under_negation(permuted_table, arity, neg_mask)
+
+            # Track minimum
+            if negated_table < min_table:
+                min_table = negated_table
+
+    return min_table
 
 
 def filter_by_post_classes(connectives: List[Connective],

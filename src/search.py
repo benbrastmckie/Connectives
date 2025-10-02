@@ -9,9 +9,40 @@ A nice set is one that is both:
 from typing import List, Set, Tuple, Dict
 from itertools import combinations
 from src.connectives import Connective, generate_all_connectives
-from src.post_classes import is_complete
+from src.post_classes import is_complete, equivalence_class_representative
 from src.independence import is_independent
 import time
+
+
+def filter_by_equivalence(connectives: List[Connective]) -> List[Connective]:
+    """
+    Filter connectives to one representative per equivalence class.
+
+    Equivalence classes group connectives that differ only by:
+    - Variable permutation (e.g., AND(x,y) vs AND(y,x))
+    - Variable/output negation (e.g., NAND vs NOT(AND))
+
+    This reduces search space by ~2-8× depending on arity.
+
+    Args:
+        connectives: List of connectives to filter
+
+    Returns:
+        List containing one representative from each equivalence class
+    """
+    seen_classes = set()
+    representatives = []
+
+    for conn in connectives:
+        # Get canonical representative for this connective's equivalence class
+        canonical = equivalence_class_representative(conn)
+
+        # Only add if we haven't seen this equivalence class
+        if canonical not in seen_classes:
+            seen_classes.add(canonical)
+            representatives.append(conn)
+
+    return representatives
 
 
 def find_nice_sets_of_size(
@@ -115,7 +146,8 @@ def find_maximum_nice_set(
 def search_binary_only(
     max_depth: int = 3,
     verbose: bool = True,
-    use_z3: bool = False
+    use_z3: bool = False,
+    use_symmetry_breaking: bool = False
 ) -> Tuple[int, List[List[Connective]]]:
     """
     Search for maximum nice set using only binary connectives.
@@ -126,6 +158,7 @@ def search_binary_only(
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
         use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
+        use_symmetry_breaking: Apply equivalence class filtering (default False)
 
     Returns:
         Tuple of (maximum_size, list_of_maximal_nice_sets)
@@ -140,6 +173,17 @@ def search_binary_only(
 
     if verbose:
         print(f"Total binary connectives: {len(binary_connectives)}")
+
+    # Apply symmetry breaking if requested
+    if use_symmetry_breaking:
+        filter_start = time.time()
+        binary_connectives = filter_by_equivalence(binary_connectives)
+        filter_time = time.time() - filter_start
+
+        if verbose:
+            print(f"After equivalence filtering: {len(binary_connectives)}")
+            print(f"Filtering time: {filter_time:.3f}s")
+            print(f"Reduction ratio: {16 / len(binary_connectives):.2f}×")
 
     # Search for maximum nice set
     max_size, nice_sets = find_maximum_nice_set(
