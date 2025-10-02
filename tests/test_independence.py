@@ -34,7 +34,6 @@ class TestDefinability:
         # NAND(x,y) = NOT(AND(x,y))
         assert is_definable(NAND, [NOT, AND], max_depth=2)
 
-    @pytest.mark.skip(reason="Requires binary(binary,binary) pattern - complexity beyond current scope")
     def test_xor_from_and_or_not(self):
         """Test that XOR is definable from {AND, OR, NOT}."""
         # XOR(x,y) = OR(AND(x, NOT(y)), AND(NOT(x), y))

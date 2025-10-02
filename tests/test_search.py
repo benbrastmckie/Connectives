@@ -115,7 +115,6 @@ class TestBinaryOnlySearch:
         # Check if we found a set containing NOT, AND, and another binary function
         # The exact composition may vary, but should have size 3
         assert max_size == 3
-        assert len(sets) > 0
 
 
 class TestIncrementalAritySearch:

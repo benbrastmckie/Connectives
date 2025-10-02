@@ -102,8 +102,8 @@ def find_maximum_nice_set(
         else:
             if verbose:
                 print(f"Size {size}: No nice sets found ({elapsed:.2f}s)")
-            # Stop searching if no nice sets at this size
-            break
+            # Continue searching - it's possible that size N has no nice sets
+            # but size N+1 does (e.g., size 1 has none, but size 2 does)
 
     return maximum_size, maximal_sets
 
