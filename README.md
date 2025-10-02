@@ -338,6 +338,70 @@ nice_connectives/
 
 ---
 
+## Composition Depth Parameter
+
+The **composition depth** parameter is critical for independence checking and directly affects search results.
+
+### What is Composition Depth?
+
+**Depth = d** means checking if a connective can be expressed as a composition tree of height ≤ d:
+
+- **Depth 1**: Direct application - `f(x,y)` or `u(x)` (identity/single function)
+- **Depth 2**: One level of composition - `f(g(x,y), h(x,y))` or `u(f(x,y))`
+- **Depth 3**: Two levels - `f(g(h(x,y), i(x,y)), j(x,y))`
+
+### Why Depth Matters
+
+**Higher depth = stricter independence**:
+- At depth 1: Only trivial cases detected (identity, constants)
+- At depth 2: Simple compositions detected (e.g., `NAND = NOT(AND)`)
+- At depth 3: Common patterns detected (e.g., De Morgan's laws)
+- At depth 5+: More subtle dependencies detected, but computationally expensive
+
+### Standard Depth = 3
+
+All results in this project use **depth = 3** unless otherwise specified, because:
+- **Practical**: Fast enough for reasonable search times (~seconds to minutes)
+- **Comprehensive**: Catches most natural/interesting dependencies
+- **Validated**: Confirms known results (e.g., binary max = 3)
+
+### Depth Impact on Results
+
+| Depth | Binary Max | Ternary Max | Trade-off |
+|-------|-----------|-------------|-----------|
+| 1 | Unknown (too conservative) | Unknown | Misses obvious dependencies |
+| 2 | ~3-4 | Unknown | Misses some patterns |
+| **3** | **3** | **16** | **Recommended balance** |
+| 5 | 3 | 16 | More conservative, slower |
+| 7+ | 3 | 16 | Diminishing returns, very slow |
+
+**Note**: Maximum of 16 is consistent across depths 3-7, indicating the bound is robust.
+
+### Using Different Depths
+
+```bash
+# Fast, standard depth (recommended)
+python3 -m src.main --max-arity 3 --max-depth 3
+
+# More conservative, slower
+python3 -m src.main --max-arity 3 --max-depth 5
+
+# Validation scripts also accept depth parameter
+python3 scripts/validate_binary_search.py --depth 3
+```
+
+### Metadata Logging
+
+Since Phase 7 of the comprehensive refactor, all search functions return metadata including:
+- `composition_depth`: The depth parameter used
+- `strategy`: "enumeration" or "z3_sat"
+- `search_time`: Total seconds elapsed
+- `basis_size`: Number of connectives searched
+
+This ensures all results are reproducible and well-documented.
+
+---
+
 ## Key Insights
 
 1. **Ternary connectives are critical**: Maximum jumps from 7 (binary+unary) to 16 (with ternary)

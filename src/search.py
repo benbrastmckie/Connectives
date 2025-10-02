@@ -101,7 +101,7 @@ def find_maximum_nice_set(
     max_depth: int = 3,
     verbose: bool = False,
     use_z3: bool = False
-) -> Tuple[int, List[List[Connective]]]:
+) -> Tuple[int, List[List[Connective]], Dict[str, any]]:
     """
     Find the maximum size of nice sets and examples.
 
@@ -115,14 +115,22 @@ def find_maximum_nice_set(
         use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
 
     Returns:
-        Tuple of (maximum_size, list_of_maximal_nice_sets)
+        Tuple of (maximum_size, list_of_maximal_nice_sets, metadata)
+        where metadata includes:
+            - composition_depth: max_depth used
+            - strategy: "enumeration" or "z3_sat"
+            - search_time: total seconds
+            - basis_size: number of connectives searched
     """
     maximum_size = 0
     maximal_sets = []
+    search_start_time = time.time()
 
     if verbose:
         print(f"Searching for maximum nice set size...")
         print(f"Connective pool size: {len(connectives)}")
+        print(f"Composition depth: {max_depth}")
+        print(f"Strategy: {'z3_sat' if use_z3 else 'enumeration'}")
 
     for size in range(1, min(max_size + 1, len(connectives) + 1)):
         start_time = time.time()
@@ -140,7 +148,19 @@ def find_maximum_nice_set(
             # Continue searching - it's possible that size N has no nice sets
             # but size N+1 does (e.g., size 1 has none, but size 2 does)
 
-    return maximum_size, maximal_sets
+    total_search_time = time.time() - search_start_time
+
+    metadata = {
+        'composition_depth': max_depth,
+        'strategy': 'z3_sat' if use_z3 else 'enumeration',
+        'search_time': total_search_time,
+        'basis_size': len(connectives)
+    }
+
+    if verbose:
+        print(f"\nSearch completed in {total_search_time:.2f}s")
+
+    return maximum_size, maximal_sets, metadata
 
 
 def search_binary_only(
@@ -186,7 +206,7 @@ def search_binary_only(
             print(f"Reduction ratio: {16 / len(binary_connectives):.2f}×")
 
     # Search for maximum nice set
-    max_size, nice_sets = find_maximum_nice_set(
+    max_size, nice_sets, metadata = find_maximum_nice_set(
         binary_connectives,
         max_size=5,  # Binary-only max is 3, so 5 is safe upper bound
         max_depth=max_depth,
@@ -198,6 +218,9 @@ def search_binary_only(
         print("\n" + "=" * 60)
         print(f"RESULT: Maximum nice set size = {max_size}")
         print("=" * 60)
+        print(f"Composition depth: {metadata['composition_depth']}")
+        print(f"Strategy: {metadata['strategy']}")
+        print(f"Search time: {metadata['search_time']:.2f}s")
         if nice_sets:
             print(f"Found {len(nice_sets)} maximal nice sets")
             print("\nExample nice sets:")
@@ -272,7 +295,7 @@ def search_incremental_arity(
 
         # Search with current pool
         start_time = time.time()
-        max_size, nice_sets = find_maximum_nice_set(
+        max_size, nice_sets, metadata = find_maximum_nice_set(
             connective_pool,
             max_size=min(10, len(connective_pool)),
             max_depth=max_depth,
@@ -283,7 +306,9 @@ def search_incremental_arity(
         stats['arity_results'][arity] = {
             'max_size': max_size,
             'num_sets': len(nice_sets),
-            'time_seconds': elapsed
+            'time_seconds': elapsed,
+            'composition_depth': metadata['composition_depth'],
+            'strategy': metadata['strategy']
         }
 
         if verbose:

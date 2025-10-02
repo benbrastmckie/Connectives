@@ -70,21 +70,27 @@ class TestFindMaximumNiceSet:
 
     def test_empty_pool(self):
         """Empty pool should return size 0."""
-        max_size, sets = find_maximum_nice_set([])
+        max_size, sets, metadata = find_maximum_nice_set([])
         assert max_size == 0
         assert sets == []
+        assert 'composition_depth' in metadata
+        assert 'strategy' in metadata
 
     def test_single_sheffer_function(self):
         """NAND alone should give max size 1."""
-        max_size, sets = find_maximum_nice_set([NAND])
+        max_size, sets, metadata = find_maximum_nice_set([NAND])
         assert max_size == 1
         assert len(sets) == 1
         assert NAND in sets[0]
+        assert metadata['composition_depth'] == 3  # default
+        assert metadata['strategy'] == 'enumeration'  # default
 
     def test_not_and_or_gives_size_3(self):
         """NOT, AND, OR should allow nice sets of size at least 2."""
-        max_size, sets = find_maximum_nice_set([NOT, AND, OR], max_size=3)
+        max_size, sets, metadata = find_maximum_nice_set([NOT, AND, OR], max_size=3)
         assert max_size >= 2  # {NOT, AND} or {NOT, OR} are nice
+        assert 'search_time' in metadata
+        assert 'basis_size' in metadata
 
 
 class TestBinaryOnlySearch:
