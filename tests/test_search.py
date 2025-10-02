@@ -298,3 +298,46 @@ class TestEdgeCases:
         # Deep search should be more conservative (catch more dependencies)
         # Note: OR is definable from NOT and AND in depth 3
         assert not is_valid_deep
+
+
+class TestSymmetryBreakingSearch:
+    """Test search with symmetry breaking."""
+
+    def test_filtered_search_finds_correct_max(self):
+        """Search with symmetry breaking should find same max size."""
+        # Without symmetry breaking
+        max_size_base, sets_base = search_binary_only(
+            max_depth=3,
+            verbose=False,
+            use_symmetry_breaking=False
+        )
+
+        # With symmetry breaking
+        max_size_filtered, sets_filtered = search_binary_only(
+            max_depth=3,
+            verbose=False,
+            use_symmetry_breaking=True
+        )
+
+        # Both should find max=3
+        assert max_size_base == max_size_filtered == 3
+
+    def test_filtered_search_fewer_results(self):
+        """Search with symmetry breaking should find fewer symmetric variants."""
+        # Without symmetry breaking
+        max_size_base, sets_base = search_binary_only(
+            max_depth=3,
+            verbose=False,
+            use_symmetry_breaking=False
+        )
+
+        # With symmetry breaking
+        max_size_filtered, sets_filtered = search_binary_only(
+            max_depth=3,
+            verbose=False,
+            use_symmetry_breaking=True
+        )
+
+        # Filtered should find fewer sets (due to symmetry reduction)
+        assert len(sets_filtered) < len(sets_base)
+        assert len(sets_filtered) >= 1  # At least one representative

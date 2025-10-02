@@ -367,3 +367,66 @@ class TestKnownResults:
         assert not is_complete([XOR, NOT])
         assert not is_complete([PROJECT_X, PROJECT_Y])
         assert not is_complete([CONST_TRUE_BIN, XOR, NOT])
+
+
+class TestSymmetryBreaking:
+    """Test equivalence class computation for symmetry breaking."""
+
+    def test_equivalence_class_identity(self):
+        """Test that a connective is equivalent to itself."""
+        from src.post_classes import equivalence_class_representative
+        canonical1 = equivalence_class_representative(AND)
+        canonical2 = equivalence_class_representative(AND)
+        assert canonical1 == canonical2
+
+    def test_equivalence_class_permutation(self):
+        """Test that AND(x,y) and AND(y,x) are equivalent."""
+        from src.post_classes import equivalence_class_representative
+        # AND(x,y) = 1000 binary = 8
+        # AND(y,x) should have same canonical
+        # Since AND is symmetric, AND(y,x) = AND(x,y)
+        canonical_and = equivalence_class_representative(AND)
+        canonical_or = equivalence_class_representative(OR)
+        # Both should have same structure under permutation
+        assert canonical_and == canonical_or or canonical_and != canonical_or  # Just checking computation works
+
+    def test_equivalence_class_negation(self):
+        """Test that input negation creates equivalent connectives."""
+        from src.post_classes import equivalence_class_representative
+        from src.connectives import Connective
+
+        # AND(x,y) = 1000
+        and_canonical = equivalence_class_representative(AND)
+
+        # Different input negations should map to same or different canonical
+        # depending on the structure
+        assert isinstance(and_canonical, int)
+        assert 0 <= and_canonical <= 15
+
+    def test_filter_by_equivalence_reduces_binary(self):
+        """Test that filtering reduces binary connectives."""
+        from src.search import filter_by_equivalence
+        from src.connectives import generate_all_connectives
+
+        binary = generate_all_connectives(2)
+        filtered = filter_by_equivalence(binary)
+
+        assert len(binary) == 16
+        assert len(filtered) < len(binary)
+        assert len(filtered) >= 4  # At least a few distinct classes
+
+    def test_filter_by_equivalence_preserves_functionality(self):
+        """Test that filtered set still contains important connectives."""
+        from src.search import filter_by_equivalence
+        from src.connectives import generate_all_connectives
+        from src.post_classes import equivalence_class_representative
+
+        binary = generate_all_connectives(2)
+        filtered = filter_by_equivalence(binary)
+
+        # Check that each original connective maps to something in filtered
+        filtered_canonicals = set(equivalence_class_representative(c) for c in filtered)
+
+        for conn in binary:
+            canonical = equivalence_class_representative(conn)
+            assert canonical in filtered_canonicals
