@@ -6,7 +6,7 @@ A nice set is one that is both:
 2. Independent: No connective is definable from the others
 """
 
-from typing import List, Set, Tuple, Dict
+from typing import List, Set, Tuple, Dict, Optional
 from itertools import combinations
 from src.connectives import Connective, generate_all_connectives
 from src.post_classes import is_complete
@@ -18,7 +18,8 @@ def find_nice_sets_of_size(
     connectives: List[Connective],
     size: int,
     max_depth: int = 3,
-    verbose: bool = False
+    verbose: bool = False,
+    use_z3: Optional[bool] = None
 ) -> List[List[Connective]]:
     """
     Find all nice sets of a specific size from a pool of connectives.
@@ -28,6 +29,7 @@ def find_nice_sets_of_size(
         size: Target set size
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
+        use_z3: Force Z3 (True) or pattern enumeration (False), or auto-select (None)
 
     Returns:
         List of nice sets (each set is a list of connectives)
@@ -51,7 +53,7 @@ def find_nice_sets_of_size(
             continue
 
         # Then check independence (slower)
-        if is_independent(combo_list, max_depth):
+        if is_independent(combo_list, max_depth, use_z3=use_z3):
             nice_sets.append(combo_list)
             if verbose:
                 print(f"  Found nice set: {[c.name for c in combo_list]}")
@@ -66,7 +68,8 @@ def find_maximum_nice_set(
     connectives: List[Connective],
     max_size: int = 10,
     max_depth: int = 3,
-    verbose: bool = False
+    verbose: bool = False,
+    use_z3: Optional[bool] = None
 ) -> Tuple[int, List[List[Connective]]]:
     """
     Find the maximum size of nice sets and examples.
@@ -78,6 +81,7 @@ def find_maximum_nice_set(
         max_size: Maximum size to search up to
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
+        use_z3: Force Z3 (True) or pattern enumeration (False), or auto-select (None)
 
     Returns:
         Tuple of (maximum_size, list_of_maximal_nice_sets)
@@ -91,7 +95,7 @@ def find_maximum_nice_set(
 
     for size in range(1, min(max_size + 1, len(connectives) + 1)):
         start_time = time.time()
-        nice_sets = find_nice_sets_of_size(connectives, size, max_depth, verbose)
+        nice_sets = find_nice_sets_of_size(connectives, size, max_depth, verbose, use_z3)
         elapsed = time.time() - start_time
 
         if nice_sets:
@@ -110,7 +114,8 @@ def find_maximum_nice_set(
 
 def search_binary_only(
     max_depth: int = 3,
-    verbose: bool = True
+    verbose: bool = True,
+    use_z3: Optional[bool] = None
 ) -> Tuple[int, List[List[Connective]]]:
     """
     Search for maximum nice set using only binary connectives.
@@ -120,6 +125,7 @@ def search_binary_only(
     Args:
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
+        use_z3: Force Z3 (True) or pattern enumeration (False), or auto-select (None)
 
     Returns:
         Tuple of (maximum_size, list_of_maximal_nice_sets)
@@ -140,7 +146,8 @@ def search_binary_only(
         binary_connectives,
         max_size=5,  # Binary-only max is 3, so 5 is safe upper bound
         max_depth=max_depth,
-        verbose=verbose
+        verbose=verbose,
+        use_z3=use_z3
     )
 
     if verbose:
