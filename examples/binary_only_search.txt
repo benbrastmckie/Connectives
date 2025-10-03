@@ -1,0 +1,175 @@
+============================================================
+BINARY-ONLY SEARCH
+============================================================
+Total binary connectives: 16
+Searching for maximum nice set size...
+Connective pool size: 16
+Composition depth: 3
+Strategy: enumeration
+Searching for nice sets of size 1...
+Total combinations to check: 16
+  Found nice set: ['f2_1']
+  Found nice set: ['f2_7']
+Found 2 nice sets of size 1
+Size 1: Found 2 nice sets (0.00s)
+Searching for nice sets of size 2...
+Total combinations to check: 120
+  Found nice set: ['f2_0', 'f2_1']
+  Found nice set: ['f2_0', 'f2_7']
+  Found nice set: ['f2_0', 'f2_11']
+  Found nice set: ['f2_0', 'f2_13']
+  Found nice set: ['f2_1', 'f2_6']
+  Found nice set: ['f2_1', 'f2_7']
+  Found nice set: ['f2_1', 'f2_8']
+  Found nice set: ['f2_1', 'f2_9']
+  Found nice set: ['f2_1', 'f2_10']
+  Found nice set: ['f2_1', 'f2_11']
+  Found nice set: ['f2_1', 'f2_12']
+  Found nice set: ['f2_1', 'f2_13']
+  Found nice set: ['f2_1', 'f2_15']
+  Found nice set: ['f2_2', 'f2_3']
+  Found nice set: ['f2_2', 'f2_5']
+  Found nice set: ['f2_2', 'f2_7']
+  Found nice set: ['f2_2', 'f2_9']
+  Found nice set: ['f2_2', 'f2_11']
+  Found nice set: ['f2_2', 'f2_13']
+  Found nice set: ['f2_2', 'f2_15']
+  Found nice set: ['f2_3', 'f2_4']
+  Found nice set: ['f2_3', 'f2_8']
+  Found nice set: ['f2_3', 'f2_11']
+  Found nice set: ['f2_3', 'f2_13']
+  Found nice set: ['f2_3', 'f2_14']
+  Found nice set: ['f2_4', 'f2_5']
+  Found nice set: ['f2_4', 'f2_7']
+  Found nice set: ['f2_4', 'f2_9']
+  Found nice set: ['f2_4', 'f2_11']
+  Found nice set: ['f2_4', 'f2_13']
+  Found nice set: ['f2_4', 'f2_15']
+  Found nice set: ['f2_5', 'f2_8']
+  Found nice set: ['f2_5', 'f2_11']
+  Found nice set: ['f2_5', 'f2_13']
+  Found nice set: ['f2_5', 'f2_14']
+  Found nice set: ['f2_6', 'f2_7']
+  Found nice set: ['f2_6', 'f2_11']
+  Found nice set: ['f2_6', 'f2_13']
+  Found nice set: ['f2_7', 'f2_9']
+  Found nice set: ['f2_7', 'f2_10']
+  Found nice set: ['f2_7', 'f2_12']
+  Found nice set: ['f2_7', 'f2_14']
+  Found nice set: ['f2_7', 'f2_15']
+Found 43 nice sets of size 2
+Size 2: Found 43 nice sets (0.02s)
+Searching for nice sets of size 3...
+Total combinations to check: 560
+  Found nice set: ['f2_0', 'f2_7', 'f2_9']
+  Found nice set: ['f2_0', 'f2_7', 'f2_10']
+  Found nice set: ['f2_0', 'f2_7', 'f2_12']
+  Found nice set: ['f2_0', 'f2_7', 'f2_14']
+  Found nice set: ['f2_0', 'f2_8', 'f2_9']
+  Found nice set: ['f2_0', 'f2_8', 'f2_11']
+  Found nice set: ['f2_0', 'f2_8', 'f2_13']
+  Found nice set: ['f2_0', 'f2_9', 'f2_11']
+  Found nice set: ['f2_0', 'f2_9', 'f2_13']
+  Found nice set: ['f2_0', 'f2_9', 'f2_14']
+  Found nice set: ['f2_0', 'f2_10', 'f2_13']
+  Found nice set: ['f2_0', 'f2_11', 'f2_12']
+  Found nice set: ['f2_1', 'f2_6', 'f2_15']
+  Found nice set: ['f2_1', 'f2_7', 'f2_10']
+  Found nice set: ['f2_1', 'f2_7', 'f2_12']
+  Found nice set: ['f2_1', 'f2_8', 'f2_9']
+  Found nice set: ['f2_1', 'f2_8', 'f2_11']
+  Found nice set: ['f2_1', 'f2_8', 'f2_13']
+  Found nice set: ['f2_1', 'f2_8', 'f2_15']
+  Found nice set: ['f2_1', 'f2_10', 'f2_13']
+  Found nice set: ['f2_1', 'f2_10', 'f2_15']
+  Found nice set: ['f2_1', 'f2_11', 'f2_12']
+  Found nice set: ['f2_1', 'f2_12', 'f2_15']
+  Found nice set: ['f2_2', 'f2_3', 'f2_6']
+  Found nice set: ['f2_2', 'f2_5', 'f2_6']
+  Found nice set: ['f2_2', 'f2_5', 'f2_11']
+  Found nice set: ['f2_2', 'f2_5', 'f2_12']
+  Found nice set: ['f2_2', 'f2_6', 'f2_9']
+  Found nice set: ['f2_2', 'f2_6', 'f2_15']
+  Found nice set: ['f2_2', 'f2_7', 'f2_12']
+  Found nice set: ['f2_2', 'f2_7', 'f2_14']
+  Found nice set: ['f2_2', 'f2_9', 'f2_14']
+  Found nice set: ['f2_2', 'f2_11', 'f2_12']
+  Found nice set: ['f2_2', 'f2_12', 'f2_15']
+  Found nice set: ['f2_2', 'f2_14', 'f2_15']
+  Found nice set: ['f2_3', 'f2_4', 'f2_6']
+  Found nice set: ['f2_3', 'f2_4', 'f2_10']
+  Found nice set: ['f2_3', 'f2_4', 'f2_13']
+  Found nice set: ['f2_3', 'f2_6', 'f2_8']
+  Found nice set: ['f2_3', 'f2_6', 'f2_14']
+  Found nice set: ['f2_3', 'f2_8', 'f2_9']
+  Found nice set: ['f2_3', 'f2_8', 'f2_10']
+  Found nice set: ['f2_3', 'f2_8', 'f2_14']
+  Found nice set: ['f2_3', 'f2_9', 'f2_11']
+  Found nice set: ['f2_3', 'f2_9', 'f2_13']
+  Found nice set: ['f2_3', 'f2_9', 'f2_14']
+  Found nice set: ['f2_3', 'f2_10', 'f2_13']
+  Found nice set: ['f2_3', 'f2_10', 'f2_14']
+  Found nice set: ['f2_4', 'f2_5', 'f2_6']
+  Found nice set: ['f2_4', 'f2_6', 'f2_9']
+  Found nice set: ['f2_4', 'f2_6', 'f2_15']
+  Found nice set: ['f2_4', 'f2_7', 'f2_10']
+  Found nice set: ['f2_4', 'f2_7', 'f2_14']
+  Found nice set: ['f2_4', 'f2_9', 'f2_14']
+  Found nice set: ['f2_4', 'f2_10', 'f2_13']
+  Found nice set: ['f2_4', 'f2_10', 'f2_15']
+  Found nice set: ['f2_4', 'f2_14', 'f2_15']
+  Found nice set: ['f2_5', 'f2_6', 'f2_8']
+  Found nice set: ['f2_5', 'f2_6', 'f2_14']
+  Found nice set: ['f2_5', 'f2_8', 'f2_9']
+  Found nice set: ['f2_5', 'f2_8', 'f2_12']
+  Found nice set: ['f2_5', 'f2_8', 'f2_14']
+  Found nice set: ['f2_5', 'f2_9', 'f2_11']
+  Found nice set: ['f2_5', 'f2_9', 'f2_13']
+  Found nice set: ['f2_5', 'f2_9', 'f2_14']
+  Found nice set: ['f2_5', 'f2_11', 'f2_12']
+  Found nice set: ['f2_5', 'f2_12', 'f2_14']
+  Found nice set: ['f2_6', 'f2_7', 'f2_14']
+  Found nice set: ['f2_6', 'f2_8', 'f2_9']
+  Found nice set: ['f2_6', 'f2_8', 'f2_11']
+  Found nice set: ['f2_6', 'f2_8', 'f2_13']
+  Found nice set: ['f2_6', 'f2_8', 'f2_15']
+  Found nice set: ['f2_6', 'f2_9', 'f2_11']
+  Found nice set: ['f2_6', 'f2_9', 'f2_13']
+  Found nice set: ['f2_6', 'f2_9', 'f2_14']
+  Found nice set: ['f2_6', 'f2_14', 'f2_15']
+Found 76 nice sets of size 3
+Size 3: Found 76 nice sets (0.24s)
+Searching for nice sets of size 4...
+Total combinations to check: 1820
+  Checked 1000/1820 combinations...
+Found 0 nice sets of size 4
+Size 4: No nice sets found (1.41s)
+Searching for nice sets of size 5...
+Total combinations to check: 4368
+  Checked 1000/4368 combinations...
+  Checked 2000/4368 combinations...
+  Checked 3000/4368 combinations...
+  Checked 4000/4368 combinations...
+Found 0 nice sets of size 5
+Size 5: No nice sets found (3.96s)
+
+Search completed in 5.62s
+
+============================================================
+RESULT: Maximum nice set size = 3
+============================================================
+Composition depth: 3
+Strategy: enumeration
+Search time: 5.62s
+Found 76 maximal nice sets
+
+Example nice sets:
+  Set 1: ['f2_0', 'f2_7', 'f2_9']
+  Set 2: ['f2_0', 'f2_7', 'f2_10']
+  Set 3: ['f2_0', 'f2_7', 'f2_12']
+  Set 4: ['f2_0', 'f2_7', 'f2_14']
+  Set 5: ['f2_0', 'f2_8', 'f2_9']
+
+Analysis of first result:
+  Size: 3
+  Arity distribution: {2: 3}

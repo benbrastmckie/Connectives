@@ -9,8 +9,10 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 ## Quick Links
 
 - **[Usage Guide](USAGE.md)** - How to run searches and tests
-- **[Final Answer](FINAL_ANSWER.md)** - Research conclusion (max size = 16)
+- **[Examples](examples/README.md)** - Real execution examples and output
+- **[Results](RESULTS.md)** - Research conclusion (max size = 16)
 - **[Implementation Details](src/README.md)** - Complete code documentation
+- **[Scripts](scripts/README.md)** - Validation and benchmarking scripts
 
 ---
 
@@ -52,7 +54,7 @@ This result:
 - **Is constructively verified** (multiple size-16 sets found)
 - **Is validated through comprehensive testing** (159 tests passing)
 
-**See [FINAL_ANSWER.md](FINAL_ANSWER.md) for complete research conclusion.**
+**See [RESULTS.md](RESULTS.md) for complete research conclusion.**
 
 ---
 
@@ -93,7 +95,7 @@ pytest tests/ -v
 3. **Pattern enumeration effective** - depth 3 composition checking is sufficient
 4. **Validated implementation** - reproduces classical binary-only max=3 result
 
-**See [FINAL_ANSWER.md](FINAL_ANSWER.md) for detailed results.**
+**See [RESULTS.md](RESULTS.md) for detailed results.**
 
 ---
 
@@ -135,10 +137,14 @@ nice_connectives/
 │   ├── main.py             # CLI interface
 │   └── README.md           # Implementation documentation
 ├── tests/                  # Test suite (159 passing)
+├── examples/               # Real execution examples
+│   └── README.md           # Examples documentation
+├── scripts/                # Validation and benchmarking
+│   └── README.md           # Scripts documentation
 ├── specs/                  # Research reports and plans
 ├── README.md               # This file
 ├── USAGE.md                # Usage guide
-└── FINAL_ANSWER.md         # Research conclusion
+└── RESULTS.md              # Research conclusion
 ```
 
 ---

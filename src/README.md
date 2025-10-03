@@ -1428,5 +1428,7 @@ python3 -m src.main --validate
 ## Navigation
 
 - [← Project README](../README.md)
-- [Final Answer](../FINAL_ANSWER.md)
+- [Examples](../examples/README.md)
+- [Results](../RESULTS.md)
 - [Usage Guide](../USAGE.md)
+- [Scripts](../scripts/README.md)

@@ -216,6 +216,8 @@ python3 -m src.main --validate
 
 ## Next Steps
 
+- See [Examples](examples/README.md) for real execution examples and output
 - See [Implementation Details](src/README.md) for code documentation
-- See [Final Answer](FINAL_ANSWER.md) for research conclusions
+- See [Results](RESULTS.md) for research conclusions
 - See [Project README](README.md) for mathematical background
+- See [Scripts](scripts/README.md) for validation and benchmarking tools
