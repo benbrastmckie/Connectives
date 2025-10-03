@@ -12,6 +12,9 @@ from typing import List, Set, Tuple, Optional
 from src.connectives import Connective
 import itertools
 
+# Global flag to track if Z3 override warning has been printed
+_z3_override_warning_printed = False
+
 
 def is_definable(target: Connective, basis: List[Connective],
                 max_depth: int = 3, timeout_ms: int = 5000,
@@ -22,9 +25,14 @@ def is_definable(target: Connective, basis: List[Connective],
     Uses pattern enumeration by default (proven correct for arity ≤3).
     Z3 SAT encoding available for explicit use when needed (e.g., arity ≥4).
 
+    ⚠️ IMPORTANT: Z3 has known correctness bugs for arity ≤3. This function
+    automatically forces enumeration for low arities even if use_z3=True.
+    See specs/reports/010_z3_correctness_bug_analysis.md for details.
+
     Strategy Selection:
     - use_z3=False (default): use pattern enumeration
-    - use_z3=True: use Z3 SAT backend
+    - use_z3=True: use Z3 SAT backend (only for arity ≥4)
+    - Auto-override: Forces enumeration if target or basis has arity ≤3
 
     Args:
         target: Connective to try to define
@@ -32,6 +40,7 @@ def is_definable(target: Connective, basis: List[Connective],
         max_depth: Maximum composition depth to try
         timeout_ms: Solver timeout in milliseconds
         use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
+                Note: Will be overridden to False for arity ≤3
 
     Returns:
         True if target is definable from basis within the depth bound
@@ -42,6 +51,22 @@ def is_definable(target: Connective, basis: List[Connective],
     # Quick check: if target is in basis, it's trivially definable
     if target in basis:
         return True
+
+    # CRITICAL: Z3 has correctness bugs for arity ≤3
+    # Force enumeration for low arities regardless of use_z3 flag
+    if use_z3:
+        max_basis_arity = max((c.arity for c in basis), default=0)
+
+        if target.arity <= 3 or max_basis_arity <= 3:
+            global _z3_override_warning_printed
+            if not _z3_override_warning_printed:
+                import sys
+                print(f"\n⚠️  ERROR: Z3 has known correctness bugs for arity ≤3", file=sys.stderr)
+                print(f"   Target arity: {target.arity}, Max basis arity: {max_basis_arity}", file=sys.stderr)
+                print(f"   Forcing pattern enumeration (use_z3=False)", file=sys.stderr)
+                print(f"   See specs/reports/010_z3_correctness_bug_analysis.md for details\n", file=sys.stderr)
+                _z3_override_warning_printed = True
+            use_z3 = False
 
     # Dispatch to appropriate backend
     if use_z3:
@@ -835,11 +860,15 @@ def is_independent(connectives: List[Connective],
     A set is independent if no connective can be expressed as a
     composition of the others.
 
+    ⚠️ IMPORTANT: Z3 has known correctness bugs for arity ≤3.
+    use_z3=True will be automatically overridden to False for low arities.
+
     Args:
         connectives: List of connectives to check
         max_depth: Maximum composition depth for definability checking
         timeout_ms: Solver timeout per check
         use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
+                Note: Will be overridden to False for arity ≤3
 
     Returns:
         True if the set is independent
