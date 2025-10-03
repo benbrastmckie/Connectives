@@ -35,7 +35,6 @@ def test_depth_performance_fast(depth):
     max_size, nice_sets = search_binary_only(
         max_depth=depth,
         verbose=False,
-        use_z3=False,
         use_symmetry_breaking=True
     )
 
@@ -71,7 +70,6 @@ def test_depth_performance_slow(depth):
     max_size, nice_sets = search_binary_only(
         max_depth=depth,
         verbose=False,
-        use_z3=False,
         use_symmetry_breaking=True
     )
 
@@ -101,8 +99,7 @@ def test_depth_consistency():
         max_size, nice_sets = search_binary_only(
             max_depth=depth,
             verbose=False,
-            use_z3=False,
-            use_symmetry_breaking=True
+                use_symmetry_breaking=True
         )
         results[depth] = max_size
 
@@ -127,8 +124,7 @@ def test_depth_performance_trend():
         max_size, nice_sets = search_binary_only(
             max_depth=depth,
             verbose=False,
-            use_z3=False,
-            use_symmetry_breaking=True
+                use_symmetry_breaking=True
         )
         elapsed = time.time() - start
         times[depth] = elapsed

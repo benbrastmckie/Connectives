@@ -1,5 +1,5 @@
 """
-Z3-based independence checker using bounded composition.
+Independence checking via pattern enumeration.
 
 A set of connectives is independent if no connective in the set can be
 expressed as a composition of the others. We check this by trying to
@@ -7,40 +7,24 @@ find a composition tree of bounded depth that replicates the target
 connective's truth table.
 """
 
-from z3 import Solver, Bool, And, Or, Not as Z3Not, sat, unsat
 from typing import List, Set, Tuple, Optional
 from src.connectives import Connective
 import itertools
 
-# Global flag to track if Z3 override warning has been printed
-_z3_override_warning_printed = False
-
 
 def is_definable(target: Connective, basis: List[Connective],
-                max_depth: int = 3, timeout_ms: int = 5000,
-                use_z3: bool = False) -> bool:
+                max_depth: int = 3, timeout_ms: int = 5000) -> bool:
     """
     Check if target connective is definable from basis connectives.
 
-    Uses pattern enumeration by default (proven correct for arity ≤3).
-    Z3 SAT encoding available for explicit use when needed (e.g., arity ≥4).
-
-    ⚠️ IMPORTANT: Z3 has known correctness bugs for arity ≤3. This function
-    automatically forces enumeration for low arities even if use_z3=True.
-    See specs/reports/010_z3_correctness_bug_analysis.md for details.
-
-    Strategy Selection:
-    - use_z3=False (default): use pattern enumeration
-    - use_z3=True: use Z3 SAT backend (only for arity ≥4)
-    - Auto-override: Forces enumeration if target or basis has arity ≤3
+    Uses pattern enumeration to check if target can be expressed as a
+    composition of basis connectives up to the specified depth.
 
     Args:
         target: Connective to try to define
         basis: List of connectives to use as basis
         max_depth: Maximum composition depth to try
-        timeout_ms: Solver timeout in milliseconds
-        use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
-                Note: Will be overridden to False for arity ≤3
+        timeout_ms: Timeout in milliseconds (for compatibility, not used)
 
     Returns:
         True if target is definable from basis within the depth bound
@@ -52,40 +36,7 @@ def is_definable(target: Connective, basis: List[Connective],
     if target in basis:
         return True
 
-    # CRITICAL: Z3 has correctness bugs for arity ≤3
-    # Force enumeration for low arities regardless of use_z3 flag
-    if use_z3:
-        max_basis_arity = max((c.arity for c in basis), default=0)
-
-        if target.arity <= 3 or max_basis_arity <= 3:
-            global _z3_override_warning_printed
-            if not _z3_override_warning_printed:
-                import sys
-                print(f"\n⚠️  ERROR: Z3 has known correctness bugs for arity ≤3", file=sys.stderr)
-                print(f"   Target arity: {target.arity}, Max basis arity: {max_basis_arity}", file=sys.stderr)
-                print(f"   Forcing pattern enumeration (use_z3=False)", file=sys.stderr)
-                print(f"   See specs/reports/010_z3_correctness_bug_analysis.md for details\n", file=sys.stderr)
-                _z3_override_warning_printed = True
-            use_z3 = False
-
-    # Dispatch to appropriate backend
-    if use_z3:
-        # Use Z3 SAT encoding
-        try:
-            from src.independence_z3 import is_definable_z3_sat
-            definable, witness = is_definable_z3_sat(target, basis, max_depth, timeout_ms)
-            if definable and witness:
-                # Debug: print witness formula
-                # print(f"  Z3 witness: {target.name} = {witness.to_formula()}")
-                pass
-            return definable
-        except ImportError:
-            # Fall back to pattern enumeration if Z3 not available
-            import warnings
-            warnings.warn("Z3 backend requested but not available, falling back to pattern enumeration")
-            use_z3 = False
-
-    # Use pattern enumeration (default)
+    # Use pattern enumeration (proven correct for arity ≤3)
     for depth in range(1, max_depth + 1):
         if _is_definable_at_depth(target, basis, depth, timeout_ms):
             return True
@@ -852,23 +803,17 @@ def _try_f_proj_composed(target: Connective,
 
 def is_independent(connectives: List[Connective],
                   max_depth: int = 3,
-                  timeout_ms: int = 5000,
-                  use_z3: bool = False) -> bool:
+                  timeout_ms: int = 5000) -> bool:
     """
     Check if a set of connectives is independent.
 
     A set is independent if no connective can be expressed as a
     composition of the others.
 
-    ⚠️ IMPORTANT: Z3 has known correctness bugs for arity ≤3.
-    use_z3=True will be automatically overridden to False for low arities.
-
     Args:
         connectives: List of connectives to check
         max_depth: Maximum composition depth for definability checking
         timeout_ms: Solver timeout per check
-        use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
-                Note: Will be overridden to False for arity ≤3
 
     Returns:
         True if the set is independent
@@ -882,7 +827,7 @@ def is_independent(connectives: List[Connective],
         basis = connectives[:i] + connectives[i+1:]
 
         # Check if target is definable from basis
-        if is_definable(target, basis, max_depth, timeout_ms, use_z3):
+        if is_definable(target, basis, max_depth, timeout_ms):
             return False
 
     return True

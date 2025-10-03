@@ -49,8 +49,7 @@ def find_nice_sets_of_size(
     connectives: List[Connective],
     size: int,
     max_depth: int = 3,
-    verbose: bool = False,
-    use_z3: bool = False
+    verbose: bool = False
 ) -> List[List[Connective]]:
     """
     Find all nice sets of a specific size from a pool of connectives.
@@ -60,7 +59,6 @@ def find_nice_sets_of_size(
         size: Target set size
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
-        use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
 
     Returns:
         List of nice sets (each set is a list of connectives)
@@ -84,7 +82,7 @@ def find_nice_sets_of_size(
             continue
 
         # Then check independence (slower)
-        if is_independent(combo_list, max_depth, use_z3=use_z3):
+        if is_independent(combo_list, max_depth):
             nice_sets.append(combo_list)
             if verbose:
                 print(f"  Found nice set: {[c.name for c in combo_list]}")
@@ -99,8 +97,7 @@ def find_maximum_nice_set(
     connectives: List[Connective],
     max_size: int = 10,
     max_depth: int = 3,
-    verbose: bool = False,
-    use_z3: bool = False
+    verbose: bool = False
 ) -> Tuple[int, List[List[Connective]], Dict[str, any]]:
     """
     Find the maximum size of nice sets and examples.
@@ -112,13 +109,12 @@ def find_maximum_nice_set(
         max_size: Maximum size to search up to
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
-        use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
 
     Returns:
         Tuple of (maximum_size, list_of_maximal_nice_sets, metadata)
         where metadata includes:
             - composition_depth: max_depth used
-            - strategy: "enumeration" or "z3_sat"
+            - strategy: "enumeration"
             - search_time: total seconds
             - basis_size: number of connectives searched
     """
@@ -130,11 +126,11 @@ def find_maximum_nice_set(
         print(f"Searching for maximum nice set size...")
         print(f"Connective pool size: {len(connectives)}")
         print(f"Composition depth: {max_depth}")
-        print(f"Strategy: {'z3_sat' if use_z3 else 'enumeration'}")
+        print(f"Strategy: enumeration")
 
     for size in range(1, min(max_size + 1, len(connectives) + 1)):
         start_time = time.time()
-        nice_sets = find_nice_sets_of_size(connectives, size, max_depth, verbose, use_z3)
+        nice_sets = find_nice_sets_of_size(connectives, size, max_depth, verbose)
         elapsed = time.time() - start_time
 
         if nice_sets:
@@ -152,7 +148,7 @@ def find_maximum_nice_set(
 
     metadata = {
         'composition_depth': max_depth,
-        'strategy': 'z3_sat' if use_z3 else 'enumeration',
+        'strategy': 'enumeration',
         'search_time': total_search_time,
         'basis_size': len(connectives)
     }
@@ -166,7 +162,6 @@ def find_maximum_nice_set(
 def search_binary_only(
     max_depth: int = 3,
     verbose: bool = True,
-    use_z3: bool = False,
     use_symmetry_breaking: bool = False
 ) -> Tuple[int, List[List[Connective]]]:
     """
@@ -177,7 +172,6 @@ def search_binary_only(
     Args:
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
-        use_z3: Use Z3 SAT (True) or pattern enumeration (False, default)
         use_symmetry_breaking: Apply equivalence class filtering (default False)
 
     Returns:
@@ -210,8 +204,7 @@ def search_binary_only(
         binary_connectives,
         max_size=5,  # Binary-only max is 3, so 5 is safe upper bound
         max_depth=max_depth,
-        verbose=verbose,
-        use_z3=use_z3
+        verbose=verbose
     )
 
     if verbose:

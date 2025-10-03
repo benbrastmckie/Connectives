@@ -1,21 +1,16 @@
-# Nice Connectives - Z3 Project
+# Nice Connectives Project
 
-Research project exploring the maximum size of nice (complete and independent) connective sets using Z3 SMT solver.
+Research project exploring the maximum size of nice (complete and independent) connective sets using pattern enumeration.
 
 ## Code Standards
 [Used by: /implement, /refactor, /plan]
 
-### Z3/SMT Development
-- **Language**: Python with Z3-solver library (primary), SMT-LIB2 format (secondary)
+### Python Development
+- **Language**: Python 3
 - **Indentation**: 4 spaces (Python standard)
 - **Line Length**: ~100 characters
 - **Naming**: snake_case for variables/functions, UPPER_CASE for constants
-- **Error Handling**: Try-except blocks for solver operations, check sat/unsat results
-
-### Z3-Specific Conventions
-- **Solver Management**: Create fresh solver instances per query when appropriate
-- **Formula Construction**: Use Z3 Python API for programmatic generation
-- **Performance**: Profile solver time, use tactics for optimization when needed
+- **Error Handling**: Try-except blocks where appropriate
 
 ## Testing Protocols
 [Used by: /test, /test-all, /implement]
@@ -27,7 +22,7 @@ Research project exploring the maximum size of nice (complete and independent) c
 
 ### Testing Strategy
 - **Unit Tests**: Test individual connective definitions and properties
-- **Solver Tests**: Verify completeness and independence checks
+- **Pattern Tests**: Verify completeness and independence checks
 - **Edge Cases**: Small arities (0,1,2), boundary conditions
 
 ## Documentation Policy
@@ -36,12 +31,12 @@ Research project exploring the maximum size of nice (complete and independent) c
 ### README Requirements
 - **Problem Statement**: Clear description of "nice" connective sets
 - **Mathematical Background**: Definitions of completeness and independence
-- **Usage Examples**: How to run Z3 queries and interpret results
+- **Usage Examples**: How to run searches and interpret results
 - **Results**: Document findings (maximum sizes, examples of nice sets)
 
 ### Code Documentation
 - **Docstrings**: For all public functions, include mathematical notation where helpful
-- **Comments**: Explain Z3 constraints, especially complex formulas
+- **Comments**: Explain composition patterns, especially complex enumeration logic
 - **Character Encoding**: UTF-8 (for logical symbols if needed)
 
 ## Standards Discovery
@@ -75,9 +70,16 @@ Determine the maximum size of a nice (complete and independent) connective set f
 ### Known Bounds
 - Upper bound: 16 (general case)
 - Binary connectives only: maximum size is 3
-- Unknown: sizes for ternary, quaternary, and higher arity cases
+- Mixed arities (unary + binary + ternary): maximum size is 16
 
 ### Computational Approach
-- Model connectives as truth tables
-- Encode completeness and independence as Z3 constraints
-- Search for maximal nice sets using SMT solving
+- Model connectives as truth tables (BitVec encoding)
+- Use Post's Completeness Theorem for efficient completeness checking
+- Pattern enumeration for bounded composition independence checking
+- Search for maximal nice sets using incremental arity expansion
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.

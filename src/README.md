@@ -1427,8 +1427,6 @@ python3 -m src.main --validate
 
 ## Navigation
 
-- [← Parent Directory](../README.md)
-- [Testing Documentation](../tests/README.md)
-- [Results](../specs/results/nice_sets_results.md)
-- [Implementation Plan](../specs/plans/001_nice_connectives_solver.md)
-- [Workflow Summary](../specs/summaries/001_nice_connectives_workflow_summary.md)
+- [← Project README](../README.md)
+- [Final Answer](../FINAL_ANSWER.md)
+- [Usage Guide](../USAGE.md)
