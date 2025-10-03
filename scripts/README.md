@@ -337,6 +337,9 @@ Results saved to: depth_results.csv
 **CSV Output:**
 Contains columns: Depth, Runs, Avg Time, Min Time, Max Time, Std Dev, Max Size, Avg Num Sets
 
+**Example Output:**
+See [examples/depth_results.csv](../examples/depth_results.csv) for sample benchmark data showing performance across depths 1-5.
+
 ---
 
 ## Common Patterns
