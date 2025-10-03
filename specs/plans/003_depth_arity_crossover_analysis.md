@@ -43,11 +43,11 @@ This plan implements a systematic testing framework to determine empirical cross
 
 ## Success Criteria
 
-- [ ] Comprehensive test suite for depth analysis (depths 1-10)
+- [x] Comprehensive test suite for depth analysis (depths 1-10)
+- [x] Automated benchmarks that can be re-run easily (depth analysis)
 - [ ] Comprehensive test suite for arity analysis (arities 0-5)
 - [ ] Performance data for depth × arity combinations
 - [ ] Empirical crossover points documented (depth and arity)
-- [ ] Automated benchmarks that can be re-run easily
 - [ ] Visualization/table of performance characteristics
 - [ ] Recommendations for default parameters
 - [ ] Validation that current defaults (depth=3, enumeration for arity ≤3) are optimal
@@ -118,50 +118,58 @@ Interaction Analysis:
 **Objective**: Create systematic depth testing framework
 **Complexity**: Low-Medium
 **Estimated Time**: 2-3 hours
+**Status**: ✅ COMPLETED
 
 **Tasks**:
-- [ ] Create `tests/test_depth_crossover.py`
+- [x] Create `tests/test_depth_crossover.py`
   - Parametrized test for depths [1, 2, 3, 4, 5, 7, 10]
-  - Binary-only search (known result: max=3)
+  - Binary-only search (known result: max=3 for depth≥2)
   - Measure time for each depth
-  - Validate correctness (all should find max=3)
+  - Validate correctness (depth 1→max=5, depth≥2→max=3)
   - Test name: `test_depth_performance[depth]`
 
-- [ ] Create `scripts/benchmark_depth.py`
+- [x] Create `scripts/benchmark_depth.py`
   - Run binary search for each depth
-  - Measure: time, max_size, num_checks
-  - Output: CSV with columns (depth, time, max_size, checks)
-  - Include: Standard error bars (3-5 runs per depth)
+  - Measure: time, max_size, num_sets
+  - Output: CSV with columns (depth, runs, avg_time, min_time, max_time, std_dev, max_size, avg_num_sets)
+  - Include: Standard error bars (3 runs per depth)
 
-- [ ] Add depth performance tests
+- [x] Add depth performance tests
   - Fast test: depths 1-5 (include in CI)
   - Slow test: depths 7, 10 (manual only)
-  - Timeout protection (max 5 minutes per depth)
+  - Timeout protection (60s fast, 300s slow)
 
 **Testing**:
 ```bash
-# Run depth tests
+# Run depth tests ✓
 pytest tests/test_depth_crossover.py -v
+# Result: 9 passed
 
-# Run depth benchmark
+# Run depth benchmark ✓
 python3 scripts/benchmark_depth.py --output depth_results.csv
-
-# Expected: All depths find max=3, time increases exponentially
+# Result: depth_results.csv generated
 ```
 
-**Expected Outcomes**:
-- Depth 1: ~5ms (trivial checks only)
-- Depth 2: ~10ms (one level of composition)
-- Depth 3: ~16ms (current baseline)
-- Depth 4: ~50-100ms (estimated)
-- Depth 5: ~200-500ms (estimated)
-- Depth 7: ~5-10s (estimated)
-- Depth 10: ~minutes (estimated)
+**Actual Outcomes** (vs Expected):
+- Depth 1: 15ms, max=5 ❌ (insufficient depth to detect all dependencies)
+- Depth 2: 12ms, max=3 ✓ (minimum depth for correctness)
+- Depth 3: 20ms, max=3 ✓ (current baseline, validated)
+- Depth 4: 25ms, max=3 ✓ (not 50-100ms - much faster!)
+- Depth 5: 34ms, max=3 ✓ (not 200-500ms - much faster!)
+- Depth 7: <1s, max=3 ✓ (estimated 5-10s - much faster!)
+- Depth 10: <1s, max=3 ✓ (estimated minutes - much faster!)
+
+**Key Findings**:
+1. **Correctness crossover at depth=2**: Depth 1 is insufficient, finds max=5 instead of max=3
+2. **Performance scales better than expected**: Exponential growth but with small coefficient
+3. **All depths ≤10 are fast**: Even depth 10 completes in <1s (not minutes as estimated)
+4. **Current default (depth=3) is correct**: Balances correctness with performance
+5. **Recommendation**: Minimum depth should be 2 for correctness, 3 for safety margin
 
 **Validation**:
-- All depths find max=3 for binary ✓
-- Performance curve is exponential
-- Identify practical depth limit (where time > 1s)
+- ✅ Depth≥2 finds correct max=3 for binary
+- ✅ Performance curve is exponential but manageable
+- ✅ All tested depths ≤10 complete in <1s (practical limit much higher than expected)
 
 ---
 
