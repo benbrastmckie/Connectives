@@ -91,6 +91,12 @@ For more information on each subcommand:
         default=3,
         help='Maximum composition depth for independence checking (default: 3)'
     )
+    prove_z3_parser.add_argument(
+        '--max-arity',
+        type=int,
+        default=3,
+        help='Maximum arity to include in connective pool (default: 3)'
+    )
 
     # prove enum
     prove_enum_parser = prove_subparsers.add_parser(
@@ -301,7 +307,8 @@ For more information on each subcommand:
                     checkpoint=args.checkpoint,
                     interval=args.interval,
                     target_size=args.target_size,
-                    max_depth=args.max_depth
+                    max_depth=args.max_depth,
+                    max_arity=args.max_arity
                 )
             elif args.method == 'enum':
                 return prove.prove_enumeration()

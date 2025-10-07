@@ -8,17 +8,13 @@ This script provides two pieces of evidence:
 """
 
 import sys
-import os
 import time
 from itertools import combinations
-
-# Add project root directory to path for imports (now 2 levels up from scripts/proofs_enumeration/)
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.connectives import Connective, generate_all_connectives
 from src.post_classes import is_complete
 from src.independence import is_independent
-from src.constants import ALL_BINARY
+from src.constants import ALL_BINARY, XOR
 
 def build_connective_pool(max_arity=3):
     """Build the complete connective pool."""
@@ -65,7 +61,6 @@ def verify_size_16_exists(pool, max_depth=3):
     example_set = [ternary[i] for i in example_indices if i < len(ternary)]
 
     # Add XOR if not already included
-    from src.constants import XOR
     if XOR not in example_set:
         example_set.insert(0, XOR)
 

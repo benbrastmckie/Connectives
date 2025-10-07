@@ -2,17 +2,17 @@
 
 A solver for finding the maximum size of "nice" (complete and independent) sets of logical connectives in classical two-valued logic.
 
-**Status**: Fully Implemented | **Date**: 2025-10-02 | **Tests**: 159 passing
+**Status**: Fully Implemented | **Tests**: 159 passing
 
 ---
 
 ## Quick Links
 
-- **[CLI Documentation](src/README.md)** - Complete command-line interface guide
-- **[Command Implementations](src/commands/README.md)** - CLI command details
+- **[Installation](docs/INSTALLATION.md)** - Platform-specific installation guide
+- **[Usage Guide](docs/USAGE.md)** - Complete command reference and workflows
+- **[Results](docs/RESULTS.md)** - **Research findings (size-30 sets found)**
 - **[Examples](examples/README.md)** - Real execution examples and output
-- **[Results](RESULTS.md)** - Research findings (size-17 sets found)
-- **[Scripts](scripts/README.md)** - Proof methodology documentation
+- **[Implementation](src/README.md)** - CLI and code documentation
 - **[Testing](tests/README.md)** - Test suite documentation
 - **[Specs](specs/README.md)** - Research reports and implementation plans
 
@@ -26,6 +26,8 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 - [Results Summary](#results-summary)
 - [Technical Approach](#technical-approach)
 - [Project Structure](#project-structure)
+- [Documentation](#documentation)
+- [References](#references)
 
 ---
 
@@ -44,21 +46,21 @@ Given classical two-valued connectives of arbitrary arity, we define a set of co
 
 ## Answer
 
-### **Nice Sets of Size 17 Have Been Found**
+### **Nice Sets of Size 30 Have Been Found**
 
-Using Z3-based constraint solving with pattern enumeration (composition depth 3-5):
+Using Z3-based constraint solving with pattern enumeration (composition depth 3):
 
-**Nice sets of size 17 have been discovered and verified.**
+**Nice sets of size 30 have been discovered and verified.**
 
 Current findings:
-- **Binary-only**: Maximum size is 3 (classical result, proven)
-- **Unary + Binary**: Maximum size is at least 7
-- **Unary + Binary + Ternary**: Nice sets of size 17 exist (verified at depth 5)
-- **Upper bound**: Unknown - maximum may be larger than 17
+- **Binary-only**: Maximum size is 3 (classical result, proven and reproduced)
+- **Unary + Binary**: Maximum size is 5 (proven via Z3 exhaustive search)
+- **Unary + Binary + Ternary**: Nice sets of size 30 verified
+- **Upper bound**: Unknown - maximum may be larger than 30
 
 **The maximum size of nice sets with arbitrary arities remains an open question.**
 
-**See [RESULTS.md](RESULTS.md) for complete research findings and verification details.**
+**See [docs/RESULTS.md](docs/RESULTS.md) for complete research findings and verification details.**
 
 ---
 
@@ -71,12 +73,16 @@ Current findings:
 git clone <repository-url>
 cd nice_connectives
 
-# On most systems, install with pip
+# Install dependencies
 pip install -e .
 
 # On NixOS, use directly without installation
 # (pip install doesn't work with read-only /nix/store)
+# nix-shell -p python3 python3Packages.pytest python3Packages.z3
+# python3 -m src.cli --help
 ```
+
+**See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed installation instructions, including platform-specific guidance for Linux, macOS, Windows, and NixOS.**
 
 ### Basic Usage
 
@@ -113,7 +119,7 @@ python -m src.cli search --help
 python -m src.cli prove z3 --help
 ```
 
-**See [src/README.md](src/README.md) for complete CLI documentation.**
+**See [docs/USAGE.md](docs/USAGE.md) for complete usage guide and [src/README.md](src/README.md) for CLI and implementation documentation.**
 
 ---
 
@@ -121,19 +127,19 @@ python -m src.cli prove z3 --help
 
 | Arity Range | Known Nice Sets | Example |
 |-------------|-----------------|---------|
-| Binary only | Max size = 3 (proven) | {NOR, AND, IFF} |
-| Unary + Binary | Size ≥ 7 | {CONST_0, ID, CONST_1, INHIBIT, NOT_Y, IMPLIES, PROJ_X} |
-| **Unary + Binary + Ternary** | **Size ≥ 17** | 1 constant + 1 binary + 15 ternary |
+| Binary only | Max size = 3 (proven) | {XOR, AND, TRUE} |
+| Unary + Binary | Max size = 5 (proven) | {FALSE, TRUE, XOR, AND, IMP} |
+| **Unary + Binary + Ternary** | **Size ≥ 30** | 1 constant + 2 binary + 27 ternary |
 
 ### Key Findings
 
-1. **Size-17 nice sets exist** - found via Z3 constraint solving
-2. **Ternary functions essential** - binary-only max is 3, with ternary reaches ≥17
-3. **Pattern enumeration effective** - depth 3-5 composition checking verifies independence
+1. **Size-30 nice sets exist** - found via Z3 constraint solving
+2. **Ternary functions essential** - binary-only max is 3, with ternary reaches ≥30
+3. **Pattern enumeration effective** - depth 3 composition checking verifies independence
 4. **Validated implementation** - reproduces classical binary-only max=3 result
-5. **Maximum unknown** - upper bound remains an open research question
+5. **Maximum unknown** - size 31+ remains unknown (search times out)
 
-**See [RESULTS.md](RESULTS.md) for detailed findings and verification.**
+**See [docs/RESULTS.md](docs/RESULTS.md) for detailed findings and verification.**
 
 ---
 
@@ -155,8 +161,8 @@ python -m src.cli prove z3 --help
 
 **4. Incremental Arity Search**
 - Start with binary (16 functions) → max = 3 (proven)
-- Add unary (4 functions) → size ≥ 7
-- Add ternary (256 functions) → size ≥ 17 (found via Z3)
+- Add constants + unary (2 + 4 functions) → max = 5 (proven)
+- Add ternary (256 functions) → size ≥ 30 (found via Z3)
 
 **See [src/README.md](src/README.md) for complete implementation details.**
 
@@ -173,6 +179,10 @@ nice_connectives/
 │   │   ├── validate.py     # Validation commands (binary, ternary)
 │   │   ├── benchmark.py    # Benchmark commands (full, quick, depth)
 │   │   └── search.py       # Search commands (binary, full, validate)
+│   ├── proofs/             # Formal proof scripts
+│   │   ├── z3_proof.py     # Z3 constraint solver-based proof
+│   │   ├── enumeration_proof.py  # Pattern enumeration-based proof
+│   │   └── README.md       # Proof methodology documentation
 │   ├── connectives.py      # BitVec truth table representation
 │   ├── constants.py        # Predefined connectives
 │   ├── post_classes.py     # Completeness checking
@@ -184,25 +194,24 @@ nice_connectives/
 │   └── README.md           # Testing documentation
 ├── examples/               # Real execution examples
 │   └── README.md           # Examples documentation
-├── scripts/                # Proof methodology documentation
-│   ├── proofs_z3/          # Z3-based proof approach
-│   ├── proofs_enumeration/ # Enumeration-based proof approach
-│   └── README.md           # Scripts documentation
+├── docs/                   # Documentation
+│   ├── INSTALLATION.md     # Complete installation guide
+│   ├── USAGE.md            # Usage guide and command reference
+│   └── RESULTS.md          # Research findings and conclusion
 ├── specs/                  # Research reports and plans
 │   ├── reports/            # Research findings
 │   ├── plans/              # Implementation plans
 │   ├── summaries/          # Execution summaries
 │   └── README.md           # Specs organization
 ├── pyproject.toml          # Package configuration
-├── README.md               # This file
-├── USAGE.md                # Usage guide
-└── RESULTS.md              # Research conclusion
+└── README.md               # This file
 ```
 
 **All functionality is accessible through the unified CLI:**
 - `python -m src.cli <subcommand>` (or `nice-connectives` if installed)
 - See [src/README.md](src/README.md) for complete CLI documentation
 - See [src/commands/README.md](src/commands/README.md) for command implementation details
+- See [src/proofs/README.md](src/proofs/README.md) for proof script details
 
 ---
 
@@ -214,4 +223,69 @@ nice_connectives/
 
 ---
 
-**Project Status**: Implementation complete | 159 tests passing | Nice sets of size ≥17 found | Maximum unknown
+## Documentation
+
+### Getting Started
+- **[Installation Guide](docs/INSTALLATION.md)** - Complete setup instructions for all platforms
+  - Terminal basics for beginners
+  - Python 3, pytest, and z3-solver installation
+  - Platform-specific instructions (Linux, macOS, Windows, NixOS)
+  - Troubleshooting common issues
+  - Verification steps
+
+- **[Usage Guide](docs/USAGE.md)** - Comprehensive command reference
+  - All CLI commands with examples
+  - Expected outputs and results
+  - Common workflows
+  - Performance tips
+  - Advanced usage patterns
+
+### Understanding the Research
+- **[Research Results](docs/RESULTS.md)** - Key findings and conclusions
+  - Binary-only: max = 3 (classical result)
+  - Unary + Binary: max = 5 (proven)
+  - With Ternary: size ≥ 30 (current verified maximum)
+  - Systematic search results and analysis
+
+- **[Examples](examples/README.md)** - Detailed example outputs
+  - [Binary-only enumeration](examples/enum_binary_only_max3.md) - Exhaustive search finding all 76 nice sets
+  - [Unary+Binary enumeration](examples/enum_unary_binary_max5.md) - Finding all 5 size-5 nice sets
+  - [Classical binary analysis](examples/enum_classical_binary_max3.md) - Detailed walkthrough
+  - [Z3 discoveries](examples/z3_nice_set_30.md) - Size-30 maximum (current record)
+  - Enumeration vs Z3 comparison
+
+### Implementation Details
+- **[Source Code Documentation](src/README.md)** - Complete implementation guide
+  - Module organization and architecture
+  - CLI interface and commands
+  - Core algorithms (BitVec encoding, Post classes, independence checking)
+  - Performance characteristics
+  - API reference
+
+- **[Command Implementations](src/commands/README.md)** - CLI command modules
+  - prove.py - Z3 and enumeration proofs
+  - search.py - Enumeration search algorithms
+  - validate.py - Result validation
+  - benchmark.py - Performance testing
+
+- **[Proof Scripts](src/proofs/README.md)** - Formal proof methodology
+  - Z3 constraint solving approach
+  - Enumeration proof strategy
+  - Important code blocks with explanations
+
+### Testing
+- **[Test Suite](tests/README.md)** - 159 passing tests
+  - Unit tests for core functionality
+  - Integration tests for search algorithms
+  - Proof validation tests
+  - Coverage information
+
+### Research Documentation
+- **[Specs](specs/README.md)** - Research process documentation
+  - [Reports](specs/reports/) - Research findings and analysis
+  - [Plans](specs/plans/) - Implementation plans
+  - [Summaries](specs/summaries/) - Execution summaries
+
+---
+
+**Project Status**: Implementation complete | 159 tests passing | Size-30 nice sets verified | Maximum unknown

@@ -25,17 +25,13 @@ Alternative simpler approach:
 """
 
 import sys
-import os
 import time
 import json
 import argparse
 from pathlib import Path
 
-# Add project root directory to path for imports (now 2 levels up from scripts/proofs_z3/)
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
 from z3 import *
-from src.connectives import Connective, generate_all_connectives
+from src.connectives import generate_all_connectives
 from src.post_classes import (
     is_complete,
     is_t0_preserving, is_t1_preserving,
@@ -95,7 +91,7 @@ def load_checkpoint(checkpoint_path):
         return json.load(f)
 
 def z3_proof_approach_1_symmetry_breaking(pool, target_size=17, max_depth=3,
-                                           checkpoint_path=None, checkpoint_interval=100):
+                                          checkpoint_path=None, checkpoint_interval=100):
     """
     Use Z3 for smart enumeration with symmetry breaking.
 
@@ -194,16 +190,19 @@ def z3_proof_approach_1_symmetry_breaking(pool, target_size=17, max_depth=3,
         print("Added mandatory connective: FALSE")
 
     # 3d. Arity balance constraints
-    # Size-17 sets likely have specific arity distributions
+    # Size-17+ sets likely have specific arity distributions
     # Based on empirical observations, ternary functions dominate
     # For smaller sizes, scale this constraint proportionally
     ternary_indices = [i for i in range(n) if pool[i].arity == 3]
-    ternary_count = Sum([If(selected[i], 1, 0) for i in ternary_indices])
-    # At least 10 ternary functions for size 17 (empirical lower bound)
-    # Scale proportionally for other sizes
-    min_ternary = max(0, int((target_size / 17) * 10))
-    if min_ternary > 0:
-        s.add(ternary_count >= min_ternary)
+    min_ternary = 0
+    if ternary_indices:
+        # Only apply ternary constraint if ternary functions are in the pool
+        ternary_count = Sum([If(selected[i], 1, 0) for i in ternary_indices])
+        # At least 10 ternary functions for size 17 (empirical lower bound)
+        # Scale proportionally for other sizes
+        min_ternary = max(0, int((target_size / 17) * 10))
+        if min_ternary > 0:
+            s.add(ternary_count >= min_ternary)
 
     print("Z3 constraints configured")
     print("  - Set size constraint")
@@ -343,16 +342,16 @@ def main():
         epilog="""
 Examples:
   # Basic search
-  python3 z3_prove_maximum.py
+  python3 -m src.proofs.z3_proof
 
   # With checkpointing
-  python3 z3_prove_maximum.py --checkpoint proof_checkpoint.json
+  python3 -m src.proofs.z3_proof --checkpoint proof_checkpoint.json
 
   # Resume from checkpoint
-  python3 z3_prove_maximum.py --checkpoint proof_checkpoint.json --resume
+  python3 -m src.proofs.z3_proof --checkpoint proof_checkpoint.json --resume
 
   # Custom checkpoint interval
-  python3 z3_prove_maximum.py --checkpoint proof_checkpoint.json --interval 50
+  python3 -m src.proofs.z3_proof --checkpoint proof_checkpoint.json --interval 50
         """
     )
     parser.add_argument(

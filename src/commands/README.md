@@ -52,9 +52,14 @@ python -m src.cli validate ternary --compare --verbose
 ```
 
 **Implementation approach:**
-- Similar dynamic import pattern from `scripts/validation/`
+- Dynamically imports from `scripts/validation/` directory
+- Adds script directory to sys.path temporarily and cleans up after execution
 - Supports multiple validation backends (pattern enumeration vs Z3)
 - Configurable depth and symmetry breaking options
+- Expected result for binary-only: max size = 3
+
+**Key implementation detail:**
+The validate commands wrap legacy validation scripts while providing a clean CLI interface. Binary validation runs `search_binary_only()` from `src.search` and verifies the result matches the expected maximum size of 3.
 
 ### benchmark.py
 

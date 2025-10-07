@@ -170,6 +170,14 @@ def _check_composition_enumeration(target: Connective, basis: List[Connective],
     Returns:
         True if a matching composition exists
     """
+    # For nullary (constant) targets
+    if target.arity == 0:
+        return _check_constant_compositions(target, basis, max_depth)
+
+    # For unary targets
+    if target.arity == 1:
+        return _check_unary_compositions(target, basis, max_depth)
+
     # For binary target, check simple compositions
     if target.arity == 2:
         return _check_binary_compositions(target, basis, max_depth)
@@ -179,6 +187,111 @@ def _check_composition_enumeration(target: Connective, basis: List[Connective],
         return _check_ternary_compositions(target, basis, max_depth)
 
     # For other arities, use conservative approximation
+    return False
+
+
+def _check_constant_compositions(target: Connective, basis: List[Connective],
+                                  max_depth: int) -> bool:
+    """
+    Check if a constant (arity-0) target can be composed from basis.
+
+    Patterns to check:
+    - Depth 1: u(c) where u is unary, c is constant
+
+    Args:
+        target: Constant target (arity 0)
+        basis: Basis connectives
+        max_depth: Maximum depth
+
+    Returns:
+        True if definable
+    """
+    nullary_basis = [b for b in basis if b.arity == 0]
+    unary_basis = [b for b in basis if b.arity == 1]
+
+    # Depth 1: unary(constant)
+    if max_depth >= 1:
+        for u in unary_basis:
+            for c in nullary_basis:
+                # u(c) - apply unary to constant
+                result = u.evaluate((c.truth_table_int,))
+                if result == target.truth_table_int:
+                    return True
+
+    # Could add deeper patterns here if needed
+    return False
+
+
+def _check_unary_compositions(target: Connective, basis: List[Connective],
+                               max_depth: int) -> bool:
+    """
+    Check if a unary (arity-1) target can be composed from basis.
+
+    Patterns to check:
+    - Depth 1: u(x) direct match with permutation
+    - Depth 1: f(x, c) or f(c, x) where f is binary, c is constant
+    - Depth 1: f(x, x) where f is binary (diagonal)
+    - Depth 2: u(v(x)) where u, v are unary
+    - Depth 2: u(f(x, c)) where u is unary, f is binary, c is constant
+
+    Args:
+        target: Unary target (arity 1)
+        basis: Basis connectives
+        max_depth: Maximum depth
+
+    Returns:
+        True if definable
+    """
+    unary_basis = [b for b in basis if b.arity == 1]
+    binary_basis = [b for b in basis if b.arity == 2]
+    nullary_basis = [b for b in basis if b.arity == 0]
+
+    # Depth 1: f(x, c) or f(c, x) where f is binary, c is constant
+    if max_depth >= 1:
+        for f in binary_basis:
+            for c in nullary_basis:
+                # Try f(x, c)
+                matches = True
+                for x in [0, 1]:
+                    if f.evaluate((x, c.truth_table_int)) != target.evaluate((x,)):
+                        matches = False
+                        break
+                if matches:
+                    return True
+
+                # Try f(c, x)
+                matches = True
+                for x in [0, 1]:
+                    if f.evaluate((c.truth_table_int, x)) != target.evaluate((x,)):
+                        matches = False
+                        break
+                if matches:
+                    return True
+
+        # Try f(x, x) where f is binary (diagonal)
+        for f in binary_basis:
+            matches = True
+            for x in [0, 1]:
+                if f.evaluate((x, x)) != target.evaluate((x,)):
+                    matches = False
+                    break
+            if matches:
+                return True
+
+    # Depth 2: u(v(x)) where u, v are unary
+    if max_depth >= 2:
+        for u in unary_basis:
+            for v in unary_basis:
+                matches = True
+                for x in [0, 1]:
+                    v_result = v.evaluate((x,))
+                    u_result = u.evaluate((v_result,))
+                    if u_result != target.evaluate((x,)):
+                        matches = False
+                        break
+                if matches:
+                    return True
+
     return False
 
 

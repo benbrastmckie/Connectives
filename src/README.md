@@ -15,21 +15,49 @@ This directory contains the core implementation of a solver that finds the maxim
 
 ```
 src/
+├── __init__.py          # Package initialization, exposes cli_main
 ├── cli.py               # Unified command-line interface entry point
 ├── commands/            # CLI command implementations
+│   ├── __init__.py      # (Empty - module marker)
 │   ├── prove.py         # Proof commands (z3, enum)
 │   ├── validate.py      # Validation commands (binary, ternary)
 │   ├── benchmark.py     # Benchmark commands (full, quick, depth)
 │   └── search.py        # Search commands (binary, full, validate)
-├── connectives.py       # Core truth table representation
-├── constants.py         # Predefined logical connectives
+├── proofs/              # Formal proof scripts
+│   ├── __init__.py      # Proof scripts package marker
+│   ├── z3_proof.py      # Z3 constraint solver-based proof
+│   └── enumeration_proof.py  # Pattern enumeration-based proof
+├── connectives.py       # Core truth table representation (BitVec encoding)
+├── constants.py         # Predefined logical connectives (AND, OR, XOR, etc.)
 ├── post_classes.py      # Completeness checking via Post's lattice
 ├── independence.py      # Independence checking via bounded composition
 ├── search.py            # Search algorithms for finding nice sets (library)
-└── main.py              # Library interface for programmatic usage
+└── main.py              # Alternative CLI entry point (legacy interface)
 ```
 
 **See [commands/README.md](commands/README.md) for CLI command implementation details.**
+**See [proofs/README.md](proofs/README.md) for formal proof script details.**
+
+**Entry points:**
+- `python -m src.cli` - Unified CLI (recommended)
+- `python -m src.main` - Legacy CLI (limited options)
+- Programmatic: `from src.search import search_binary_only`
+
+---
+
+## Quick Module Reference
+
+| Module | Purpose | Key Functions |
+|--------|---------|---------------|
+| `connectives.py` | BitVec truth table representation | `Connective`, `generate_all_connectives()`, `evaluate()` |
+| `constants.py` | Predefined connectives | `AND`, `OR`, `XOR`, `NOT`, `ALL_BINARY`, `get_connective_by_name()` |
+| `post_classes.py` | Completeness checking | `is_complete()`, `is_t0_preserving()`, `is_monotone()`, `is_affine()` |
+| `independence.py` | Independence via composition | `is_independent()`, `is_definable()`, composition pattern checkers |
+| `search.py` | Search algorithms | `search_binary_only()`, `search_incremental_arity()`, `find_nice_sets_of_size()` |
+| `cli.py` | Unified CLI entry point | `main()`, argument parsing, command routing |
+| `main.py` | Legacy CLI interface | `main()`, `validate_maximum()` (limited options) |
+| `commands/` | CLI command handlers | `prove.py`, `validate.py`, `benchmark.py`, `search.py` |
+| `proofs/` | Formal proof scripts | `z3_proof.py`, `enumeration_proof.py` |
 
 ---
 
@@ -1253,6 +1281,79 @@ connectives = generate_all_connectives(2) + generate_all_connectives(1)
 
 ---
 
+## 7. main.py - Legacy CLI Interface
+
+The `main.py` module provides a simpler, older command-line interface that predates the unified CLI. It's retained for backward compatibility but offers fewer features.
+
+### Available Options
+
+```python
+parser.add_argument('--binary-only', action='store_true',
+                    help='Search only binary connectives')
+parser.add_argument('--max-arity', type=int, default=3,
+                    help='Maximum arity to consider')
+parser.add_argument('--max-depth', type=int, default=3,
+                    help='Maximum composition depth')
+parser.add_argument('--quiet', action='store_true',
+                    help='Suppress progress output')
+parser.add_argument('--validate', action='store_true',
+                    help='Validate that size=16 is achievable')
+```
+
+### Usage
+
+```bash
+# Binary-only search
+python -m src.main --binary-only
+
+# Full arity search
+python -m src.main --max-arity 3 --max-depth 3
+
+# Validate size-16 result
+python -m src.main --validate
+```
+
+### Comparison with Unified CLI
+
+| Feature | main.py | cli.py |
+|---------|---------|--------|
+| Binary search | Yes | Yes |
+| Full arity search | Yes | Yes |
+| Validation | Built-in --validate flag | Separate validate subcommand |
+| Proofs | No | Yes (z3, enum) |
+| Benchmarks | No | Yes (full, quick, depth) |
+| Multiple validation modes | No | Yes (binary, ternary) |
+| Help organization | Single level | Hierarchical subcommands |
+
+**Recommendation:** Use `python -m src.cli` for new workflows. The unified CLI provides better organization and more features.
+
+### validate_maximum() Function
+
+This function is unique to main.py and validates the known size-16 nice set:
+
+```python
+def validate_maximum():
+    """Validate that the maximum nice set size of 16 is achievable."""
+    # Define a known size-16 nice set
+    nice_16 = [
+        Connective(2, 0b0110, 'XOR'),  # Binary: XOR
+        Connective(3, 23, 'f3_23'),
+        # ... 14 more ternary connectives
+    ]
+
+    # Validate completeness and independence
+    is_valid, msg = validate_nice_set(nice_16, max_depth=5)
+
+    if is_valid:
+        print("CONFIRMED: Maximum nice set size = 16")
+    else:
+        print("VALIDATION FAILED")
+```
+
+This provides a quick sanity check that the maximum size result is correct.
+
+---
+
 ## Key Implementation Insights
 
 ### 1. BitVec vs. Z3 Symbolic
@@ -1452,7 +1553,7 @@ python -m src.cli benchmark full --runs 5
 - [← Project README](../README.md) - Main project overview
 - [Command Implementations](commands/README.md) - CLI command details
 - [Examples](../examples/README.md) - Real execution examples
-- [Results](../RESULTS.md) - Research conclusion
+- [Results](../docs/RESULTS.md) - Research conclusion
 - [Scripts](../scripts/README.md) - Proof methodology documentation
 - [Tests](../tests/README.md) - Testing documentation
 - [Specs](../specs/README.md) - Research reports and plans
