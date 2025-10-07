@@ -8,8 +8,8 @@ Runs binary search to confirm the known max=3 result and test metadata logging.
 import sys
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root directory to path for imports (now 2 levels up from scripts/validation/)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.search import search_binary_only
 import argparse

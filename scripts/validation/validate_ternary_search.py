@@ -10,8 +10,8 @@ import sys
 import argparse
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root directory to path for imports (now 2 levels up from scripts/validation/)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.connectives import generate_all_connectives
 from src.search import find_maximum_nice_set, filter_by_equivalence
