@@ -225,33 +225,43 @@ The current verified maximum nice set size. Remarkably discovered much faster th
 - Non-monotonic search complexity - larger can be easier to find
 - Demonstrates structural factors matter more than just size
 
-### 7. Z3-Discovered Size-33 Nice Set (Current Verified Maximum)
+### 7. Z3-Discovered Size-33 Nice Set
 
 **File**: [z3_nice_set_33.md](z3_nice_set_33.md)
 
-The current verified maximum nice set size. Demonstrates accelerating discovery pattern.
-
-**Contains**:
-- Complete set listing: FALSE + 32 ternary functions
-- Detailed completeness and independence verification
-- Comparison with all smaller sizes (1000% larger - 11× binary-only!)
-- Search performance: 24.15 seconds, checked only 1,239 complete sets
+Size-33 nice set - fastest discovery in the series.
 
 **Key Insights**:
 - **97% ternary**: 32 of 33 connectives are ternary (pure ternary structure)
-- **Accelerating discovery**: Even faster than size-32 (24s vs 36s)
-- **Remarkable trend**: 360s → 36s → 24s for sizes 31-33
-- Nearly complete truth table coverage (1-255)
-- Suggests nice sets are becoming more abundant at larger sizes
+- **Fastest search**: 24.15 seconds - peak of acceleration trend
+- Pure ternary + FALSE structure
+
+### 8. Z3-Discovered Size-34 Nice Set (Current Verified Maximum)
+
+**File**: [z3_nice_set_34.md](z3_nice_set_34.md)
+
+The current verified maximum nice set size. First set with both FALSE and TRUE constants.
+
+**Contains**:
+- Complete set listing: FALSE + TRUE + TRUE_2 (binary constant) + 31 ternary functions
+- Detailed completeness and independence verification
+- Comparison with all smaller sizes (1033% larger - 11.3× binary-only!)
+- Search performance: 86.69 seconds, checked 3,226 complete sets
+
+**Key Insights**:
+- **91% ternary**: 31 of 34 connectives are ternary
+- **Unique structure**: First set with both FALSE and TRUE nullary constants
+- **Moderate search time**: 87s - slower than size-33 but faster than size-31
+- Includes TRUE_2 (constant true binary function)
+- Shows non-monotonic search complexity continues
 
 **Major Implications**:
 - Higher arities provide far more room for independence than binary-only
 - Ternary functions enable sets 11× larger than binary-only maximum
-- Size 33 represents current state-of-the-art for verified nice sets
-- Search difficulty decreasing with size (31-33 range)
-- Maximum likely significantly higher than 33
-- Pure ternary structure remains optimal
-- Theoretical upper bound remains unknown but likely much higher
+- Size 34 represents current state-of-the-art for verified nice sets
+- Multiple structural families exist (single vs dual constants)
+- Search times fluctuate but remain feasible (24-360s range for sizes 31-34)
+- Theoretical upper bound remains unknown but continuing search is worthwhile
 
 ---
 
@@ -314,19 +324,25 @@ python -m src.cli prove z3 --target-size 32 --max-depth 3
 # Expected: ~36s - remarkably fast!
 ```
 
-#### Size-33 Nice Set (Current Verified Maximum)
+#### Size-33 Nice Set
 ```bash
 python -m src.cli prove z3 --target-size 33 --max-depth 3
-# Expected: ~24s - accelerating trend!
+# Expected: ~24s - fastest in the series
+```
+
+#### Size-34 Nice Set (Current Verified Maximum)
+```bash
+python -m src.cli prove z3 --target-size 34 --max-depth 3
+# Expected: ~87s - moderate speed
 ```
 
 **Note:**
 - Enumeration times are consistent (exhaustive search)
 - Z3 times and specific sets found may vary significantly between runs
 - Maximum sizes should be consistent across all runs
-- Search times accelerating: 360s → 36s → 24s for sizes 31-33
-- Acceleration suggests maximum is significantly higher than 33
-- Size-34+ highly likely to exist given the trend
+- Search times non-monotonic: 360s → 36s → 24s → 87s for sizes 31-34
+- All sizes 31-34 complete in under 6 minutes
+- Size-35+ unknown but continuing search is feasible
 
 ---
 
