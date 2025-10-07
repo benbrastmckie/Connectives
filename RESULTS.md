@@ -23,16 +23,15 @@ This result:
 
 | Arity Range | Maximum Size | Search Time | Implementation |
 |-------------|-------------|-------------|----------------|
-| Binary only (proper) | 3 | < 1 sec | Pattern enumeration |
-| Binary only (all) | 4 | < 1 sec | Pattern enumeration |
-| Unary + Binary | 7 | ~80 sec | Pattern enumeration |
+| Binary only | 3 | ~6 sec | Pattern enumeration |
+| Unary + Binary | 7 | ~4 min | Pattern enumeration |
 | Unary + Binary + Ternary | **16** | ~2 sec | Pattern enumeration + symmetry breaking |
 
 ### Key Findings
 
-- **Binary only**: Maximum size is 3 (classical result)
-- **With unary functions**: Maximum increases to 7
-- **With ternary functions**: Maximum reaches theoretical bound of 16
+- **Binary only**: Maximum size is 3 using all 16 binary connectives (classical result)
+- **With unary functions**: Maximum increases to 7 (133% improvement)
+- **With ternary functions**: Maximum reaches theoretical bound of 16 (129% improvement)
 - **Size 17+**: No nice sets exist (validated)
 
 ## Verification

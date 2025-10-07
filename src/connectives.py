@@ -6,7 +6,68 @@ where the i-th bit represents the output for the i-th input assignment.
 """
 
 from z3 import BitVec, BitVecVal, Extract, Concat
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
+
+
+# Module-level cache for readable connective names
+_READABLE_NAMES: Optional[Dict[Tuple[int, int], str]] = None
+
+
+def _init_readable_names() -> Dict[Tuple[int, int], str]:
+    """
+    Build reverse lookup dictionary from (arity, truth_table) to readable names.
+
+    This function imports from src.constants inside the function body to avoid
+    circular import issues (constants.py imports Connective).
+
+    Returns:
+        Dictionary mapping (arity, truth_table_int) tuples to readable names
+    """
+    # Import here to avoid circular dependency
+    from src.constants import (
+        CONST_FALSE, CONST_TRUE,
+        CONST_0_UNARY, NEGATION, IDENTITY, CONST_1_UNARY,
+        ALL_BINARY
+    )
+
+    mapping = {}
+
+    # Add arity-0 constants
+    mapping[(0, CONST_FALSE.truth_table_int)] = "FALSE"
+    mapping[(0, CONST_TRUE.truth_table_int)] = "TRUE"
+
+    # Add arity-1 unary functions
+    mapping[(1, CONST_0_UNARY.truth_table_int)] = "0"
+    mapping[(1, NEGATION.truth_table_int)] = "NOT"
+    mapping[(1, IDENTITY.truth_table_int)] = "ID"
+    mapping[(1, CONST_1_UNARY.truth_table_int)] = "1"
+
+    # Add arity-2 binary functions from ALL_BINARY
+    for conn in ALL_BINARY:
+        mapping[(2, conn.truth_table_int)] = conn.name
+
+    return mapping
+
+
+def _get_readable_name(arity: int, truth_table: int) -> Optional[str]:
+    """
+    Get the readable name for a connective, if one exists.
+
+    Uses lazy initialization to build the lookup dictionary on first call.
+
+    Args:
+        arity: Number of input variables
+        truth_table: Integer representation of truth table
+
+    Returns:
+        Readable name if found, None otherwise
+    """
+    global _READABLE_NAMES
+
+    if _READABLE_NAMES is None:
+        _READABLE_NAMES = _init_readable_names()
+
+    return _READABLE_NAMES.get((arity, truth_table))
 
 
 class Connective:
@@ -26,7 +87,9 @@ class Connective:
         Args:
             arity: Number of input variables (0-5)
             truth_table: Integer representing the truth table
-            name: Optional name for debugging/display
+            name: Optional name for debugging/display. If not provided, will attempt
+                  to use a readable standard name (e.g., "NOR", "AND", "XOR") if
+                  available, otherwise defaults to "fN_X" format.
 
         Raises:
             ValueError: If arity is not in range 0-5 or truth_table is invalid
@@ -46,7 +109,7 @@ class Connective:
         self.arity = arity
         self.truth_table_int = truth_table
         self.truth_table = BitVecVal(truth_table, table_size)
-        self.name = name or f"f{arity}_{truth_table}"
+        self.name = name or _get_readable_name(arity, truth_table) or f"f{arity}_{truth_table}"
 
     def evaluate(self, inputs: Tuple[int, ...]) -> int:
         """

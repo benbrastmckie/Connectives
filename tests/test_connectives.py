@@ -39,9 +39,14 @@ class TestConnectiveBasics:
         assert c.name == "AND"
 
     def test_default_name(self):
-        """Test that default names are generated."""
+        """Test that readable names are automatically assigned when available."""
+        # Binary connective (2, 8) is AND - should get readable name
         c = Connective(2, 8)
-        assert c.name == "f2_8"
+        assert c.name == "AND"
+
+        # Ternary connective with no standard name should use fallback format
+        c_ternary = Connective(3, 42)
+        assert c_ternary.name == "f3_42"
 
 
 class TestEvaluation:
