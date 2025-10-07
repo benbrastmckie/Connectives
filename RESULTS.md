@@ -96,6 +96,94 @@ python3 -m src.main --max-arity 3 --max-depth 3
 pytest tests/ -v
 ```
 
+## Example Data Files
+
+The repository includes example output files demonstrating the search algorithms and validation processes. All examples use readable connective names (NOR, AND, XOR, etc.) for clarity.
+
+### Binary-Only Search
+
+**File**: [examples/binary_only_search.txt](examples/binary_only_search.txt)
+
+This example runs the binary-only search which finds that the maximum nice set size using only binary (arity-2) connectives is 3. The search checks all 16 binary connectives and finds 76 nice sets of size 3.
+
+Sample output showing readable names:
+```
+Found nice set: ['NOR']
+Found nice set: ['NAND']
+Found nice set: ['FALSE_2', 'NOR', 'IFF']
+Found nice set: ['FALSE_2', 'NAND', 'XOR']
+```
+
+Key findings:
+- Maximum size: 3
+- Total nice sets of size 3: 76
+- Single-connective complete sets: NOR, NAND (both individually complete)
+
+### Incremental Arity Search
+
+**File**: [examples/incremental_search.txt](examples/incremental_search.txt)
+
+This demonstrates the full incremental search starting with binary (arity-2), then adding unary (arity-1), then ternary (arity-3) connectives. Shows how maximum nice set size increases from 3 → 7 → 16 as higher arities are included.
+
+Sample output showing progression:
+```
+Arity 2 result: max size = 3
+Example: ['FALSE_2', 'NAND', 'XOR']
+
+Arity 1 result: max size = 7
+Example: ['NOR', 'XOR', '0', 'NOT', 'ID', '1', ...]
+
+Arity 3 result: max size = 16
+Example: ['XOR', 'f3_23', 'f3_64', ...]
+```
+
+Key findings:
+- Binary-only maximum: 3
+- With unary functions: 7 (133% improvement)
+- With ternary functions: 16 (129% improvement, theoretical maximum)
+
+### Incremental Search Summary
+
+**File**: [examples/incremental_search_summary.txt](examples/incremental_search_summary.txt)
+
+Condensed version of the incremental search showing key milestones without verbose progress output. Useful for quick reference.
+
+### Validation of Maximum Size
+
+**File**: [examples/validation.txt](examples/validation.txt)
+
+This validates that a specific size-16 nice set is truly complete and independent using composition depth 5 (stricter than the search default of 3).
+
+Sample output:
+```
+Testing nice set of size 16...
+✓ VALIDATION SUCCESSFUL
+  Set is valid (complete and independent)
+  Escapes all Post classes: True
+  Arity distribution: {2: 1, 3: 15}
+
+CONFIRMED: Maximum nice set size = 16
+```
+
+Key findings:
+- Size-16 nice sets exist and are valid
+- Composition: 1 binary (XOR) + 15 ternary functions
+- Validation confirms completeness and independence
+
+### Depth Analysis Results
+
+**File**: [examples/depth_results.csv](examples/depth_results.csv)
+
+CSV data showing how composition depth parameter affects independence checking and maximum nice set sizes. Used for analyzing the tradeoff between soundness and computational efficiency.
+
+Columns: `depth,max_size,search_time,num_sets`
+
+This data supports the choice of depth=3 as the standard for this project.
+
+---
+
+See also: [examples/README.md](examples/README.md) for more details on reproducing these examples.
+
 ## Key Insights
 
 1. **Theoretical bound achieved**: Maximum = 16 (tight bound)
