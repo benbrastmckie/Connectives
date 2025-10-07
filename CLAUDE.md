@@ -78,6 +78,15 @@ Determine the maximum size of a nice (complete and independent) connective set f
 - Pattern enumeration for bounded composition independence checking
 - Search for maximal nice sets using incremental arity expansion
 
+## Development Policy
+
+### Backward Compatibility
+**NO BACKWARD COMPATIBILITY REQUIRED**
+- Old scripts can be deleted or replaced without maintaining compatibility
+- No need for deprecation warnings or wrapper scripts
+- Focus on clean, modern design over legacy support
+- Breaking changes are acceptable and encouraged for clarity
+
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
