@@ -15,13 +15,21 @@ This directory contains the core implementation of a solver that finds the maxim
 
 ```
 src/
+├── cli.py               # Unified command-line interface entry point
+├── commands/            # CLI command implementations
+│   ├── prove.py         # Proof commands (z3, enum)
+│   ├── validate.py      # Validation commands (binary, ternary)
+│   ├── benchmark.py     # Benchmark commands (full, quick, depth)
+│   └── search.py        # Search commands (binary, full, validate)
 ├── connectives.py       # Core truth table representation
 ├── constants.py         # Predefined logical connectives
 ├── post_classes.py      # Completeness checking via Post's lattice
 ├── independence.py      # Independence checking via bounded composition
-├── search.py            # Search algorithms for finding nice sets
-└── main.py              # Command-line interface
+├── search.py            # Search algorithms for finding nice sets (library)
+└── main.py              # Library interface for programmatic usage
 ```
+
+**See [commands/README.md](commands/README.md) for CLI command implementation details.**
 
 ---
 
@@ -1100,156 +1108,148 @@ def analyze_nice_set(nice_set: List[Connective]) -> Dict[str, any]:
 
 ---
 
-## 6. main.py - Command-Line Interface
+## 6. cli.py - Unified Command-Line Interface
 
-### Argument Parsing
+### CLI Architecture
+
+The unified CLI provides all functionality through a single entry point with subcommands:
+
+```bash
+python -m src.cli <subcommand> [options]
+```
+
+**Main command groups:**
+- `prove` - Formal proofs of maximum nice set size (z3, enum)
+- `validate` - Validation and verification tools (binary, ternary)
+- `benchmark` - Performance measurement tools (full, quick, depth)
+- `search` - Interactive search tools (binary, full, validate)
+
+### CLI Implementation
+
+The CLI uses argparse with nested subparsers for organized command grouping:
 
 ```python
+# Main parser
 parser = argparse.ArgumentParser(
-    description='Find maximum nice (complete and independent) connective sets'
+    prog='nice-connectives',
+    description='Tools for finding and analyzing nice connective sets'
 )
 
-parser.add_argument('--binary-only', action='store_true')
-parser.add_argument('--max-arity', type=int, default=3)
-parser.add_argument('--max-depth', type=int, default=3)
-parser.add_argument('--quiet', action='store_true')
-parser.add_argument('--validate', action='store_true')
+# Create subparsers for command groups
+subparsers = parser.add_subparsers(dest='command', required=True)
+
+# Prove subcommand with methods
+prove_parser = subparsers.add_parser('prove', help='Formal proofs')
+prove_subparsers = prove_parser.add_subparsers(dest='method', required=True)
+
+prove_z3_parser = prove_subparsers.add_parser('z3', help='Z3-based proof')
+prove_z3_parser.add_argument('--checkpoint', help='Checkpoint file')
+prove_z3_parser.add_argument('--max-depth', type=int, default=3)
+
+prove_enum_parser = prove_subparsers.add_parser('enum', help='Enumeration proof')
 ```
 
-**Python argparse:** Standard library for command-line argument parsing.
+### Command Routing
 
-- `action='store_true'`: Boolean flag (presence = True, absence = False)
-- `type=int, default=3`: Integer argument with default value
+Commands are routed to implementation modules in `src/commands/`:
 
-**Usage examples:**
+```python
+# Route to appropriate command handler
+if args.command == 'prove':
+    if args.method == 'z3':
+        return prove.prove_z3(
+            checkpoint=args.checkpoint,
+            max_depth=args.max_depth
+        )
+    elif args.method == 'enum':
+        return prove.prove_enumeration()
+
+elif args.command == 'search':
+    if args.type == 'binary':
+        return search.search_binary(
+            max_depth=args.max_depth,
+            verbose=not args.quiet
+        )
+```
+
+**See [commands/README.md](commands/README.md) for command implementation details.**
+
+### Usage Examples
+
+#### Search Commands
+
 ```bash
-python3 -m src.main --binary-only
-python3 -m src.main --max-arity 4 --max-depth 5
-python3 -m src.main --validate --quiet
+# Validate maximum size=16 result
+python -m src.cli search validate
+
+# Binary-only search (finds max = 3)
+python -m src.cli search binary
+
+# Full arity search (finds max = 16)
+python -m src.cli search full --max-arity 3
 ```
 
-### Mode: Binary-Only Search
+#### Proof Commands
+
+```bash
+# Z3-based proof
+python -m src.cli prove z3 --target-size 17 --max-depth 3
+
+# Enumeration-based proof
+python -m src.cli prove enum
+```
+
+#### Validation Commands
+
+```bash
+# Validate binary search results
+python -m src.cli validate binary --depth 3
+
+# Validate ternary search with comparison
+python -m src.cli validate ternary --compare --verbose
+```
+
+#### Benchmark Commands
+
+```bash
+# Quick benchmark
+python -m src.cli benchmark quick
+
+# Full benchmark suite
+python -m src.cli benchmark full --runs 5 --output benchmarks.csv
+
+# Depth crossover analysis
+python -m src.cli benchmark depth --depths 1,2,3,4,5
+```
+
+### Getting Help
+
+```bash
+# Main help
+python -m src.cli --help
+
+# Subcommand help
+python -m src.cli search --help
+python -m src.cli prove z3 --help
+python -m src.cli validate binary --help
+```
+
+### Library Usage
+
+The library can also be used programmatically:
 
 ```python
-if args.binary_only:
-    max_size, sets = search_binary_only(
-        max_depth=args.max_depth,
-        verbose=verbose
-    )
+from src.search import search_binary_only, search_incremental_arity
+from src.connectives import generate_all_connectives
+from src.independence import is_independent
 
-    if verbose:
-        print("\nAnalysis of first result:")
-        if sets:
-            analysis = analyze_nice_set(sets[0])
-            print(f"  Size: {analysis['size']}")
-            print(f"  Arity distribution: {analysis['arity_distribution']}")
+# Direct library usage
+max_size, sets = search_binary_only(max_depth=3)
+
+# Custom search
+connectives = generate_all_connectives(2) + generate_all_connectives(1)
+# ... use search functions
 ```
-
-**Expected output:**
-```
-============================================================
-BINARY-ONLY SEARCH
-============================================================
-Total binary connectives: 16
-Searching for nice sets of size 1...
-...
-Size 3: Found 20 nice sets (0.15s)
-Size 4: No nice sets found (0.03s)
-
-============================================================
-RESULT: Maximum nice set size = 3
-============================================================
-Found 20 maximal nice sets
-
-Example nice sets:
-  Set 1: ['NOR', 'AND', 'IFF']
-  Set 2: ['NOR', 'XOR', 'PROJ_X']
-  ...
-```
-
-### Mode: Incremental Arity Search
-
-```python
-else:
-    max_size, sets, stats = search_incremental_arity(
-        max_arity=args.max_arity,
-        max_depth=args.max_depth,
-        verbose=verbose
-    )
-
-    if verbose:
-        print("\nSearch Statistics:")
-        print(f"  Total time: {stats['total_time']:.2f}s")
-        print(f"  Connectives by arity: {stats['connectives_by_arity']}")
-```
-
-**Expected output:**
-```
-============================================================
-INCREMENTAL ARITY SEARCH
-============================================================
-
-============================================================
-Adding arity 2 connectives...
-============================================================
-Added 16 connectives of arity 2
-Total pool size: 16
-
-Searching for maximum nice set size...
-...
-Arity 2 result: max size = 3
-
-============================================================
-Adding arity 1 connectives...
-============================================================
-Added 4 connectives of arity 1
-Total pool size: 20
-...
-Arity 1 result: max size = 7
-NEW BEST: 7
-
-============================================================
-Adding arity 3 connectives...
-============================================================
-Added 256 connectives of arity 3
-Total pool size: 276
-...
-Arity 3 result: max size = 16
-NEW BEST: 16
-
-...
-============================================================
-FINAL RESULT: Maximum nice set size = 16
-============================================================
-```
-
-### Mode: Validation
-
-```python
-def validate_maximum():
-    print("VALIDATING MAXIMUM NICE SET SIZE = 16")
-
-    nice_16 = [
-        Connective(2, 0b0110, 'XOR'),
-        Connective(3, 23, 'f3_23'),
-        # ... (14 more ternary connectives)
-    ]
-
-    is_valid, msg = validate_nice_set(nice_16, max_depth=5)
-
-    if is_valid:
-        print("✓ VALIDATION SUCCESSFUL")
-        # ...
-    else:
-        print("✗ VALIDATION FAILED")
-        sys.exit(1)
-```
-
-**Purpose:** Verify that a known size-16 nice set is indeed complete and independent.
-
-**Why depth=5?** More conservative independence check for validation (higher confidence).
-
-**Exit code:** Returns 1 on failure (standard Unix convention for scripts).
 
 ---
 
@@ -1314,27 +1314,49 @@ result = s.check()  # Might not terminate!
 
 ```bash
 # Binary-only (fast, validates implementation)
-python3 -m src.main --binary-only
+python -m src.cli search binary
 
-# Incremental search up to ternary
-python3 -m src.main --max-arity 3 --max-depth 3
+# Full arity search up to ternary
+python -m src.cli search full --max-arity 3 --max-depth 3
+
+# Validate known maximum size=16
+python -m src.cli search validate
 ```
 
 ### Advanced Search
 
 ```bash
 # More conservative independence (depth 5)
-python3 -m src.main --max-arity 3 --max-depth 5
+python -m src.cli search full --max-arity 3 --max-depth 5
 
 # Quiet mode (results only)
-python3 -m src.main --max-arity 3 --quiet
+python -m src.cli search binary --quiet
 ```
 
 ### Validation
 
 ```bash
-# Validate known maximum
-python3 -m src.main --validate
+# Validate binary search results
+python -m src.cli validate binary --depth 3
+
+# Validate ternary search with detailed output
+python -m src.cli validate ternary --compare --verbose
+```
+
+### Proofs and Benchmarks
+
+```bash
+# Run Z3-based proof
+python -m src.cli prove z3
+
+# Run enumeration-based proof
+python -m src.cli prove enum
+
+# Quick benchmark
+python -m src.cli benchmark quick
+
+# Full benchmark suite
+python -m src.cli benchmark full --runs 5
 ```
 
 ---
@@ -1427,8 +1449,10 @@ python3 -m src.main --validate
 
 ## Navigation
 
-- [← Project README](../README.md)
-- [Examples](../examples/README.md)
-- [Results](../RESULTS.md)
-- [Usage Guide](../USAGE.md)
-- [Scripts](../scripts/README.md)
+- [← Project README](../README.md) - Main project overview
+- [Command Implementations](commands/README.md) - CLI command details
+- [Examples](../examples/README.md) - Real execution examples
+- [Results](../RESULTS.md) - Research conclusion
+- [Scripts](../scripts/README.md) - Proof methodology documentation
+- [Tests](../tests/README.md) - Testing documentation
+- [Specs](../specs/README.md) - Research reports and plans

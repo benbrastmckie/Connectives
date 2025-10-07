@@ -8,11 +8,13 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 
 ## Quick Links
 
-- **[Usage Guide](USAGE.md)** - How to run searches and tests
+- **[CLI Documentation](src/README.md)** - Complete command-line interface guide
+- **[Command Implementations](src/commands/README.md)** - CLI command details
 - **[Examples](examples/README.md)** - Real execution examples and output
 - **[Results](RESULTS.md)** - Research conclusion (max size = 16)
-- **[Implementation Details](src/README.md)** - Complete code documentation
-- **[Scripts](scripts/README.md)** - Validation and benchmarking scripts
+- **[Scripts](scripts/README.md)** - Proof methodology documentation
+- **[Testing](tests/README.md)** - Test suite documentation
+- **[Specs](specs/README.md)** - Research reports and implementation plans
 
 ---
 
@@ -60,23 +62,56 @@ This result:
 
 ## Quick Start
 
-### Installation & Basic Usage
+### Installation
 
 ```bash
-# Install dependencies
-pip install pytest
+# Clone the repository
+git clone <repository-url>
+cd nice_connectives
 
-# Validate implementation
-python3 -m src.main --validate
+# On most systems, install with pip
+pip install -e .
 
-# Run full search (finds max = 16)
-python3 -m src.main --max-arity 3
+# On NixOS, use directly without installation
+# (pip install doesn't work with read-only /nix/store)
+```
+
+### Basic Usage
+
+```bash
+# Validate maximum size=16 result
+python -m src.cli search validate
+
+# Search for nice sets with binary connectives only
+python -m src.cli search binary
+
+# Search with full arity support (finds max = 16)
+python -m src.cli search full --max-arity 3
+
+# Run Z3-based proof
+python -m src.cli prove z3
+
+# Run enumeration-based proof
+python -m src.cli prove enum
+
+# Validate search results
+python -m src.cli validate binary
+python -m src.cli validate ternary
+
+# Run benchmarks
+python -m src.cli benchmark quick
+python -m src.cli benchmark full
 
 # Run test suite
 pytest tests/ -v
+
+# Get help on any command
+python -m src.cli --help
+python -m src.cli search --help
+python -m src.cli prove z3 --help
 ```
 
-**See [USAGE.md](USAGE.md) for detailed command-line options and examples.**
+**See [src/README.md](src/README.md) for complete CLI documentation.**
 
 ---
 
@@ -129,23 +164,42 @@ pytest tests/ -v
 ```
 nice_connectives/
 ├── src/                    # Source code
+│   ├── cli.py              # Unified CLI entry point
+│   ├── commands/           # CLI command implementations
+│   │   ├── prove.py        # Proof commands (z3, enum)
+│   │   ├── validate.py     # Validation commands (binary, ternary)
+│   │   ├── benchmark.py    # Benchmark commands (full, quick, depth)
+│   │   └── search.py       # Search commands (binary, full, validate)
 │   ├── connectives.py      # BitVec truth table representation
 │   ├── constants.py        # Predefined connectives
 │   ├── post_classes.py     # Completeness checking
 │   ├── independence.py     # Independence checking
 │   ├── search.py           # Search algorithms
-│   ├── main.py             # CLI interface
+│   ├── main.py             # Library interface
 │   └── README.md           # Implementation documentation
 ├── tests/                  # Test suite (159 passing)
+│   └── README.md           # Testing documentation
 ├── examples/               # Real execution examples
 │   └── README.md           # Examples documentation
-├── scripts/                # Validation and benchmarking
+├── scripts/                # Proof methodology documentation
+│   ├── proofs_z3/          # Z3-based proof approach
+│   ├── proofs_enumeration/ # Enumeration-based proof approach
 │   └── README.md           # Scripts documentation
 ├── specs/                  # Research reports and plans
+│   ├── reports/            # Research findings
+│   ├── plans/              # Implementation plans
+│   ├── summaries/          # Execution summaries
+│   └── README.md           # Specs organization
+├── pyproject.toml          # Package configuration
 ├── README.md               # This file
 ├── USAGE.md                # Usage guide
 └── RESULTS.md              # Research conclusion
 ```
+
+**All functionality is accessible through the unified CLI:**
+- `python -m src.cli <subcommand>` (or `nice-connectives` if installed)
+- See [src/README.md](src/README.md) for complete CLI documentation
+- See [src/commands/README.md](src/commands/README.md) for command implementation details
 
 ---
 
