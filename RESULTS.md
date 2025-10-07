@@ -1,4 +1,4 @@
-# Maximum Nice Set Size
+# Nice Connective Sets: Research Findings
 
 ## Research Question
 
@@ -6,64 +6,75 @@
 
 Where "nice" means:
 1. **Complete**: Can define all classical connectives (Post's lattice)
-2. **Independent**: No connective is definable from the others
+2. **Independent**: No connective is definable from the others (bounded composition)
 
-## Answer
+## Current Findings
 
-### **Maximum Nice Set Size = 16**
+### **Nice Sets of Size 17 Have Been Found**
 
-Using pattern enumeration with composition depth 3, the maximum nice set size is **16**.
+Using Z3-based constraint solving with pattern enumeration (depth 3-5):
 
-This result:
-- **Matches the theoretical upper bound** from Post's lattice theory
-- Has been **validated through comprehensive testing** (159 tests passing)
-- Achieves the **tight bound** (no larger nice sets exist)
+**Nice sets of size 17 have been discovered and verified.**
+
+Current status:
+- **Size-17 nice sets exist** - found and validated at composition depth 5
+- **Maximum unknown** - the upper bound remains an open question
+- **Implementation validated** - 159 tests passing, reproduces classical results
 
 ## Results by Arity Range
 
-| Arity Range | Maximum Size | Search Time | Implementation |
-|-------------|-------------|-------------|----------------|
-| Binary only | 3 | ~6 sec | Pattern enumeration |
-| Unary + Binary | 7 | ~4 min | Pattern enumeration |
-| Unary + Binary + Ternary | **16** | ~2 sec | Pattern enumeration + symmetry breaking |
+| Arity Range | Known Nice Sets | Search Time | Implementation |
+|-------------|----------------|-------------|----------------|
+| Binary only | Max = 3 (proven) | ~6 sec | Pattern enumeration |
+| Unary + Binary | Size ≥ 7 | ~4 min | Pattern enumeration |
+| Unary + Binary + Ternary | **Size ≥ 17** | ~0.75 sec | Z3 + pattern enumeration |
 
 ### Key Findings
 
-- **Binary only**: Maximum size is 3 using all 16 binary connectives (classical result)
-- **With unary functions**: Maximum increases to 7 (133% improvement)
-- **With ternary functions**: Maximum reaches theoretical bound of 16 (129% improvement)
-- **Size 17+**: No nice sets exist (validated)
+- **Binary only**: Maximum size is 3 (classical result, proven)
+- **With unary functions**: Nice sets of size 7 found
+- **With ternary functions**: Nice sets of size 17 found (via Z3 constraint solving)
+- **Maximum unknown**: Upper bound remains an open research question
 
 ## Verification
 
 All found nice sets verified with:
 - **Completeness**: Post's theorem (escape all 5 maximal clones) ✓
-- **Independence**: Bounded composition depth 3 ✓
+- **Independence**: Bounded composition depth 3-5 ✓
 - **Test suite**: 159 tests passing ✓
 
-### Example Size-16 Nice Set
+### Example Size-17 Nice Set
 
-- Composition: 1 binary + 15 ternary functions
+Found via Z3 constraint solving in 0.75 seconds:
+
+```
+['FALSE', 'NOT_Y', 'f3_15', 'f3_22', 'f3_24', 'f3_86', 'f3_108',
+ 'f3_117', 'f3_121', 'f3_137', 'f3_150', 'f3_166', 'f3_195',
+ 'f3_208', 'f3_209', 'f3_231', 'f3_243']
+```
+
+- Composition: 1 constant + 1 binary + 15 ternary functions
 - Complete: Yes (escapes all 5 Post classes)
 - Independent (depth 3): Yes
-- Maximal: Yes (no size-17 sets exist)
+- Independent (depth 5): Yes
 
 ## Theoretical Context
 
-### Upper Bound of 16
+### Post's Lattice Structure
 
-The theoretical upper bound comes from Post's lattice structure:
+Post's completeness theorem provides the foundation:
 - Post's lattice has exactly 5 maximal clones (T0, T1, M, D, A)
 - A complete set must escape all 5 clones
 - Independence is constrained by expressibility relationships
-- The maximum independent set that escapes all clones has size ≤ 16
+- The theoretical upper bound for nice sets is unknown
 
-### Validated Result
+### Current Research Status
 
-With our definitions (Post-completeness + bounded composition depth 3 independence):
-- **Found**: Size-16 nice sets exist
-- **Validated**: No size-17 nice sets exist
-- **Conclusion**: The theoretical upper bound is tight
+With our definitions (Post-completeness + bounded composition depth 3-5 independence):
+- **Found**: Size-17 nice sets exist (via Z3 constraint solving)
+- **Validated**: All found sets are complete and independent at depth 5
+- **Open question**: What is the maximum size of a nice set?
+- **Next steps**: Search for larger nice sets, or prove upper bounds
 
 ## Composition Depth Parameter
 
@@ -86,11 +97,17 @@ The bounded composition depth parameter is critical for independence:
 ### Running Searches
 
 ```bash
-# Validate binary-only search (should find max=3)
-python3 -m src.main --binary-only
+# Validate binary-only search (finds max=3, proven)
+python -m src.cli search binary
 
-# Run incremental arity search (finds max=16)
-python3 -m src.main --max-arity 3 --max-depth 3
+# Run full arity search (finds size ≥ 17)
+python -m src.cli search full --max-arity 3 --max-depth 3
+
+# Run Z3 proof to find large nice sets
+python -m src.cli prove z3 --target-size 17
+
+# Validate a specific size-16 nice set
+python -m src.cli search validate
 
 # Run test suite
 pytest tests/ -v
@@ -123,36 +140,36 @@ Key findings:
 
 **File**: [examples/incremental_search_summary.txt](examples/incremental_search_summary.txt)
 
-This demonstrates the full incremental search starting with binary (arity-2), then adding unary (arity-1), then ternary (arity-3) connectives. Shows how maximum nice set size increases from 3 → 7 → 16 as higher arities are included.
+This demonstrates the full incremental search starting with binary (arity-2), then adding unary (arity-1), then ternary (arity-3) connectives. Shows how nice set sizes increase from 3 → 7 → ≥17 as higher arities are included.
 
 Sample output showing progression:
 ```
-Arity 2 result: max size = 3
+Arity 2 result: max size = 3 (proven)
 Example: ['FALSE_2', 'NAND', 'XOR']
 
-Arity 1 result: max size = 7
+Arity 1 result: max size ≥ 7
 Example: ['NOR', 'XOR', '0', 'NOT', 'ID', '1', ...]
 
-Arity 3 result: max size = 16
-Example: ['XOR', 'f3_23', 'f3_64', ...]
+Arity 3 result: found size ≥ 17 (via Z3)
+Example: ['FALSE', 'NOT_Y', 'f3_15', 'f3_22', ...]
 ```
 
 Key findings:
-- Binary-only maximum: 3
-- With unary functions: 7 (133% improvement)
-- With ternary functions: 16 (129% improvement, theoretical maximum)
+- Binary-only maximum: 3 (proven)
+- With unary functions: size ≥ 7
+- With ternary functions: size ≥ 17 (found via Z3 constraint solving)
 
-### Incremental Search Summary
+### Z3-Based Proof Results
 
-**File**: [examples/incremental_search_summary.txt](examples/incremental_search_summary.txt)
+**Command**: `python -m src.cli prove z3 --target-size 17`
 
-Condensed version of the incremental search showing key milestones without verbose progress output. Useful for quick reference.
+The Z3-based constraint solver efficiently finds size-17 nice sets by encoding completeness constraints and using pattern enumeration for independence checking.
 
-### Validation of Maximum Size
+### Validation of Known Nice Sets
 
 **File**: [examples/validation.txt](examples/validation.txt)
 
-This validates that a specific size-16 nice set is truly complete and independent using composition depth 5 (stricter than the search default of 3).
+This validates that specific nice sets are truly complete and independent using composition depth 5 (stricter than the search default of 3).
 
 Sample output:
 ```
@@ -162,13 +179,13 @@ Testing nice set of size 16...
   Escapes all Post classes: True
   Arity distribution: {2: 1, 3: 15}
 
-CONFIRMED: Maximum nice set size = 16
 ```
 
 Key findings:
-- Size-16 nice sets exist and are valid
+- This particular size-16 nice set is valid
 - Composition: 1 binary (XOR) + 15 ternary functions
-- Validation confirms completeness and independence
+- Validation confirms completeness and independence at depth 5
+- Note: Size-17 nice sets also exist (found via Z3)
 
 ### Depth Analysis Results
 
@@ -186,28 +203,36 @@ See also: [examples/README.md](examples/README.md) for more details on reproduci
 
 ## Key Insights
 
-1. **Theoretical bound achieved**: Maximum = 16 (tight bound)
-2. **Ternary functions essential**: Almost all functions in max sets are ternary
-3. **Composition depth matters**: Depth = 3 is practical standard
-4. **Symmetry breaking crucial**: Reduces search space by ~2-8×
+1. **Size-17 nice sets exist**: Found via Z3 constraint solving, validated at depth 5
+2. **Maximum unknown**: The upper bound for nice set size remains an open question
+3. **Ternary functions essential**: Almost all functions in large nice sets are ternary
+4. **Composition depth matters**: Depth 3-5 provides strong independence validation
+5. **Z3 highly effective**: Constraint solving finds large nice sets quickly (~0.75s)
 5. **Pattern enumeration effective**: Proven correct for arity ≤3
 
 ## Conclusion
 
-**The maximum size of a nice set with arbitrary arities is exactly 16.**
+**Nice sets of size 17 have been found and verified. The maximum size remains unknown.**
 
-This result:
-- **Achieves the theoretical upper bound** (tight bound)
-- **Demonstrates the necessity of ternary connectives** for maximality
-- **Confirms the importance of composition depth** parameter
-- **Validates the pattern enumeration approach**
+Current research status:
+- **Size-17 nice sets exist**: Found via Z3 constraint solving in 0.75 seconds
+- **Verified at depth 5**: Validates independence with rigorous composition checking
+- **Ternary functions essential**: All large nice sets require ternary connectives
+- **Effective tools developed**: Z3 + pattern enumeration is a powerful combination
 
-The research question is **definitively answered**:
-- ✓ We have the **exact maximum**: 16
-- ✓ We have **constructive examples**: Multiple size-16 sets found
-- ✓ We have **verified results**: All sets checked with depth-3 independence
-- ✓ We have **comprehensive validation**: 159 tests passing
+Open questions:
+- ❓ What is the maximum size of a nice set?
+- ❓ Can we prove an upper bound?
+- ❓ Do nice sets of size 18 or larger exist?
+- ❓ What is the relationship between composition depth and maximum size?
+
+Progress to date:
+- ✓ **Binary-only maximum proven**: Exactly 3 connectives
+- ✓ **Large nice sets found**: Size ≥ 17 with ternary functions
+- ✓ **Verified results**: All sets validated with depth-5 independence
+- ✓ **Comprehensive testing**: 159 tests passing
+- ✓ **Efficient search tools**: Z3 constraint solving operational
 
 ---
 
-**Implementation**: Fully complete | **Tests**: 159 passing | **Date**: 2025-10-02
+**Implementation**: Fully complete | **Tests**: 159 passing | **Latest finding**: Size-17 nice sets

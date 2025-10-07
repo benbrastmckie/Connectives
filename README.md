@@ -11,7 +11,7 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 - **[CLI Documentation](src/README.md)** - Complete command-line interface guide
 - **[Command Implementations](src/commands/README.md)** - CLI command details
 - **[Examples](examples/README.md)** - Real execution examples and output
-- **[Results](RESULTS.md)** - Research conclusion (max size = 16)
+- **[Results](RESULTS.md)** - Research findings (size-17 sets found)
 - **[Scripts](scripts/README.md)** - Proof methodology documentation
 - **[Testing](tests/README.md)** - Test suite documentation
 - **[Specs](specs/README.md)** - Research reports and implementation plans
@@ -44,19 +44,21 @@ Given classical two-valued connectives of arbitrary arity, we define a set of co
 
 ## Answer
 
-### **Maximum Nice Set Size = 16**
+### **Nice Sets of Size 17 Have Been Found**
 
-Using pattern enumeration with composition depth 3, we have definitively determined:
+Using Z3-based constraint solving with pattern enumeration (composition depth 3-5):
 
-**The maximum size of a nice set with arbitrary arities is exactly 16.**
+**Nice sets of size 17 have been discovered and verified.**
 
-This result:
-- **Matches the theoretical upper bound** (tight bound)
-- **Requires ternary connectives** (binary-only max is 3)
-- **Is constructively verified** (multiple size-16 sets found)
-- **Is validated through comprehensive testing** (159 tests passing)
+Current findings:
+- **Binary-only**: Maximum size is 3 (classical result, proven)
+- **Unary + Binary**: Maximum size is at least 7
+- **Unary + Binary + Ternary**: Nice sets of size 17 exist (verified at depth 5)
+- **Upper bound**: Unknown - maximum may be larger than 17
 
-**See [RESULTS.md](RESULTS.md) for complete research conclusion.**
+**The maximum size of nice sets with arbitrary arities remains an open question.**
+
+**See [RESULTS.md](RESULTS.md) for complete research findings and verification details.**
 
 ---
 
@@ -79,13 +81,13 @@ pip install -e .
 ### Basic Usage
 
 ```bash
-# Validate maximum size=16 result
+# Validate a known size-16 nice set
 python -m src.cli search validate
 
-# Search for nice sets with binary connectives only
+# Search for nice sets with binary connectives only (finds max = 3)
 python -m src.cli search binary
 
-# Search with full arity support (finds max = 16)
+# Search with full arity support (finds size ≥ 16)
 python -m src.cli search full --max-arity 3
 
 # Run Z3-based proof
@@ -117,20 +119,21 @@ python -m src.cli prove z3 --help
 
 ## Results Summary
 
-| Arity Range | Maximum Size | Example |
-|-------------|--------------|---------|
-| Binary only | 3 | {NOR, AND, IFF} |
-| Unary + Binary | 7 | {CONST_0, ID, CONST_1, INHIBIT, NOT_Y, IMPLIES, PROJ_X} |
-| **Unary + Binary + Ternary** | **16** | 1 binary + 15 ternary |
+| Arity Range | Known Nice Sets | Example |
+|-------------|-----------------|---------|
+| Binary only | Max size = 3 (proven) | {NOR, AND, IFF} |
+| Unary + Binary | Size ≥ 7 | {CONST_0, ID, CONST_1, INHIBIT, NOT_Y, IMPLIES, PROJ_X} |
+| **Unary + Binary + Ternary** | **Size ≥ 17** | 1 constant + 1 binary + 15 ternary |
 
 ### Key Findings
 
-1. **Maximum = 16** (matches theoretical upper bound, tight bound)
-2. **Ternary functions essential** - binary-only max is 3, with ternary reaches 16
-3. **Pattern enumeration effective** - depth 3 composition checking is sufficient
+1. **Size-17 nice sets exist** - found via Z3 constraint solving
+2. **Ternary functions essential** - binary-only max is 3, with ternary reaches ≥17
+3. **Pattern enumeration effective** - depth 3-5 composition checking verifies independence
 4. **Validated implementation** - reproduces classical binary-only max=3 result
+5. **Maximum unknown** - upper bound remains an open research question
 
-**See [RESULTS.md](RESULTS.md) for detailed results.**
+**See [RESULTS.md](RESULTS.md) for detailed findings and verification.**
 
 ---
 
@@ -151,9 +154,9 @@ python -m src.cli prove z3 --help
 - Depth 3 balances thoroughness with performance
 
 **4. Incremental Arity Search**
-- Start with binary (16 functions) → max = 3
-- Add unary (4 functions) → max = 7
-- Add ternary (256 functions) → max = 16
+- Start with binary (16 functions) → max = 3 (proven)
+- Add unary (4 functions) → size ≥ 7
+- Add ternary (256 functions) → size ≥ 17 (found via Z3)
 
 **See [src/README.md](src/README.md) for complete implementation details.**
 
@@ -211,4 +214,4 @@ nice_connectives/
 
 ---
 
-**Project Status**: Implementation complete | 159 tests passing | Maximum nice set size = 16 (proven)
+**Project Status**: Implementation complete | 159 tests passing | Nice sets of size ≥17 found | Maximum unknown
