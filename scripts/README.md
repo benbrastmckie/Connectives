@@ -1,53 +1,78 @@
 # Scripts Directory
 
-Utility scripts for validation, benchmarking, and performance analysis of the Nice Connectives Solver.
+Documentation for proof methodologies and historical script organization.
 
 ## Overview
 
-This directory contains standalone scripts that supplement the main implementation:
-- **Validation scripts** verify correctness against known results
-- **Benchmark scripts** measure performance across different configurations
-- **Analysis scripts** study performance characteristics and trade-offs
+This directory preserves the documentation for different proof methodologies used in the project:
+- **proofs_z3/**: Z3-based constraint solving proof approach
+- **proofs_enumeration/**: Pattern enumeration proof approach
+- **validation/**: Validation methodology documentation
+- **benchmarks/**: Benchmark methodology documentation
 
-All scripts are executable Python modules that can be run directly from the command line.
+**Note**: The actual Python scripts have been consolidated into the unified CLI at `src/cli.py`. All functionality is now accessible via:
+
+```bash
+python -m src.cli <subcommand> [options]
+```
+
+See [../src/README.md](../src/README.md) for complete CLI documentation.
 
 ---
 
-## Validation Scripts
+## Using the Unified CLI
 
-### validate_binary_search.py
+All previous script functionality is available through the unified CLI:
 
-Validates the binary-only search against the classical result (max = 3).
+### Validation
 
-**Purpose:**
-- Confirms implementation correctness for binary connectives
-- Tests metadata logging and result tracking
-- Provides regression testing for algorithm changes
-
-**Usage:**
 ```bash
-# Basic validation (depth 3)
-./scripts/validate_binary_search.py
+# Validate binary search (replaces validate_binary_search.py)
+python -m src.cli validate binary --depth 3
 
-# Custom depth
-./scripts/validate_binary_search.py --depth 5
+# Validate ternary search (replaces validate_ternary_search.py)
+python -m src.cli validate ternary --compare --verbose
 
-# Disable symmetry breaking
-./scripts/validate_binary_search.py --no-symmetry-breaking
-
-# Verbose output
-./scripts/validate_binary_search.py --verbose
+# Available options:
+# --depth N            Maximum composition depth (default: 3)
+# --use-z3             Use Z3 SAT backend instead of pattern enumeration
+# --no-symmetry-breaking  Disable equivalence class filtering
+# --verbose            Print detailed progress information
 ```
 
-**Arguments:**
-- `--depth N` - Maximum composition depth (default: 3)
-- `--use-z3` - Use Z3 SAT backend instead of pattern enumeration
-- `--no-symmetry-breaking` - Disable equivalence class filtering
-- `--verbose` - Print detailed progress information
+### Benchmarking
 
-**Expected Output:**
+```bash
+# Quick benchmark (replaces quick_benchmark.py)
+python -m src.cli benchmark quick
+
+# Full benchmark suite (replaces benchmark.py)
+python -m src.cli benchmark full --runs 5 --output benchmarks.csv
+
+# Depth analysis (replaces benchmark_depth.py)
+python -m src.cli benchmark depth --depths 1,2,3,4,5 --runs 3
+
+# Available options:
+# --runs N             Number of runs per benchmark (default: 5)
+# --output FILE        Output CSV file path
+# --json FILE          Optional JSON output file
+# --depths LIST        Comma-separated list of depths to test
 ```
-BINARY-ONLY SEARCH VALIDATION
+
+### Proofs
+
+```bash
+# Z3-based proof (replaces proofs_z3/z3_prove_maximum.py)
+python -m src.cli prove z3 --target-size 17 --max-depth 3
+
+# Enumeration proof (replaces proofs_enumeration/prove_maximum.py)
+python -m src.cli prove enum
+
+# Available options:
+# --checkpoint FILE    Path to checkpoint file for saving/loading progress
+# --interval N         Save checkpoint every N candidates (default: 100)
+# --target-size N      Target nice set size to search for (default: 17)
+# --max-depth N        Maximum composition depth (default: 3)
 Parameters:
   Composition depth: 3
   Strategy: enumeration
@@ -474,9 +499,19 @@ All scripts use only project dependencies:
 
 ---
 
+---
+
+## Methodology Documentation
+
+For detailed information about each proof methodology, see the subdirectory READMEs:
+
+- **[proofs_z3/README.md](proofs_z3/README.md)** - Z3-based constraint solving approach
+- **[proofs_enumeration/README.md](proofs_enumeration/README.md)** - Pattern enumeration approach
+
 ## Navigation
 
-- [← Project README](../README.md)
-- [Examples](../examples/README.md)
-- [Implementation Details](../src/README.md)
-- [Usage Guide](../USAGE.md)
+- [← Project README](../README.md) - Main project overview
+- [src/README.md](../src/README.md) - Unified CLI documentation
+- [src/commands/README.md](../src/commands/README.md) - Command implementations
+- [Examples](../examples/README.md) - Execution examples
+- [Tests](../tests/README.md) - Test suite
