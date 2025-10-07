@@ -1,3 +1,11 @@
+This is a summary of the full incremental search output.
+For complete details, see incremental_search.txt (64MB, 1.4M lines).
+
+Key sections extracted below showing the progression from binary-only
+to including unary and ternary connectives.
+
+======================================================================
+
 ============================================================
 INCREMENTAL ARITY SEARCH
 ============================================================
@@ -8,42 +16,238 @@ Adding arity 2 connectives...
 Added 16 connectives of arity 2
 Total pool size: 16
 Searching for maximum nice set size...
+Connective pool size: 16
+Composition depth: 3
+Strategy: enumeration
+Searching for nice sets of size 1...
+Total combinations to check: 16
+  Found nice set: ['NOR']
+  Found nice set: ['NAND']
+Found 2 nice sets of size 1
+Size 1: Found 2 nice sets (0.00s)
+Searching for nice sets of size 2...
+Total combinations to check: 120
+  Found nice set: ['FALSE_2', 'NOR']
+  Found nice set: ['FALSE_2', 'NAND']
+  Found nice set: ['FALSE_2', 'IMP']
+  Found nice set: ['FALSE_2', 'CONV_IMP']
+  Found nice set: ['NOR', 'XOR']
+  Found nice set: ['NOR', 'NAND']
+  Found nice set: ['NOR', 'AND']
+  Found nice set: ['NOR', 'IFF']
+  Found nice set: ['NOR', 'PROJ_Y']
+  Found nice set: ['NOR', 'IMP']
+  Found nice set: ['NOR', 'PROJ_X']
+  Found nice set: ['NOR', 'CONV_IMP']
+  Found nice set: ['NOR', 'TRUE_2']
+  Found nice set: ['INHIBIT', 'NOT_X']
+  Found nice set: ['INHIBIT', 'NOT_Y']
+  Found nice set: ['INHIBIT', 'NAND']
+  Found nice set: ['INHIBIT', 'IFF']
+  Found nice set: ['INHIBIT', 'IMP']
+  Found nice set: ['INHIBIT', 'CONV_IMP']
+  Found nice set: ['INHIBIT', 'TRUE_2']
+  Found nice set: ['NOT_X', 'CONV_INHIBIT']
+  Found nice set: ['NOT_X', 'AND']
+  Found nice set: ['NOT_X', 'IMP']
+  Found nice set: ['NOT_X', 'CONV_IMP']
+  Found nice set: ['NOT_X', 'OR']
+  Found nice set: ['CONV_INHIBIT', 'NOT_Y']
+  Found nice set: ['CONV_INHIBIT', 'NAND']
+  Found nice set: ['CONV_INHIBIT', 'IFF']
+  Found nice set: ['CONV_INHIBIT', 'IMP']
+  Found nice set: ['CONV_INHIBIT', 'CONV_IMP']
+  Found nice set: ['CONV_INHIBIT', 'TRUE_2']
+  Found nice set: ['NOT_Y', 'AND']
+  Found nice set: ['NOT_Y', 'IMP']
+  Found nice set: ['NOT_Y', 'CONV_IMP']
+  Found nice set: ['NOT_Y', 'OR']
+  Found nice set: ['XOR', 'NAND']
+  Found nice set: ['XOR', 'IMP']
+  Found nice set: ['XOR', 'CONV_IMP']
+  Found nice set: ['NAND', 'IFF']
+  Found nice set: ['NAND', 'PROJ_Y']
+  Found nice set: ['NAND', 'PROJ_X']
+  Found nice set: ['NAND', 'OR']
+  Found nice set: ['NAND', 'TRUE_2']
+Found 43 nice sets of size 2
+Size 2: Found 43 nice sets (0.01s)
+Searching for nice sets of size 3...
+Total combinations to check: 560
+  Found nice set: ['FALSE_2', 'NAND', 'IFF']
+  Found nice set: ['FALSE_2', 'NAND', 'PROJ_Y']
+  Found nice set: ['FALSE_2', 'NAND', 'PROJ_X']
+  Found nice set: ['FALSE_2', 'NAND', 'OR']
+  Found nice set: ['FALSE_2', 'AND', 'IFF']
+  Found nice set: ['FALSE_2', 'AND', 'IMP']
+  Found nice set: ['FALSE_2', 'AND', 'CONV_IMP']
+  Found nice set: ['FALSE_2', 'IFF', 'IMP']
+  Found nice set: ['FALSE_2', 'IFF', 'CONV_IMP']
+  Found nice set: ['FALSE_2', 'IFF', 'OR']
+  Found nice set: ['FALSE_2', 'PROJ_Y', 'CONV_IMP']
+  Found nice set: ['FALSE_2', 'IMP', 'PROJ_X']
+  Found nice set: ['NOR', 'XOR', 'TRUE_2']
+  Found nice set: ['NOR', 'NAND', 'PROJ_Y']
+  Found nice set: ['NOR', 'NAND', 'PROJ_X']
+  Found nice set: ['NOR', 'AND', 'IFF']
+  Found nice set: ['NOR', 'AND', 'IMP']
+  Found nice set: ['NOR', 'AND', 'CONV_IMP']
+  Found nice set: ['NOR', 'AND', 'TRUE_2']
+  Found nice set: ['NOR', 'PROJ_Y', 'CONV_IMP']
+  Found nice set: ['NOR', 'PROJ_Y', 'TRUE_2']
+  Found nice set: ['NOR', 'IMP', 'PROJ_X']
+  Found nice set: ['NOR', 'PROJ_X', 'TRUE_2']
+  Found nice set: ['INHIBIT', 'NOT_X', 'XOR']
+  Found nice set: ['INHIBIT', 'NOT_Y', 'XOR']
+  Found nice set: ['INHIBIT', 'NOT_Y', 'IMP']
+  Found nice set: ['INHIBIT', 'NOT_Y', 'PROJ_X']
+  Found nice set: ['INHIBIT', 'XOR', 'IFF']
+  Found nice set: ['INHIBIT', 'XOR', 'TRUE_2']
+  Found nice set: ['INHIBIT', 'NAND', 'PROJ_X']
+  Found nice set: ['INHIBIT', 'NAND', 'OR']
+  Found nice set: ['INHIBIT', 'IFF', 'OR']
+  Found nice set: ['INHIBIT', 'IMP', 'PROJ_X']
+  Found nice set: ['INHIBIT', 'PROJ_X', 'TRUE_2']
+  Found nice set: ['INHIBIT', 'OR', 'TRUE_2']
+  Found nice set: ['NOT_X', 'CONV_INHIBIT', 'XOR']
+  Found nice set: ['NOT_X', 'CONV_INHIBIT', 'PROJ_Y']
+  Found nice set: ['NOT_X', 'CONV_INHIBIT', 'CONV_IMP']
+  Found nice set: ['NOT_X', 'XOR', 'AND']
+  Found nice set: ['NOT_X', 'XOR', 'OR']
+  Found nice set: ['NOT_X', 'AND', 'IFF']
+  Found nice set: ['NOT_X', 'AND', 'PROJ_Y']
+  Found nice set: ['NOT_X', 'AND', 'OR']
+  Found nice set: ['NOT_X', 'IFF', 'IMP']
+  Found nice set: ['NOT_X', 'IFF', 'CONV_IMP']
+  Found nice set: ['NOT_X', 'IFF', 'OR']
+  Found nice set: ['NOT_X', 'PROJ_Y', 'CONV_IMP']
+  Found nice set: ['NOT_X', 'PROJ_Y', 'OR']
+  Found nice set: ['CONV_INHIBIT', 'NOT_Y', 'XOR']
+  Found nice set: ['CONV_INHIBIT', 'XOR', 'IFF']
+  Found nice set: ['CONV_INHIBIT', 'XOR', 'TRUE_2']
+  Found nice set: ['CONV_INHIBIT', 'NAND', 'PROJ_Y']
+  Found nice set: ['CONV_INHIBIT', 'NAND', 'OR']
+  Found nice set: ['CONV_INHIBIT', 'IFF', 'OR']
+  Found nice set: ['CONV_INHIBIT', 'PROJ_Y', 'CONV_IMP']
+  Found nice set: ['CONV_INHIBIT', 'PROJ_Y', 'TRUE_2']
+  Found nice set: ['CONV_INHIBIT', 'OR', 'TRUE_2']
+  Found nice set: ['NOT_Y', 'XOR', 'AND']
+  Found nice set: ['NOT_Y', 'XOR', 'OR']
+  Found nice set: ['NOT_Y', 'AND', 'IFF']
+  Found nice set: ['NOT_Y', 'AND', 'PROJ_X']
+  Found nice set: ['NOT_Y', 'AND', 'OR']
+  Found nice set: ['NOT_Y', 'IFF', 'IMP']
+  Found nice set: ['NOT_Y', 'IFF', 'CONV_IMP']
+  Found nice set: ['NOT_Y', 'IFF', 'OR']
+  Found nice set: ['NOT_Y', 'IMP', 'PROJ_X']
+  Found nice set: ['NOT_Y', 'PROJ_X', 'OR']
+  Found nice set: ['XOR', 'NAND', 'OR']
+  Found nice set: ['XOR', 'AND', 'IFF']
+  Found nice set: ['XOR', 'AND', 'IMP']
+  Found nice set: ['XOR', 'AND', 'CONV_IMP']
+  Found nice set: ['XOR', 'AND', 'TRUE_2']
+  Found nice set: ['XOR', 'IFF', 'IMP']
+  Found nice set: ['XOR', 'IFF', 'CONV_IMP']
+  Found nice set: ['XOR', 'IFF', 'OR']
+  Found nice set: ['XOR', 'OR', 'TRUE_2']
+Found 76 nice sets of size 3
+Size 3: Found 76 nice sets (0.19s)
+Searching for nice sets of size 4...
+Total combinations to check: 1820
+  Checked 1000/1820 combinations...
+Found 0 nice sets of size 4
+Size 4: No nice sets found (1.22s)
+Searching for nice sets of size 5...
+Total combinations to check: 4368
+  Checked 1000/4368 combinations...
+  Checked 2000/4368 combinations...
+  Checked 3000/4368 combinations...
+  Checked 4000/4368 combinations...
+Found 0 nice sets of size 5
+Size 5: No nice sets found (3.61s)
+Searching for nice sets of size 6...
+Total combinations to check: 8008
+  Checked 1000/8008 combinations...
+  Checked 2000/8008 combinations...
+  Checked 3000/8008 combinations...
+  Checked 4000/8008 combinations...
+  Checked 5000/8008 combinations...
+  Checked 6000/8008 combinations...
+  Checked 7000/8008 combinations...
+  Checked 8000/8008 combinations...
+Found 0 nice sets of size 6
+Size 6: No nice sets found (5.51s)
+Searching for nice sets of size 7...
+Total combinations to check: 11440
+  Checked 1000/11440 combinations...
+  Checked 2000/11440 combinations...
+  Checked 3000/11440 combinations...
+  Checked 4000/11440 combinations...
+  Checked 5000/11440 combinations...
+  Checked 6000/11440 combinations...
+  Checked 7000/11440 combinations...
+  Checked 8000/11440 combinations...
+  Checked 9000/11440 combinations...
+  Checked 10000/11440 combinations...
+  Checked 11000/11440 combinations...
+Found 0 nice sets of size 7
+Size 7: No nice sets found (5.23s)
+Searching for nice sets of size 8...
+Total combinations to check: 12870
+  Checked 1000/12870 combinations...
+  Checked 2000/12870 combinations...
+  Checked 3000/12870 combinations...
+  Checked 4000/12870 combinations...
+  Checked 5000/12870 combinations...
+  Checked 6000/12870 combinations...
+  Checked 7000/12870 combinations...
+  Checked 8000/12870 combinations...
+  Checked 9000/12870 combinations...
+  Checked 10000/12870 combinations...
+  Checked 11000/12870 combinations...
+  Checked 12000/12870 combinations...
+Found 0 nice sets of size 8
+Size 8: No nice sets found (3.57s)
+Searching for nice sets of size 9...
+Total combinations to check: 11440
+  Checked 1000/11440 combinations...
+  Checked 2000/11440 combinations...
+  Checked 3000/11440 combinations...
+  Checked 4000/11440 combinations...
+  Checked 5000/11440 combinations...
+  Checked 6000/11440 combinations...
+  Checked 7000/11440 combinations...
+  Checked 8000/11440 combinations...
+  Checked 9000/11440 combinations...
+  Checked 10000/11440 combinations...
+  Checked 11000/11440 combinations...
+Found 0 nice sets of size 9
+Size 9: No nice sets found (2.19s)
+Searching for nice sets of size 10...
+Total combinations to check: 8008
+  Checked 1000/8008 combinations...
+  Checked 2000/8008 combinations...
+  Checked 3000/8008 combinations...
+  Checked 4000/8008 combinations...
+  Checked 5000/8008 combinations...
+  Checked 6000/8008 combinations...
+  Checked 7000/8008 combinations...
+  Checked 8000/8008 combinations...
+Found 0 nice sets of size 10
+Size 10: No nice sets found (1.40s)
 
-[... searching through sizes 1-3 ...]
-
-Size 3: Found 76 nice sets (0.24s)
-Size 4: No nice sets found (1.41s)
-Size 5: No nice sets found (3.96s)
-
-Search completed in 5.62s
+Search completed in 22.93s
 
 Arity 2 result: max size = 3
-
-Example nice set (size 3):
-  ['f2_0', 'f2_7', 'f2_9']
-  (All binary functions)
+Time: 22.93s
+NEW BEST: 3
 
 ============================================================
 Adding arity 1 connectives...
 ============================================================
 Added 4 connectives of arity 1
-Total pool size: 20
-Searching for maximum nice set size...
 
-[... searching through sizes 1-6 ...]
-
-Size 6: Found 46 nice sets (31.51s)
-Size 7: Found 2 nice sets (78.32s)
-Size 8: No nice sets found (124.15s)
-
-Search completed in 234.01s
-
-Arity 1 result: max size = 7
-NEW BEST: 7 (was 3)
-
-Example nice set (size 7):
-  ['f2_1', 'f2_6', 'f1_0', 'f1_1', 'f1_2', 'f1_3', 'f1_?']
-  (1 binary + 6 unary/other functions)
+... [1700 lines of size-2 nice sets omitted] ...
 
 ============================================================
 Adding arity 3 connectives...
@@ -51,33 +255,56 @@ Adding arity 3 connectives...
 Added 256 connectives of arity 3
 Total pool size: 276
 Searching for maximum nice set size...
-
-[... searching through larger combinations ...]
-
-Size 15: Found X nice sets
-Size 16: Found Y nice sets
-Size 17: No nice sets found
-
-Search completed in Z.ZZs
-
-Arity 3 result: max size = 16
-NEW BEST: 16 (was 7)
-
-Example nice set (size 16):
-  ['f2_6', 'f3_23', 'f3_43', 'f3_87', 'f3_101', 'f3_116',
-   'f3_139', 'f3_142', 'f3_155', 'f3_172', 'f3_183', 'f3_197',
-   'f3_201', 'f3_226', 'f3_233', 'f3_248']
-  (1 binary + 15 ternary functions)
-
-============================================================
-FINAL RESULT: Maximum nice set size = 16
-============================================================
+Connective pool size: 276
 Composition depth: 3
 Strategy: enumeration
-Total search time: X.XXs
+Searching for nice sets of size 1...
+Total combinations to check: 276
+  Found nice set: ['NOR']
+  Found nice set: ['NAND']
+  Found nice set: ['f3_1']
+  Found nice set: ['f3_3']
+  Found nice set: ['f3_5']
+  Found nice set: ['f3_7']
+  Found nice set: ['f3_9']
+  Found nice set: ['f3_11']
+  Found nice set: ['f3_13']
+  Found nice set: ['f3_17']
+  Found nice set: ['f3_19']
+  Found nice set: ['f3_21']
+  Found nice set: ['f3_25']
+  Found nice set: ['f3_27']
+  Found nice set: ['f3_29']
+  Found nice set: ['f3_31']
+  Found nice set: ['f3_33']
+  Found nice set: ['f3_35']
+  Found nice set: ['f3_37']
+  Found nice set: ['f3_39']
+  Found nice set: ['f3_41']
+  Found nice set: ['f3_45']
+  Found nice set: ['f3_47']
+  Found nice set: ['f3_49']
+  Found nice set: ['f3_53']
+  Found nice set: ['f3_55']
+  Found nice set: ['f3_57']
+  Found nice set: ['f3_59']
+  Found nice set: ['f3_61']
+  Found nice set: ['f3_63']
+  Found nice set: ['f3_65']
+  Found nice set: ['f3_67']
+  Found nice set: ['f3_69']
+  Found nice set: ['f3_71']
+  Found nice set: ['f3_73']
+  Found nice set: ['f3_75']
+  Found nice set: ['f3_79']
+  Found nice set: ['f3_81']
+  Found nice set: ['f3_83']
+  Found nice set: ['f3_87']
+  Found nice set: ['f3_89']
+  Found nice set: ['f3_91']
+  Found nice set: ['f3_93']
+  Found nice set: ['f3_95']
+  Found nice set: ['f3_97']
+  Found nice set: ['f3_99']
 
-Key findings:
-  - Binary only: max = 3
-  - With unary:  max = 7  (133% improvement)
-  - With ternary: max = 16 (129% improvement)
-  - Theoretical upper bound: 16 (MATCHED!)
+... [Additional ternary search results - see full file for complete output] ...
