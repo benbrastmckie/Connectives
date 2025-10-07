@@ -214,16 +214,13 @@ Any approach should generate a certificate file containing:
 
 ## Comparison with Existing Results
 
-Our incremental search (`examples/incremental_search.txt`) already does exhaustive search at each size, incrementally. The question is: **did it check size-17?**
+Our incremental search (`examples/incremental_search_summary.txt`) already does exhaustive search at each size, incrementally. The question is: **did it check size-17?**
 
 Let's verify:
 
 ```bash
-# Check if incremental search reached size-17
-grep -E "^(Size 17|Arity .* result:)" examples/incremental_search.txt
-
-# Check what the maximum size found was
-grep "NEW BEST:" examples/incremental_search.txt | tail -1
+# Check the summary for maximum size found
+cat examples/incremental_search_summary.txt
 ```
 
 If the incremental search found max=16 and then searched for size-17 with no results, **we already have the proof!** We just need to extract and present it clearly.

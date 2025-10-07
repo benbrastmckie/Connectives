@@ -1,1 +1,4 @@
 **/__pycache__
+*.pyc
+*_temp.txt
+*_part*.txt

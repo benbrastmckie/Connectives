@@ -121,7 +121,7 @@ Key findings:
 
 ### Incremental Arity Search
 
-**File**: [examples/incremental_search.txt](examples/incremental_search.txt)
+**File**: [examples/incremental_search_summary.txt](examples/incremental_search_summary.txt)
 
 This demonstrates the full incremental search starting with binary (arity-2), then adding unary (arity-1), then ternary (arity-3) connectives. Shows how maximum nice set size increases from 3 → 7 → 16 as higher arities are included.
 
