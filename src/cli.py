@@ -97,6 +97,12 @@ For more information on each subcommand:
         default=3,
         help='Maximum arity to include in connective pool (default: 3)'
     )
+    prove_z3_parser.add_argument(
+        '--max-candidates',
+        type=int,
+        default=10000,
+        help='Maximum number of complete sets to check before stopping (default: 10000)'
+    )
 
     # prove enum
     prove_enum_parser = prove_subparsers.add_parser(
@@ -308,7 +314,8 @@ For more information on each subcommand:
                     interval=args.interval,
                     target_size=args.target_size,
                     max_depth=args.max_depth,
-                    max_arity=args.max_arity
+                    max_arity=args.max_arity,
+                    max_candidates=args.max_candidates
                 )
             elif args.method == 'enum':
                 return prove.prove_enumeration()

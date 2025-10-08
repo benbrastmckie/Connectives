@@ -14,7 +14,7 @@ from src.proofs.z3_proof import (
 from src.proofs import enumeration_proof
 
 
-def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_arity=3):
+def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_arity=3, max_candidates=10000):
     """
     Run Z3-based proof for maximum nice set size.
 
@@ -24,6 +24,7 @@ def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_ari
         target_size: Target nice set size to search for
         max_depth: Maximum composition depth for independence checking
         max_arity: Maximum arity to include in connective pool
+        max_candidates: Maximum number of complete sets to check before stopping
 
     Returns:
         Exit code (0 for success, 1 for failure)
@@ -46,7 +47,8 @@ def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_ari
         target_size=target_size,
         max_depth=max_depth,
         checkpoint_path=checkpoint,
-        checkpoint_interval=interval
+        checkpoint_interval=interval,
+        max_candidates=max_candidates
     )
 
     print()

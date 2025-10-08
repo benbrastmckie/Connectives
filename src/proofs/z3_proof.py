@@ -91,7 +91,8 @@ def load_checkpoint(checkpoint_path):
         return json.load(f)
 
 def z3_proof_approach_1_symmetry_breaking(pool, target_size=17, max_depth=3,
-                                          checkpoint_path=None, checkpoint_interval=100):
+                                          checkpoint_path=None, checkpoint_interval=100,
+                                          max_candidates=10000):
     """
     Use Z3 for smart enumeration with symmetry breaking.
 
@@ -311,9 +312,9 @@ def z3_proof_approach_1_symmetry_breaking(pool, target_size=17, max_depth=3,
             break
 
         # Optional: timeout after checking many candidates
-        if candidates_checked >= 10000:
+        if candidates_checked >= max_candidates:
             print()
-            print(f"Stopping after {candidates_checked} candidates (timeout)")
+            print(f"Stopping after {candidates_checked} candidates (max_candidates limit)")
             break
 
     elapsed = time.time() - start_time

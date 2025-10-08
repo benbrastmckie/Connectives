@@ -38,7 +38,7 @@ Z3 constraint solver-based proof for maximum nice set size.
 
 **Usage:**
 ```bash
-# Via CLI
+# Via CLI (default settings)
 python3 -m src.cli prove z3
 
 # With checkpointing
@@ -46,6 +46,9 @@ python3 -m src.cli prove z3 --checkpoint proof.json --interval 50
 
 # Custom parameters
 python3 -m src.cli prove z3 --target-size 17 --max-depth 3
+
+# Extended search for larger sizes (increases candidate limit)
+python3 -m src.cli prove z3 --target-size 35 --max-depth 3 --max-candidates 50000
 
 # Direct execution
 python3 -m src.proofs.z3_proof
@@ -57,12 +60,23 @@ python3 -m src.proofs.z3_proof
 - Advanced symmetry breaking (arity distribution, mandatory connectives)
 - Checkpoint/resume support for long-running searches
 - Configurable target size and composition depth
+- Adjustable candidate limit for extended searches (--max-candidates)
 
 **Symmetry Breaking Optimizations:**
 - Mandatory inclusion of FALSE constant
 - Minimum arity distribution constraints
 - At least one constant required
 - Lexicographic ordering hints
+
+**Search Parameters:**
+- `--target-size N`: Search for nice sets of size N (default: 17)
+- `--max-depth D`: Maximum composition depth for independence checking (default: 3)
+- `--max-candidates C`: Maximum number of complete sets to check before stopping (default: 10000)
+  - Increase this for larger target sizes or sparse solution spaces
+  - Example: Size-35 search requires `--max-candidates 50000`
+  - Higher values allow longer searches but may take hours
+- `--checkpoint FILE`: Save/load progress for resumable searches
+- `--interval N`: Save checkpoint every N candidates (default: 100)
 
 ## Proof Strategy
 

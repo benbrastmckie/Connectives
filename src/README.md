@@ -1173,6 +1173,8 @@ prove_subparsers = prove_parser.add_subparsers(dest='method', required=True)
 prove_z3_parser = prove_subparsers.add_parser('z3', help='Z3-based proof')
 prove_z3_parser.add_argument('--checkpoint', help='Checkpoint file')
 prove_z3_parser.add_argument('--max-depth', type=int, default=3)
+prove_z3_parser.add_argument('--max-candidates', type=int, default=10000,
+                             help='Maximum candidates to check before stopping')
 
 prove_enum_parser = prove_subparsers.add_parser('enum', help='Enumeration proof')
 ```
@@ -1220,8 +1222,11 @@ python -m src.cli search full --max-arity 3
 #### Proof Commands
 
 ```bash
-# Z3-based proof
+# Z3-based proof with default settings (10,000 candidate limit)
 python -m src.cli prove z3 --target-size 17 --max-depth 3
+
+# Z3-based proof with extended search limit
+python -m src.cli prove z3 --target-size 35 --max-depth 3 --max-candidates 50000
 
 # Enumeration-based proof
 python -m src.cli prove enum

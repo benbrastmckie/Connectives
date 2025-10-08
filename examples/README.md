@@ -19,7 +19,8 @@ This directory contains verified examples of nice connective sets with complete 
 - **[z3_nice_set_31.md](z3_nice_set_31.md)** - Z3-discovered size-31 nice set (359.62s)
 - **[z3_nice_set_32.md](z3_nice_set_32.md)** - Z3-discovered size-32 nice set (35.93s)
 - **[z3_nice_set_33.md](z3_nice_set_33.md)** - Z3-discovered size-33 nice set (24.15s)
-- **[z3_nice_set_34.md](z3_nice_set_34.md)** - **Current verified maximum**: size-34 nice set (86.69s)
+- **[z3_nice_set_34.md](z3_nice_set_34.md)** - Z3-discovered size-34 nice set (86.69s)
+- **[z3_nice_set_35.md](z3_nice_set_35.md)** - Z3-discovered size-35 nice set (2783.17s, ~46 minutes)
 
 #### Enumeration (Brute-Force) Examples
 - **[enum_binary_only_max3.md](enum_binary_only_max3.md)** - Binary-only maximum = 3 (5.17s, found all 76 nice sets)
@@ -49,16 +50,17 @@ All examples are reproducible using commands documented in each file.
 | Z3: Size 31 | **31** | 0,3 | 359.62s | Verified | [Details](z3_nice_set_31.md) |
 | Z3: Size 32 | **32** | 0,2,3 | 35.93s | Verified | [Details](z3_nice_set_32.md) |
 | Z3: Size 33 | **33** | 0,3 | 24.15s | Verified | [Details](z3_nice_set_33.md) |
-| **Z3: Current maximum** | **34** | **0,2,3** | **86.69s** | **Largest verified** | [Details](z3_nice_set_34.md) |
+| Z3: Size 34 | **34** | 0,2,3 | 86.69s | Verified | [Details](z3_nice_set_34.md) |
+| **Z3: NEW RECORD** | **35** | **0,2,3** | **2783.17s (~46 min)** | **Largest verified** | [Details](z3_nice_set_35.md) |
 
 ### Key Finding
 
 **Classical result**: Binary-only maximum = 3 (proven)
 **Unary + Binary**: Maximum = 5 (proven, 67% larger than binary-only)
-**This implementation**: Mixed-arity maximum ≥ 34 (1033% larger - 11.3× binary-only!)
-**Performance pattern**: Non-monotonic search times (360s → 36s → 24s → 87s for sizes 31-34)
+**This implementation**: Mixed-arity maximum ≥ 35 (1067% larger - 11.7× binary-only!)
+**Performance pattern**: Non-monotonic then sharp increase (360s → 36s → 24s → 87s → 2783s for sizes 31-35)
 **Structural diversity**: Found both single-constant and dual-constant (FALSE+TRUE) nice sets
-**Status**: Size 35+ unknown (continuing search)
+**Status**: Size 36+ unknown - solution space becoming very sparse (26,860 candidates checked for size-35)
 
 See [systematic search findings](../specs/reports/013_systematic_search_findings.md) for complete results.
 
@@ -236,11 +238,11 @@ Size-33 nice set - fastest discovery in the series.
 - **Fastest search**: 24.15 seconds - peak of acceleration trend
 - Pure ternary + FALSE structure
 
-### 8. Z3-Discovered Size-34 Nice Set (Current Verified Maximum)
+### 8. Z3-Discovered Size-34 Nice Set
 
 **File**: [z3_nice_set_34.md](z3_nice_set_34.md)
 
-The current verified maximum nice set size. First set with both FALSE and TRUE constants.
+Size-34 nice set - first set with both FALSE and TRUE constants.
 
 **Contains**:
 - Complete set listing: FALSE + TRUE + TRUE_2 (binary constant) + 31 ternary functions
@@ -255,13 +257,34 @@ The current verified maximum nice set size. First set with both FALSE and TRUE c
 - Includes TRUE_2 (constant true binary function)
 - Shows non-monotonic search complexity continues
 
+### 9. Z3-Discovered Size-35 Nice Set (NEW RECORD - Current Verified Maximum)
+
+**File**: [z3_nice_set_35.md](z3_nice_set_35.md)
+
+The current verified maximum nice set size. **First discovery beyond size-34.**
+
+**Contains**:
+- Complete set listing: FALSE + CONV_INHIBIT + 33 ternary functions
+- Detailed completeness and independence verification
+- Comparison with all smaller sizes (1067% larger - 11.7× binary-only!)
+- Search performance: 2783.17 seconds (~46 minutes), checked 26,860 complete sets
+
+**Key Insights**:
+- **94% ternary**: 33 of 35 connectives are ternary (highest percentage yet)
+- **Dramatically harder to find**: Required 26,860 candidates vs. 3,226 for size-34 (8× more)
+- **Extended search required**: Needed to increase max_candidates from 10,000 to 50,000
+- **Solution space very sparse**: Strong evidence we are approaching the maximum
+- Includes CONV_INHIBIT binary function (x ∧ ¬y)
+- Search time jumped from ~87s to ~2783s (32× increase)
+
 **Major Implications**:
 - Higher arities provide far more room for independence than binary-only
-- Ternary functions enable sets 11× larger than binary-only maximum
-- Size 34 represents current state-of-the-art for verified nice sets
-- Multiple structural families exist (single vs dual constants)
-- Search times fluctuate but remain feasible (24-360s range for sizes 31-34)
-- Theoretical upper bound remains unknown but continuing search is worthwhile
+- Ternary functions enable sets 11.7× larger than binary-only maximum
+- Size 35 represents current state-of-the-art for verified nice sets
+- Multiple structural families exist (single vs dual constants, different binary functions)
+- Search difficulty increasing dramatically - likely approaching theoretical maximum
+- Size 36+ may require even longer searches (hours+) or may not exist at all
+- Theoretical upper bound remains unknown but solution space becoming very sparse
 
 ---
 
@@ -330,19 +353,27 @@ python -m src.cli prove z3 --target-size 33 --max-depth 3
 # Expected: ~24s - fastest in the series
 ```
 
-#### Size-34 Nice Set (Current Verified Maximum)
+#### Size-34 Nice Set
 ```bash
 python -m src.cli prove z3 --target-size 34 --max-depth 3
 # Expected: ~87s - moderate speed
+```
+
+#### Size-35 Nice Set (Current Verified Maximum)
+```bash
+python -m src.cli prove z3 --target-size 35 --max-depth 3 --max-candidates 50000
+# Expected: ~2783s (~46 minutes) - dramatically harder to find
+# Note: Requires extended candidate limit (50,000 vs default 10,000)
 ```
 
 **Note:**
 - Enumeration times are consistent (exhaustive search)
 - Z3 times and specific sets found may vary significantly between runs
 - Maximum sizes should be consistent across all runs
-- Search times non-monotonic: 360s → 36s → 24s → 87s for sizes 31-34
-- All sizes 31-34 complete in under 6 minutes
-- Size-35+ unknown but continuing search is feasible
+- Search times non-monotonic then sharp increase: 360s → 36s → 24s → 87s → 2783s for sizes 31-35
+- Sizes 31-34 complete in under 6 minutes
+- Size-35 requires ~46 minutes with extended candidate limit
+- Size-36+ unknown but likely requires extended searches (hours+) or may not exist
 
 ---
 
