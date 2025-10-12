@@ -2,6 +2,27 @@
 
 Specialized AI agent definitions for Claude Code. Each agent is a focused assistant with specific capabilities, tool access, and expertise designed to handle particular aspects of development workflows.
 
+**Current Agent Count**: 11 specialized agents
+
+## Recent Changes
+
+### Shared Protocols (2025-10-06)
+Agents now reference shared protocol documentation in `.claude/agents/shared/`:
+- `progress-streaming-protocol.md` - Standard progress reporting format
+- `error-handling-guidelines.md` - Consistent error handling patterns
+
+**Benefits**:
+- ~200 LOC reduction through duplication removal
+- Standardized behavior across all agents
+- Easier agent creation with documented patterns
+
+### Agent Standardization (2025-10-06)
+All agents now follow consistent structure:
+1. **Core Responsibility** - Single clear purpose
+2. **Capabilities** - What the agent can do
+3. **Protocols** - References to shared documentation
+4. **Specialization** - Unique agent-specific logic
+
 ## Purpose
 
 Agents enable modular, focused assistance by providing:
@@ -95,6 +116,27 @@ Agents enable modular, focused assistance by providing:
 
 ---
 
+### doc-converter.md
+**Purpose**: Convert Word (DOCX) and PDF files to Markdown format
+
+**Capabilities**:
+- Batch document conversion (DOCX and PDF)
+- Pandoc-based DOCX conversion (optimal quality)
+- marker-pdf-based PDF conversion (AI-powered)
+- Image extraction and organization
+- Conversion validation and quality checks
+- Progress reporting and statistics
+
+**Allowed Tools**: Read, Grep, Glob, Bash, Write
+
+**Typical Use Cases**:
+- Converting legacy documentation to Markdown
+- Batch processing document archives
+- Migrating Word docs to version control
+- Extracting content from PDF reports
+
+---
+
 ### doc-writer.md
 **Purpose**: Create and update documentation
 
@@ -111,6 +153,26 @@ Agents enable modular, focused assistance by providing:
 - Creating missing READMEs
 - Updating documentation after changes
 - Generating API documentation
+
+---
+
+### github-specialist.md
+**Purpose**: Manage GitHub operations including PRs, issues, and CI/CD monitoring
+
+**Capabilities**:
+- Pull request creation with rich metadata
+- Issue management and categorization
+- CI/CD workflow monitoring
+- Repository state verification
+- GitHub CLI integration
+
+**Allowed Tools**: Read, Grep, Glob, Bash
+
+**Typical Use Cases**:
+- Creating PRs after implementation completion
+- Generating issues from debug reports
+- Monitoring CI workflow status
+- Linking PRs to implementation plans and reports
 
 ---
 
@@ -187,6 +249,26 @@ Agents enable modular, focused assistance by providing:
 - Running test suites
 - Analyzing test failures
 - Validating implementations
+
+---
+
+### complexity_estimator.md
+**Purpose**: Provide context-aware complexity analysis for plan expansion/collapse decisions
+
+**Capabilities**:
+- Context-aware complexity estimation (1-10 scale)
+- Architectural significance assessment
+- Integration complexity analysis
+- Risk and testing requirements evaluation
+- JSON-structured recommendations with reasoning
+
+**Allowed Tools**: Read, Grep, Glob
+
+**Typical Use Cases**:
+- Auto-analysis mode in /expand command
+- Auto-analysis mode in /collapse command
+- Determining which phases warrant separate files
+- Evaluating if expanded content can be collapsed
 
 ## Agent Definition Format
 
@@ -338,7 +420,127 @@ Commands orchestrate agents to accomplish complex workflows:
 /debug
   ├── debug-specialist → Investigate issue
   └── code-writer → Apply fixes (if requested)
+
+/expand-phase (agent-assisted for complex phases)
+  └── general-purpose + research-specialist behavior → Research phase context
 ```
+
+### /expand-phase Integration
+
+**Agent Usage Pattern**: Behavioral Injection
+
+`/expand-phase` uses a unique pattern: **general-purpose agents** with **behavioral guidelines** from agent definition files.
+
+**Why**: Claude Code only supports 3 agent types (general-purpose, statusline-setup, output-style-setup). We simulate specialized agents by having general-purpose agents read and follow behavior definitions.
+
+**Invocation**:
+```markdown
+Task tool:
+  subagent_type: general-purpose  # Only valid type
+  prompt: |
+    Read and follow: .claude/agents/research-specialist.md
+
+    [Agent-specific instructions]
+```
+
+**Agent Behaviors Used**:
+- **research-specialist**: Default for codebase analysis (complex phases)
+- **code-reviewer**: For refactor/consolidation phases
+- **plan-architect**: For very complex phase structure analysis
+
+**Complexity Detection**:
+- Simple phases (≤5 tasks, <10 files): Direct expansion, no agent
+- Complex phases (>5 tasks, ≥10 files, or keywords): Agent-assisted research
+
+**Synthesis**:
+Agent provides 200-250 word research → Claude synthesizes into 300-500+ line detailed specification
+
+**Benefits**:
+- Real file:line references from research
+- Concrete code examples based on patterns found
+- Testing strategy based on current codebase state
+- Implementation steps use actual structures
+
+See `.claude/commands/expand-phase.md` for detailed agent usage patterns.
+
+## Neovim Integration
+
+Agents in this directory are integrated with the Neovim artifact picker, appearing in two contexts:
+
+### Picker Display Modes
+
+1. **Nested Under Commands** - Agents appear indented under commands that use them
+   ```
+   * plan                        Create implementation plans
+     ├─ [agent] plan-architect  AI planning specialist
+     └─ list-reports            List available research reports
+   ```
+
+2. **Standalone Agents Section** - Agents not associated with any command appear in a dedicated [Agents] category
+
+### Accessing Agents via Picker
+
+- **Keybinding**: `<leader>ac` in normal mode
+- **Command**: `:ClaudeCommands`
+- **Category**: [Agents] section (for standalone) or nested under commands
+
+### Picker Features for Agents
+
+**Visual Display**:
+- Agent names prefixed with `[agent]` tag
+- Local agents marked with `*` prefix
+- Nested under parent commands with tree characters
+- Cross-references showing which commands use each agent
+
+**Preview Features**:
+- Agent description and capabilities
+- Allowed tools list
+- "Commands that use this agent" section with tree-formatted list
+- File location and local/global status
+
+**Quick Actions**:
+- `<CR>` - Open agent file for editing
+- `<C-l>` - Load agent locally to project
+- `<C-g>` - Update from global version
+- `<C-s>` - Save local agent to global
+- `<C-e>` - Edit agent file in buffer
+- `<C-u>`/`<C-d>` - Scroll preview up/down
+
+**Example Workflow**:
+```vim
+" Open picker
+:ClaudeCommands
+
+" Navigate to plan-architect agent
+" Preview shows: "Commands that use this agent: ├─ plan, └─ revise"
+" Press <C-e> to edit agent definition
+```
+
+### Agent Cross-References
+
+The picker automatically displays which commands use each agent in the preview pane:
+
+```
+Agent: plan-architect
+
+Description: AI planning specialist
+
+Allowed Tools: ReadFile, WriteFile, SlashCommand
+
+Commands that use this agent:
+   ├─ plan
+   └─ revise
+
+File: /home/user/.claude/agents/plan-architect.md
+```
+
+This helps discover agent usage patterns and identify agents suitable for reuse in new commands.
+
+### Documentation
+
+- [Neovim Claude Integration](../../nvim/lua/neotex/plugins/ai/claude/README.md) - Integration overview
+- [Commands Picker](../../nvim/lua/neotex/plugins/ai/claude/commands/README.md) - Picker documentation
+- [Picker Implementation](../../nvim/lua/neotex/plugins/ai/claude/commands/picker.lua) - Source code
 
 ## Standards Compliance
 
@@ -350,15 +552,18 @@ All agents follow documentation standards:
 - **Code examples** with syntax highlighting
 - **CommonMark** specification
 
-See [/home/benjamin/.config/nvim/docs/GUIDELINES.md](../../nvim/docs/GUIDELINES.md) for complete standards.
+See [/home/benjamin/.config/nvim/docs/CODE_STANDARDS.md](../../nvim/docs/CODE_STANDARDS.md) for complete standards.
 
 ## Navigation
 
 ### Agent Definitions
 - [code-reviewer.md](code-reviewer.md) - Code quality analysis
 - [code-writer.md](code-writer.md) - Code implementation
+- [complexity_estimator.md](complexity_estimator.md) - Context-aware complexity analysis
 - [debug-specialist.md](debug-specialist.md) - Issue investigation
+- [doc-converter.md](doc-converter.md) - Convert Word/PDF to Markdown
 - [doc-writer.md](doc-writer.md) - Documentation creation
+- [github-specialist.md](github-specialist.md) - GitHub operations and PR management
 - [metrics-specialist.md](metrics-specialist.md) - Performance analysis
 - [plan-architect.md](plan-architect.md) - Implementation planning
 - [research-specialist.md](research-specialist.md) - Research and reports
