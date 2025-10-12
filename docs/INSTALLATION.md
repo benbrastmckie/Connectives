@@ -370,7 +370,7 @@ nix-shell
 python3 -m src.cli --help
 ```
 
-### Virtual Environment (Optional but Recommended)
+### Virtual Environment (Optional)
 
 Using a virtual environment isolates project dependencies.
 
