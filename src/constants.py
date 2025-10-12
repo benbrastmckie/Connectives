@@ -13,6 +13,10 @@ from src.connectives import Connective
 CONST_FALSE = Connective(0, 0b0, "FALSE")
 CONST_TRUE = Connective(0, 0b1, "TRUE")
 
+# Aliases for convenience
+FALSE = CONST_FALSE
+TRUE = CONST_TRUE
+
 
 # ========== Arity 1 (Unary) ==========
 
@@ -22,6 +26,7 @@ CONST_0_UNARY = Connective(1, 0b00, "0")  # f(x) = 0
 CONST_1_UNARY = Connective(1, 0b11, "1")  # f(x) = 1
 
 NOT = NEGATION  # Alias
+ID = IDENTITY   # Alias
 
 
 # ========== Arity 2 (Binary) ==========
@@ -34,7 +39,9 @@ AND = Connective(2, 0b1000, "AND")        # x ∧ y
 OR = Connective(2, 0b1110, "OR")          # x ∨ y
 XOR = Connective(2, 0b0110, "XOR")        # x ⊕ y
 IMPLIES = Connective(2, 0b1011, "IMP")    # x → y
+IMP = IMPLIES  # Alias
 IFF = Connective(2, 0b1001, "IFF")        # x ↔ y (equivalence)
+EQUIV = IFF  # Alias
 
 # Negated operations
 NAND = Connective(2, 0b0111, "NAND")      # ¬(x ∧ y)
