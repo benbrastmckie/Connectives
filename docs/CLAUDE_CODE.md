@@ -103,6 +103,30 @@ Once authenticated, you're ready to use Claude Code!
 
 ## Using Claude Code with This Repository
 
+### First Time Setup: Cloning and Installing
+
+If you haven't cloned this repository yet, Claude Code can help you follow the installation instructions. Once you have Claude Code installed and authenticated, start it in the directory that you want to clone this repository into (this will be the directory you will then work out of):
+
+```bash
+claude
+```
+
+Then ask Claude Code to follow the installation instructions:
+
+```
+Please follow the installation instructions at
+https://github.com/benbrastmckie/Connectives/blob/master/docs/INSTALLATION.md
+to clone the repository into this directory and install all dependencies.
+```
+
+Claude Code will:
+1. Fetch and read the installation instructions from the URL
+2. Clone the repository to your current directory
+3. Install Z3 and all required Python packages
+4. Verify the installation works correctly
+
+**Prerequisites:** Make sure you have Python 3 and git installed before running the installation.
+
 ### Basic Workflow
 
 **1. Navigate to the repository:**
