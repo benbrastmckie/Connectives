@@ -204,6 +204,10 @@ def get_post_class_membership(connective: Connective) -> Set[str]:
     return classes
 
 
+# Alias for notebook compatibility
+get_post_class_memberships = get_post_class_membership
+
+
 def is_complete(connectives: List[Connective]) -> bool:
     """
     Check if a set of connectives is complete using Post's theorem.
