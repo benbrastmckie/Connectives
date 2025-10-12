@@ -10,6 +10,7 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 
 - **[Installation](docs/INSTALLATION.md)** - Platform-specific installation guide
 - **[Usage Guide](docs/USAGE.md)** - Complete command reference and workflows
+- **[Jupyter Notebooks](notebooks/README.md)** - Interactive tutorials and examples
 - **[Claude Code Guide](docs/CLAUDE_CODE.md)** - Using AI assistance with this codebase
 - **[Results](docs/RESULTS.md)** - **Research findings (size-35 sets found)**
 - **[Examples](examples/README.md)** - Real execution examples and output

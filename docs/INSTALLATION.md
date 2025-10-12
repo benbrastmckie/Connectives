@@ -89,6 +89,18 @@ ls                        # Verify you see: src/, tests/, README.md
 
 These will be installed automatically with `pip install -e .`, but platform-specific installation methods are detailed below.
 
+### Optional Dependencies (Jupyter Notebooks)
+
+For interactive Jupyter notebook tutorials:
+- **jupyter** - Jupyter notebook server
+- **ipykernel** - IPython kernel for Jupyter
+- **matplotlib** - Visualization library
+- **pandas** - Data analysis and DataFrame support
+
+Install with: `pip install -e ".[jupyter]"`
+
+See **[Jupyter Notebooks Guide](JUPYTER.md)** for complete setup and usage instructions.
+
 ---
 
 ## Installing Python 3
@@ -629,12 +641,13 @@ pip install -e .
 
 After successful installation:
 
-1. **Read the usage guide:** [USAGE.md](USAGE.md)
-2. **Use Claude Code for AI assistance:** [CLAUDE_CODE.md](CLAUDE_CODE.md) - Get help understanding and working with the codebase
-3. **Explore examples:** [examples/README.md](../examples/README.md)
-4. **View research results:** [RESULTS.md](RESULTS.md)
-5. **Understand implementation:** [src/README.md](../src/README.md)
-6. **Browse ternary connectives:** [Glossary](../glossary/connectives.md) - Complete reference for all f3_N connectives
+1. **Try interactive notebooks (optional):** [Jupyter Notebooks](JUPYTER.md) - Interactive tutorials and examples
+2. **Read the usage guide:** [USAGE.md](USAGE.md)
+3. **Use Claude Code for AI assistance:** [CLAUDE_CODE.md](CLAUDE_CODE.md) - Get help understanding and working with the codebase
+4. **Explore examples:** [examples/README.md](../examples/README.md)
+5. **View research results:** [RESULTS.md](RESULTS.md)
+6. **Understand implementation:** [src/README.md](../src/README.md)
+7. **Browse ternary connectives:** [Glossary](../glossary/connectives.md) - Complete reference for all f3_N connectives
 
 ### Verify Dependencies Installed
 
