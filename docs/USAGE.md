@@ -24,6 +24,23 @@ Complete guide for using the Nice Connectives Solver.
 
 ## Quick Reference
 
+### Interactive Learning
+
+**New to the project?** Try the interactive Jupyter notebooks:
+
+```bash
+# Install Jupyter dependencies
+pip install -e ".[jupyter]"
+
+# Launch notebooks
+cd notebooks/
+jupyter notebook
+
+# Open 00_setup_and_basics.ipynb to begin
+```
+
+See **[JUPYTER.md](JUPYTER.md)** for complete Jupyter usage guide and **[notebooks/README.md](../notebooks/README.md)** for learning paths.
+
 ### Most Common Commands
 
 ```bash
@@ -872,6 +889,7 @@ python -m pytest tests/ -v
 
 ### Learn More
 
+- **[JUPYTER.md](JUPYTER.md)** - Interactive Jupyter notebook tutorials
 - **[INSTALLATION.md](INSTALLATION.md)** - Installation and setup
 - **[RESULTS.md](RESULTS.md)** - Research findings and verified results
 - **[../src/README.md](../src/README.md)** - Implementation documentation

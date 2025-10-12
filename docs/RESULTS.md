@@ -11,6 +11,10 @@ Where "nice" means:
 
 Systematic search using Z3 constraint solving has found **nice sets of size up to 35**. The actual maximum remains unknown.
 
+**For Interactive Exploration**: Try the [Jupyter Notebooks](JUPYTER.md) to explore these results hands-on:
+- `05_search_binary.ipynb` - Interactive binary-only search
+- `06_search_ternary.ipynb` - Z3-based ternary search demonstrations
+
 **Note**: For detailed truth tables of ternary connectives (f3_N notation), see the [Ternary Connectives Glossary](../glossary/connectives.md).
 
 ## Key Results
@@ -229,6 +233,23 @@ Without Z3's constraint solving, these searches would be computationally infeasi
 **Theoretical**: Upper bound unknown
 
 ## How to Explore Further
+
+### Interactive Learning
+
+**New to the project?** Start with interactive notebooks:
+
+```bash
+# Install Jupyter dependencies
+pip install -e ".[jupyter]"
+
+# Launch notebooks
+cd notebooks/
+jupyter notebook
+
+# Try notebooks 05 and 06 for search demonstrations
+```
+
+See **[JUPYTER.md](JUPYTER.md)** for complete guide.
 
 ### Reproduce Examples
 
