@@ -783,7 +783,7 @@ def _try_unary_binary_composition(target: Connective,
 - (x,y) = (1,1): g_result=AND(1,1)=1, f_result=NOT(1)=0
 - NAND(1,1) = 0 ✓
 
-**This pattern was initially missing,** causing test failures before debugging iteration 1.
+**This pattern detects unary-binary compositions** like NAND, NOR, and similar negated operations.
 
 #### Pattern 3: binary(unary(x), unary(y))
 
@@ -841,7 +841,7 @@ def _try_unary_binary_unary_unary_composition(target: Connective,
 - Composition tree: NOT(AND(NOT(x), NOT(y)))
 - Depth 3: three levels of nesting
 
-**This pattern was added in debugging iteration 1** to fix De Morgan's Law detection.
+**This pattern detects De Morgan's Law** and other depth-3 compositions with unary transformations at multiple levels.
 
 ### Depth 2-3: Main Enumeration Loop
 

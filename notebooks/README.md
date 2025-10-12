@@ -121,7 +121,7 @@ from notebooks.utils import (
 - **Kernel issues**: Try restarting the kernel (Kernel → Restart)
 - **Visualization not showing**: Check that `%matplotlib inline` is run
 - **Slow performance**: Reduce search sizes or use CLI instead
-- **Compatibility issues**: See [JUPYTER.md Compatibility Fixes](../docs/JUPYTER.md#compatibility-fixes-applied) for detailed troubleshooting of all known notebook issues
+- **Common issues**: See [JUPYTER.md Troubleshooting](../docs/JUPYTER.md#troubleshooting) for detailed troubleshooting guidance
 
 ## Additional Resources
 
