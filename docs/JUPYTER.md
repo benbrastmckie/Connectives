@@ -54,6 +54,27 @@ jupyter notebook
    - Use Shift+Enter to run cells
    - Earlier cells set up variables for later cells
 
+### Python Path Setup
+
+**All notebooks include automatic path setup** - no manual configuration needed!
+
+Each notebook starts with a path setup cell that automatically adds the project root to Python's path:
+
+```python
+# Setup Python path to find the src module
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+project_root = Path.cwd().parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+print(f"✓ Project root added to path: {project_root}")
+```
+
+Simply run this cell first, then imports from `src` will work correctly.
+
 ## Notebook Tips
 
 ### Running Code
@@ -212,6 +233,16 @@ ModuleNotFoundError: No module named 'pandas'
 ```bash
 pip install -e \".[jupyter]\"
 ```
+
+**Problem 2: Cannot import from src**
+```
+ModuleNotFoundError: No module named 'src'
+```
+
+**Solution**: Run the path setup cell (first code cell in each notebook)
+- All notebooks include automatic path setup
+- Simply run the first cell that starts with `# Setup Python path`
+- This adds the project root to Python's path
 
 ### Kernel Issues
 
