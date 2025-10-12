@@ -7,6 +7,9 @@ Complete guide for using Jupyter notebooks with the Nice Connectives project.
 ### Install Jupyter Dependencies
 
 ```bash
+# Navigate to project root
+cd nice_connectives
+
 # Option 1: Install with optional dependencies (recommended)
 pip install -e ".[jupyter]"
 
