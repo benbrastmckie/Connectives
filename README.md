@@ -30,6 +30,7 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 - [Technical Approach](#technical-approach)
 - [Project Structure](#project-structure)
 - [Documentation](#documentation)
+- [Contributing](#contributing)
 - [References](#references)
 
 ---
@@ -317,4 +318,88 @@ nice_connectives/
 
 ---
 
-**Project Status**: Implementation complete | 159 tests passing | Size-30 nice sets verified | Maximum unknown
+## Contributing
+
+We welcome contributions! Whether you've found a bug, have an improvement idea, or want to add new features, here's how to contribute:
+
+### Reporting Issues
+
+**Found a bug?** Please open an issue with:
+- Clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Your environment (OS, Python version)
+- Relevant error messages or logs
+
+**Have a question?** Open an issue with the "question" label.
+
+### Submitting Improvements
+
+**Have an improvement or new feature?**
+
+1. **Fork the repository**
+   ```bash
+   # Click "Fork" on GitHub, then clone your fork
+   git clone https://github.com/YOUR-USERNAME/nice_connectives.git
+   cd nice_connectives
+   ```
+
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes**
+   - Follow existing code style and conventions
+   - Add tests for new functionality
+   - Update documentation as needed
+
+4. **Run the test suite**
+   ```bash
+   pytest tests/ -v
+   # Ensure all tests pass (159 tests should pass)
+   ```
+
+5. **Commit your changes**
+   ```bash
+   git add .
+   git commit -m "Brief description of your changes"
+   ```
+
+6. **Push to your fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+7. **Open a Pull Request**
+   - Go to the original repository on GitHub
+   - Click "New Pull Request"
+   - Select your fork and branch
+   - Describe your changes clearly
+   - Link any related issues
+
+### Development Guidelines
+
+- **Code Style**: Follow existing patterns in the codebase
+- **Testing**: Add tests for new features (see [tests/README.md](tests/README.md))
+- **Documentation**: Update relevant docs in `docs/` and docstrings
+- **Commits**: Use clear, descriptive commit messages
+- **Dependencies**: Minimize new dependencies; justify if needed
+
+### Areas for Contribution
+
+Interested in contributing but not sure where to start? Consider:
+- **Performance optimizations** - Improve search algorithms
+- **Higher arities** - Explore quaternary (arity 4) connectives
+- **Visualization** - Enhanced result visualization tools
+- **Documentation** - Tutorials, examples, or clarifications
+- **Testing** - Additional test coverage or edge cases
+- **Jupyter notebooks** - New educational content
+
+### Questions?
+
+Open an issue with your question or proposed contribution idea for discussion before starting significant work.
+
+---
+
+**Project Status**: Implementation complete | 159 tests passing | Size-35 nice sets verified | Maximum unknown
