@@ -111,12 +111,13 @@ class Connective:
         self.truth_table = BitVecVal(truth_table, table_size)
         self.name = name or _get_readable_name(arity, truth_table) or f"f{arity}_{truth_table}"
 
-    def evaluate(self, inputs: Tuple[int, ...]) -> int:
+    def evaluate(self, *args) -> int:
         """
         Evaluate the connective on a specific input assignment.
 
         Args:
-            inputs: Tuple of input values (0 or 1)
+            *args: Either a single tuple of input values, or individual input values
+                   Examples: evaluate((0, 1)) or evaluate(0, 1)
 
         Returns:
             Output value (0 or 1)
@@ -124,6 +125,12 @@ class Connective:
         Raises:
             ValueError: If number of inputs doesn't match arity
         """
+        # Handle both evaluate((0,1)) and evaluate(0,1) styles
+        if len(args) == 1 and isinstance(args[0], (tuple, list)):
+            inputs = tuple(args[0])
+        else:
+            inputs = args
+
         if len(inputs) != self.arity:
             raise ValueError(
                 f"Expected {self.arity} inputs, got {len(inputs)}"

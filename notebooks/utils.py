@@ -42,7 +42,7 @@ def display_truth_table(connective):
     for i in range(num_rows):
         # Convert row number to binary inputs
         inputs = tuple((i >> j) & 1 for j in range(arity))
-        output = connective.evaluate(*inputs)
+        output = connective.evaluate(inputs)
         rows.append(inputs + (output,))
 
     # Create column names
