@@ -4,7 +4,9 @@ Detailed examples demonstrating key findings from the Nice Connectives Solver.
 
 ## Overview
 
-This directory contains verified examples of nice connective sets with complete verification and analysis:
+This directory contains verified examples of nice connective sets with complete verification and analysis.
+
+**Note**: For detailed truth tables of ternary connectives (f3_N notation), see the [Ternary Connectives Glossary](../glossary/connectives.md).
 
 ### Example Files
 

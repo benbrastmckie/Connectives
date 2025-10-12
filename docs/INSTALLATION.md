@@ -80,6 +80,8 @@ ls                        # Verify you see: src/, tests/, README.md
    - Usually included with Python 3
    - Check version: `pip3 --version` or `pip --version`
 
+**Tip**: For interactive help with installation on your specific platform, see the [Claude Code Guide](CLAUDE_CODE.md).
+
 ### Required Dependencies
 
 - **pytest** - Testing framework for running the test suite
@@ -628,9 +630,11 @@ pip install -e .
 After successful installation:
 
 1. **Read the usage guide:** [USAGE.md](USAGE.md)
-2. **Explore examples:** [examples/README.md](../examples/README.md)
-3. **View research results:** [RESULTS.md](RESULTS.md)
-4. **Understand implementation:** [src/README.md](../src/README.md)
+2. **Use Claude Code for AI assistance:** [CLAUDE_CODE.md](CLAUDE_CODE.md) - Get help understanding and working with the codebase
+3. **Explore examples:** [examples/README.md](../examples/README.md)
+4. **View research results:** [RESULTS.md](RESULTS.md)
+5. **Understand implementation:** [src/README.md](../src/README.md)
+6. **Browse ternary connectives:** [Glossary](../glossary/connectives.md) - Complete reference for all f3_N connectives
 
 ### Verify Dependencies Installed
 
@@ -678,12 +682,20 @@ python3 -m src.cli --help
 
 ## Getting Help
 
+### AI-Powered Assistance
+
+- **[Claude Code Guide](CLAUDE_CODE.md)** - Use Claude AI to help with installation, understanding code, and troubleshooting
+  - Ask questions about the codebase
+  - Get installation help interactively
+  - Troubleshoot errors with AI assistance
+
 ### Documentation Resources
 
 - **[README.md](../README.md)** - Project overview and mathematical background
 - **[USAGE.md](USAGE.md)** - Complete usage guide for all commands
 - **[src/README.md](../src/README.md)** - Implementation documentation
 - **[examples/README.md](../examples/README.md)** - Example outputs and findings
+- **[Glossary](../glossary/connectives.md)** - Ternary connectives reference
 
 ### Common Issues
 

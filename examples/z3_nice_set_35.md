@@ -63,6 +63,8 @@ f3_236          (ternary)
 f3_247          (ternary)
 ```
 
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness

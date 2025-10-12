@@ -44,6 +44,8 @@ This is proven by:
 **Truth table range**: Values 1-250 (excellent coverage)
 **Unique structure**: Both FALSE and TRUE constants present (first time)
 
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness Check

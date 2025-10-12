@@ -44,6 +44,9 @@
    - Completeness (escape all 5 Post classes together)
    - Independence (no function definable from the others at depth ≤3)
 
+
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness: ✓ VERIFIED

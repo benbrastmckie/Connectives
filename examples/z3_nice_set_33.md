@@ -35,6 +35,9 @@ This is proven by:
 **Truth table range**: Values 1-255 (nearly complete coverage)
 **Structure**: Pure ternary + FALSE (like size-31, unlike size-32)
 
+
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness Check

@@ -10,11 +10,13 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 
 - **[Installation](docs/INSTALLATION.md)** - Platform-specific installation guide
 - **[Usage Guide](docs/USAGE.md)** - Complete command reference and workflows
+- **[Claude Code Guide](docs/CLAUDE_CODE.md)** - Using AI assistance with this codebase
 - **[Results](docs/RESULTS.md)** - **Research findings (size-35 sets found)**
 - **[Examples](examples/README.md)** - Real execution examples and output
 - **[Implementation](src/README.md)** - CLI and code documentation
 - **[Testing](tests/README.md)** - Test suite documentation
 - **[Specs](specs/README.md)** - Research reports and implementation plans
+- **[Glossary](glossary/connectives.md)** - Complete ternary connectives reference
 
 ---
 

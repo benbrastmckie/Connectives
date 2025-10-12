@@ -58,7 +58,7 @@ TTS_PERMISSION_ENABLED=true
 
 # Progress Updates (SubagentStop hook)
 # Triggered when subagents complete tasks within larger workflows
-TTS_PROGRESS_ENABLED=true
+TTS_PROGRESS_ENABLED=false
 
 # Error Notifications (Stop hook with failure status)
 # Triggered when commands complete with errors

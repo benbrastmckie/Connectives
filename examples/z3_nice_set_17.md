@@ -45,6 +45,9 @@
    | 1 | 1 | 0 | 0            |
    | 1 | 1 | 1 | 0            |
 
+
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness Check

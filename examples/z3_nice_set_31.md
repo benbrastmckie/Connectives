@@ -33,6 +33,9 @@ This is proven by:
 
 **Truth table range**: Values 0-255 (full range of ternary functions)
 
+
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness Check

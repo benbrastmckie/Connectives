@@ -9,7 +9,9 @@ Where "nice" means:
 
 ## Current Findings
 
-Systematic search using Z3 constraint solving has found **nice sets of size up to 30**. The actual maximum remains unknown.
+Systematic search using Z3 constraint solving has found **nice sets of size up to 35**. The actual maximum remains unknown.
+
+**Note**: For detailed truth tables of ternary connectives (f3_N notation), see the [Ternary Connectives Glossary](../glossary/connectives.md).
 
 ## Key Results
 

@@ -38,6 +38,9 @@ This is proven by:
 
 **Truth table range**: Values 2-250 (broad coverage)
 
+
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness Check

@@ -36,6 +36,9 @@ This is proven by:
 4-30. **27 Ternary Functions**
    - f3_2, f3_17, f3_18, f3_23, f3_34, f3_38, f3_60, f3_62, f3_64, f3_66, f3_71, f3_76, f3_86, f3_97, f3_105, f3_108, f3_145, f3_150, f3_157, f3_159, f3_160, f3_171, f3_174, f3_189, f3_208, f3_227, f3_239
 
+
+**Note**: For complete truth tables of all ternary connectives (f3_N), see the [Ternary Connectives Glossary](../glossary/connectives.md).
+
 ## Verification
 
 ### Completeness Check
