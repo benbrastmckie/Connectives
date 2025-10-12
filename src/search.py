@@ -93,6 +93,22 @@ def find_nice_sets_of_size(
     return nice_sets
 
 
+# Alias for notebook compatibility
+def search_nice_sets_enumeration(connectives: List[Connective], target_size: int, max_depth: int = 3) -> List[List[Connective]]:
+    """
+    Alias for find_nice_sets_of_size for backward compatibility with notebooks.
+
+    Args:
+        connectives: Pool of connectives to search
+        target_size: Target set size
+        max_depth: Maximum composition depth for independence checking
+
+    Returns:
+        List of nice sets (each set is a list of connectives)
+    """
+    return find_nice_sets_of_size(connectives, target_size, max_depth, verbose=False)
+
+
 def find_maximum_nice_set(
     connectives: List[Connective],
     max_size: int = 10,
