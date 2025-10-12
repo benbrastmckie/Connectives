@@ -6,6 +6,8 @@ Detailed examples demonstrating key findings from the Nice Connectives Solver.
 
 This directory contains verified examples of nice connective sets with complete verification and analysis.
 
+**For Interactive Learning**: Try the [Jupyter Notebooks](../notebooks/README.md) for hands-on exploration of connectives, completeness, and search algorithms.
+
 **Note**: For detailed truth tables of ternary connectives (f3_N notation), see the [Ternary Connectives Glossary](../glossary/connectives.md).
 
 ### Example Files

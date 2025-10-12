@@ -405,6 +405,11 @@ claude
 
 ## Additional Resources
 
+### Interactive Learning
+- **[Jupyter Notebooks](JUPYTER.md)** - Interactive tutorials and examples
+- **[Notebooks Overview](../notebooks/README.md)** - Notebook learning paths
+
+### Documentation
 - **Claude Code Documentation**: https://docs.claude.com/claude-code
 - **Project README**: [../README.md](../README.md)
 - **Research Results**: [RESULTS.md](RESULTS.md)
