@@ -278,7 +278,7 @@ cd C:\Users\YourName\Downloads\nice_connectives-main
 This project requires two critical Python packages:
 
 1. **z3-solver** - Microsoft's Z3 SMT solver for constraint-based proof search
-2. **pytest** - Testing framework for running the 159-test suite
+2. **pytest** - Testing framework for running the 175-test suite
 
 These dependencies can be installed via:
 - **Automatic**: `pip install -e .` (run from project root directory, installs from pyproject.toml)

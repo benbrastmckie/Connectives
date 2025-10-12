@@ -2,7 +2,7 @@
 
 A solver for finding the maximum size of "nice" (complete and independent) sets of logical connectives in classical two-valued logic.
 
-**Status**: Fully Implemented | **Tests**: 159 passing
+**Status**: Fully Implemented | **Tests**: 175 passing
 
 ---
 
@@ -220,7 +220,7 @@ nice_connectives/
 │   ├── search.py           # Search algorithms
 │   ├── main.py             # Library interface
 │   └── README.md           # Implementation documentation
-├── tests/                  # Test suite (159 passing)
+├── tests/                  # Test suite (175 passing)
 │   └── README.md           # Testing documentation
 ├── examples/               # Real execution examples
 │   └── README.md           # Examples documentation
@@ -304,7 +304,7 @@ nice_connectives/
   - Important code blocks with explanations
 
 ### Testing
-- **[Test Suite](tests/README.md)** - 159 passing tests
+- **[Test Suite](tests/README.md)** - 175 passing tests
   - Unit tests for core functionality
   - Integration tests for search algorithms
   - Proof validation tests
@@ -357,7 +357,7 @@ We welcome contributions! Whether you've found a bug, have an improvement idea, 
 4. **Run the test suite**
    ```bash
    pytest tests/ -v
-   # Ensure all tests pass (159 tests should pass)
+   # Ensure all tests pass (175 tests should pass)
    ```
 
 5. **Commit your changes**
@@ -402,4 +402,4 @@ Open an issue with your question or proposed contribution idea for discussion be
 
 ---
 
-**Project Status**: Implementation complete | 159 tests passing | Size-35 nice sets verified | Maximum unknown
+**Project Status**: Implementation complete | 175 tests passing | Size-35 nice sets verified | Maximum unknown

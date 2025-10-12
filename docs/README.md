@@ -164,7 +164,7 @@ docs/
 - **[glossary/connectives.md](../glossary/connectives.md)** - Ternary connectives reference
 
 ### Testing
-- **[tests/README.md](../tests/README.md)** - Test suite documentation (159 passing tests)
+- **[tests/README.md](../tests/README.md)** - Test suite documentation (175 passing tests)
 
 ### Research Documentation
 - **[specs/README.md](../specs/README.md)** - Research reports and implementation plans

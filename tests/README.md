@@ -11,7 +11,7 @@ The test suite validates all aspects of the implementation:
 - Search algorithms for finding nice sets
 - Performance benchmarks and depth crossover analysis
 
-**Status**: 138 core tests passing (41% code coverage)
+**Status**: 175 tests passing (138 core + 9 depth crossover + 9 notebooks + 19 other tests)
 
 ## Running Tests
 
@@ -23,6 +23,33 @@ pytest tests/ -v
 
 # Run with coverage
 pytest tests/ --cov=src
+```
+
+### Custom Pytest Marks
+
+The test suite uses custom markers for test categorization:
+
+- **`@pytest.mark.slow`**: Long-running tests (benchmarks, extended searches)
+  ```bash
+  # Run only slow tests
+  pytest -m slow tests/
+
+  # Skip slow tests (useful for quick validation)
+  pytest -m "not slow" tests/
+  ```
+
+- **`@pytest.mark.notebook`**: Notebook validation tests
+  ```bash
+  # Run only notebook tests
+  pytest -m notebook tests/
+
+  # Skip notebook tests
+  pytest -m "not notebook" tests/
+  ```
+
+View all registered marks:
+```bash
+pytest --markers | grep -E "(slow|notebook)"
 ```
 
 ### Specific Test Files
@@ -42,6 +69,12 @@ pytest tests/test_depth_crossover.py -v
 
 # Test search algorithms (6 tests, 4 skipped)
 pytest tests/test_search.py -v
+
+# Test notebook validation (9 tests - 7 notebooks + 2 structure tests)
+pytest tests/test_notebooks.py -v
+
+# Run all notebooks with nbval (direct validation)
+pytest --nbval notebooks/*.ipynb
 ```
 
 ### Running with Coverage
@@ -52,7 +85,7 @@ pytest tests/test_connectives.py tests/test_post_classes.py \
        tests/test_independence.py tests/test_depth_crossover.py \
        --cov=src --cov-report=term-missing
 
-# Expected: 138 tests passing in ~2 seconds, 41% overall coverage
+# Expected: 138 core tests passing in ~2 seconds, 41% overall coverage
 ```
 
 ## Test Organization
@@ -110,6 +143,29 @@ Performance tests for depth parameter tuning:
 - Performance trend validation
 
 **Coverage**: Focused on independence.py performance characteristics
+
+### test_notebooks.py (9 tests)
+Tests for Jupyter notebook validation:
+- Notebook execution tests (7 parametrized tests, one per notebook)
+- Notebook existence and structure validation
+- Import compatibility verification
+- Runtime error detection
+
+**Marks**: All tests marked as `@pytest.mark.notebook`, execution tests also marked `@pytest.mark.slow`
+
+**Usage**:
+```bash
+# Run notebook tests (requires nbval)
+pytest tests/test_notebooks.py -v
+
+# Skip slow notebook execution tests
+pytest tests/test_notebooks.py -m "not slow" -v
+
+# Run notebooks directly with nbval
+pytest --nbval notebooks/*.ipynb
+```
+
+**Coverage**: Validates all 7 Jupyter notebooks execute without errors
 
 ## Testing Strategy
 
@@ -245,7 +301,7 @@ pytest tests/test_new_file.py --cov=src.module_name
 ## Performance Notes
 
 Test execution characteristics:
-- **Fast tests** (connectives, post_classes, independence): ~2 seconds for 138 tests
+- **Fast tests** (connectives, post_classes, independence): ~2 seconds for 138 core tests
 - **Slow tests** (search with large state spaces): Some tests skipped to avoid timeouts
 - **Incremental search tests**: Skipped in regular runs (can take minutes)
 - **Total execution time**: ~2-3 seconds for standard test suite
@@ -328,8 +384,8 @@ def test_exhaustive_search():
 
 ## Test Summary
 
-**Total**: 138 passing tests (4 skipped)
-**Execution**: ~2 seconds for full core suite
+**Total**: 175 passing tests (138 core + 37 additional tests)
+**Execution**: ~2 seconds for core suite, longer for slow tests
 **Coverage**: 41% overall, 96% for core modules
 **Framework**: pytest with coverage, timeout plugins
 

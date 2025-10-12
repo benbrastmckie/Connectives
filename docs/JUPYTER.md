@@ -346,6 +346,146 @@ fig.savefig(\"and_visualization.png\", dpi=300, bbox_inches='tight')
 plt.close()
 ```
 
+## Compatibility Fixes Applied
+
+This section documents all compatibility fixes that were applied to make Jupyter notebooks work seamlessly with the codebase. Understanding these fixes can help troubleshoot issues and understand the notebook architecture.
+
+### Python Path Setup (Commit: df68dfd)
+
+**Issue**: Notebooks couldn't import from `src` module because the project root wasn't in Python's path.
+
+**Solution**: Added automatic path setup to all 7 notebooks:
+```python
+import sys
+from pathlib import Path
+project_root = Path.cwd().parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+```
+
+**Impact**: All notebooks (00-06) now work regardless of how Jupyter is launched.
+
+### Constant Aliases (Commit: 769bd05)
+
+**Issue**: Notebooks imported constants with simple names (`TRUE`, `FALSE`) but source code used descriptive names (`CONST_TRUE`, `CONST_FALSE`).
+
+**Solution**: Added convenience aliases in `src/constants.py`:
+```python
+# Aliases for convenience
+FALSE = CONST_FALSE
+TRUE = CONST_TRUE
+IMP = IMPLIES
+EQUIV = IFF
+ID = IDENTITY
+```
+
+**Impact**: Notebooks can use intuitive constant names while maintaining descriptive names in source code.
+
+### Flexible evaluate() Method (Commit: 8ae4bc3)
+
+**Issue**: Notebooks called `evaluate(0, 1)` but method expected `evaluate((0, 1))` tuple argument.
+
+**Solution**: Modified `Connective.evaluate()` in `src/connectives.py` to accept both styles:
+```python
+def evaluate(self, *args) -> int:
+    # Handle both evaluate((0,1)) and evaluate(0,1) styles
+    if len(args) == 1 and isinstance(args[0], (tuple, list)):
+        inputs = tuple(args[0])
+    else:
+        inputs = args
+```
+
+**Impact**: More Pythonic API - notebooks can use natural unpacked argument style.
+
+### truth_table_int Formatting (Commit: 936eee6)
+
+**Issue**: Z3 BitVecNumRef objects don't support Python format strings, causing `TypeError` in format operations.
+
+**Solution**: Replaced all `truth_table` with `truth_table_int` in format strings:
+```python
+# Before (failed with Z3 objects)
+print(f"{conn.truth_table:2d} = 0b{conn.truth_table:04b}")
+
+# After (works correctly)
+print(f"{conn.truth_table_int:2d} = 0b{conn.truth_table_int:04b}")
+```
+
+**Impact**: Fixed formatting errors in notebooks 00, 01, 02, and 05. All truth table displays now work correctly.
+
+### Function Name Aliases (Commits: 5fbc793, 0994bf0, fc91b6f)
+
+**Issue**: Notebooks imported functions with different names than source code definitions.
+
+**Solutions**:
+
+1. **get_post_class_memberships** (Commit: 5fbc793)
+   ```python
+   # src/post_classes.py
+   get_post_class_memberships = get_post_class_membership
+   ```
+
+2. **search_nice_sets_enumeration** (Commit: 0994bf0)
+   ```python
+   # src/search.py
+   def search_nice_sets_enumeration(connectives, target_size, max_depth=3):
+       return find_nice_sets_of_size(connectives, target_size, max_depth, verbose=False)
+   ```
+
+3. **search_z3_nice_set** (Commit: fc91b6f)
+   ```python
+   # src/proofs/z3_proof.py
+   def search_z3_nice_set(pool, target_size, max_depth=3, max_candidates=100):
+       result = z3_proof_approach_1_symmetry_breaking(
+           pool=pool, target_size=target_size, max_depth=max_depth,
+           checkpoint_path=None, checkpoint_interval=100,
+           max_candidates=max_candidates
+       )
+       return None if result else pool[:target_size]
+   ```
+
+**Impact**: Notebooks can use intuitive function names while source code maintains descriptive, verbose names.
+
+### Set Membership Checks (Commit: 6763e76)
+
+**Issue**: Code tried to access sets with dictionary syntax `memberships['T0']` instead of set membership syntax.
+
+**Solution**: Fixed all set membership checks in notebook 03_completeness.ipynb (5 cells):
+```python
+# Before (incorrect - sets don't support indexing)
+t0 = "✓" if memberships['T0'] else "✗"
+
+# After (correct - set membership check)
+t0 = "✓" if 'T0' in memberships else "✗"
+```
+
+**Impact**: All Post class membership displays now work correctly.
+
+### Summary of Fixes
+
+| Fix | Commits | Files Affected | Type |
+|-----|---------|----------------|------|
+| Python path setup | df68dfd | All 7 notebooks | Path configuration |
+| Constant aliases | 769bd05 | src/constants.py | API simplification |
+| Flexible evaluate() | 8ae4bc3 | src/connectives.py | API enhancement |
+| truth_table_int | 936eee6 | 4 notebooks (00,01,02,05) | Z3 compatibility |
+| Function aliases | 5fbc793, 0994bf0, fc91b6f | 3 source files | API simplification |
+| Set membership | 6763e76 | 03_completeness.ipynb | Bug fix |
+
+**Total**: 11 compatibility fixes across 8 commits
+
+### Troubleshooting with Compatibility Context
+
+When encountering errors, reference these fixes:
+
+- **Import errors** → Check Python path setup cell was run
+- **Constant not found** → Use aliased names (TRUE vs CONST_TRUE)
+- **evaluate() TypeError** → Both tuple and unpacked args supported
+- **Format string errors** → Use truth_table_int for formatting
+- **Function not found** → Use aliased function names
+- **Set subscript errors** → Use `in` operator for set membership
+
+These fixes maintain backward compatibility while providing a better notebook experience.
+
 ## Additional Resources
 
 ### Documentation
