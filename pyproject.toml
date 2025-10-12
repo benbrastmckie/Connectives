@@ -33,6 +33,12 @@ dev = [
     "pytest>=7.0.0",
     "pytest-timeout>=2.1.0",
 ]
+jupyter = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+    "matplotlib>=3.5.0",
+    "pandas>=2.0.0",
+]
 
 [project.scripts]
 nice-connectives = "src.cli:main"

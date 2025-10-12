@@ -1,0 +1,9 @@
+# Jupyter Notebook Configuration
+# Strip notebook outputs before git commit using nbstripout
+# Install nbstripout and configure with:
+#   pip install nbstripout
+#   nbstripout --install --attributes .gitattributes
+
+*.ipynb filter=nbstripout
+*.zpln filter=nbstripout
+*.ipynb diff=ipynb
