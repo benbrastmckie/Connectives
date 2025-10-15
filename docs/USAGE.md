@@ -562,6 +562,8 @@ The `--definability-mode` flag allows choosing between two notions of function d
 1. **`syntactic`** (default): Composition-based definability with depth bounds
 2. **`truth-functional`**: Clone-theoretic definability with universal projections and cross-arity constants
 
+**For detailed mathematical definitions and examples, see [DEFINABILITY.md](DEFINABILITY.md).**
+
 ### Syntactic Mode (Default)
 
 **Composition-Based Definability:**
@@ -653,8 +655,8 @@ python -m src.cli search binary --definability-mode truth-functional
 - Then falls back to composition checking for other cases
 
 **See Also:**
+- **[DEFINABILITY.md](DEFINABILITY.md)** - Complete mathematical definitions and examples
 - `tests/test_definability_modes.py` - Comprehensive test suite with 28 tests
-- `specs/reports/016_definability_notion_analysis.md` - Detailed analysis
 - `src/independence.py:DefinabilityMode` - Implementation details
 
 ---

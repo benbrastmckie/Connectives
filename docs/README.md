@@ -42,6 +42,22 @@ Comprehensive CLI documentation:
 
 ---
 
+#### [DEFINABILITY.md](DEFINABILITY.md)
+**Definability modes: syntactic vs truth-functional**
+
+Complete guide to definability notions:
+- Mathematical definitions of both modes
+- Universal projections in truth-functional mode
+- Cross-arity constant equivalence
+- Practical examples showing differences
+- When to use each mode
+- CLI integration and usage
+- Implementation details and tests
+
+**Read this** to understand definability mode choices.
+
+---
+
 ### Interactive Learning
 
 #### [JUPYTER.md](JUPYTER.md)
@@ -140,6 +156,7 @@ docs/
 ├── README.md            # This file - documentation overview
 ├── INSTALLATION.md      # Platform-specific installation guide
 ├── USAGE.md             # Complete CLI command reference
+├── DEFINABILITY.md      # Definability modes (syntactic vs truth-functional)
 ├── JUPYTER.md           # Jupyter notebook usage guide
 ├── CLAUDE_CODE.md       # AI assistance with Claude Code
 └── RESULTS.md           # Research findings and conclusions

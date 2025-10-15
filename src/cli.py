@@ -108,8 +108,8 @@ For more information on each subcommand:
         '--definability-mode',
         type=str,
         choices=['syntactic', 'truth-functional'],
-        default='syntactic',
-        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+        default='truth-functional',
+        help='Definability notion: truth-functional (clone-theoretic, default) or syntactic (composition-based)'
     )
 
     # prove enum
@@ -121,8 +121,8 @@ For more information on each subcommand:
         '--definability-mode',
         type=str,
         choices=['syntactic', 'truth-functional'],
-        default='syntactic',
-        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+        default='truth-functional',
+        help='Definability notion: truth-functional (clone-theoretic, default) or syntactic (composition-based)'
     )
 
     # ===== VALIDATE subcommand =====
@@ -163,8 +163,8 @@ For more information on each subcommand:
         '--definability-mode',
         type=str,
         choices=['syntactic', 'truth-functional'],
-        default='syntactic',
-        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+        default='truth-functional',
+        help='Definability notion: truth-functional (clone-theoretic, default) or syntactic (composition-based)'
     )
 
     # validate ternary
@@ -202,8 +202,8 @@ For more information on each subcommand:
         '--definability-mode',
         type=str,
         choices=['syntactic', 'truth-functional'],
-        default='syntactic',
-        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+        default='truth-functional',
+        help='Definability notion: truth-functional (clone-theoretic, default) or syntactic (composition-based)'
     )
 
     # ===== BENCHMARK subcommand =====
@@ -305,8 +305,8 @@ For more information on each subcommand:
         '--definability-mode',
         type=str,
         choices=['syntactic', 'truth-functional'],
-        default='syntactic',
-        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+        default='truth-functional',
+        help='Definability notion: truth-functional (clone-theoretic, default) or syntactic (composition-based)'
     )
 
     # search full
@@ -335,8 +335,8 @@ For more information on each subcommand:
         '--definability-mode',
         type=str,
         choices=['syntactic', 'truth-functional'],
-        default='syntactic',
-        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+        default='truth-functional',
+        help='Definability notion: truth-functional (clone-theoretic, default) or syntactic (composition-based)'
     )
 
     # search validate

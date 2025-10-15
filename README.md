@@ -270,6 +270,13 @@ nice_connectives/
   - Performance tips
   - Advanced usage patterns
 
+- **[Definability Modes](docs/DEFINABILITY.md)** - Syntactic vs truth-functional definability
+  - Mathematical definitions of both modes
+  - Universal projections and cross-arity constants
+  - Practical examples showing differences
+  - When to use each mode
+  - CLI integration and usage
+
 ### Understanding the Research
 - **[Research Results](docs/RESULTS.md)** - Key findings and conclusions
   - Binary-only: max = 3 (classical result)

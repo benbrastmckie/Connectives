@@ -21,7 +21,7 @@ class DefinabilityMode(Enum):
 
 def is_definable(target: Connective, basis: List[Connective],
                 max_depth: int = 3, timeout_ms: int = 5000,
-                mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
+                mode: DefinabilityMode = DefinabilityMode.TRUTH_FUNCTIONAL) -> bool:
     """
     Check if target connective is definable from basis connectives.
 
@@ -33,7 +33,7 @@ def is_definable(target: Connective, basis: List[Connective],
         basis: List of connectives to use as basis
         max_depth: Maximum composition depth to try
         timeout_ms: Timeout in milliseconds (for compatibility, not used)
-        mode: Definability mode (syntactic or truth-functional, default: syntactic)
+        mode: Definability mode (syntactic or truth-functional, default: truth-functional)
 
     Returns:
         True if target is definable from basis within the depth bound
@@ -67,7 +67,7 @@ def is_definable(target: Connective, basis: List[Connective],
 
 def _is_definable_at_depth(target: Connective, basis: List[Connective],
                            depth: int, timeout_ms: int,
-                           mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
+                           mode: DefinabilityMode = DefinabilityMode.TRUTH_FUNCTIONAL) -> bool:
     """
     Check if target is definable at a specific depth.
 
@@ -242,7 +242,7 @@ def _get_truth_function_signature(connective: Connective) -> Optional[str]:
 
 def _check_composition_enumeration(target: Connective, basis: List[Connective],
                                    max_depth: int,
-                                   mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
+                                   mode: DefinabilityMode = DefinabilityMode.TRUTH_FUNCTIONAL) -> bool:
     """
     Check definability by enumerating small compositions.
 
@@ -1004,7 +1004,7 @@ def _try_f_proj_composed(target: Connective,
 def is_independent(connectives: List[Connective],
                   max_depth: int = 3,
                   timeout_ms: int = 5000,
-                  mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
+                  mode: DefinabilityMode = DefinabilityMode.TRUTH_FUNCTIONAL) -> bool:
     """
     Check if a set of connectives is independent.
 
@@ -1015,7 +1015,7 @@ def is_independent(connectives: List[Connective],
         connectives: List of connectives to check
         max_depth: Maximum composition depth for definability checking
         timeout_ms: Solver timeout per check
-        mode: Definability mode (syntactic or truth-functional, default: syntactic)
+        mode: Definability mode (syntactic or truth-functional, default: truth-functional)
 
     Returns:
         True if the set is independent
