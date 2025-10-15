@@ -559,32 +559,12 @@ Z3 uses constraint solving to efficiently explore the search space, checking onl
 
 The `--definability-mode` flag allows choosing between two notions of function definability:
 
-1. **`syntactic`** (default): Composition-based definability with depth bounds
-2. **`truth-functional`**: Clone-theoretic definability with universal projections and cross-arity constants
+1. **`truth-functional`** (default): Clone-theoretic definability with universal projections and cross-arity constants
+2. **`syntactic`**: Composition-based definability with depth bounds
 
 **For detailed mathematical definitions and examples, see [DEFINABILITY.md](DEFINABILITY.md).**
 
-### Syntactic Mode (Default)
-
-**Composition-Based Definability:**
-- Functions definable only through explicit composition up to max-depth
-- Arity-sensitive: functions of different arities are distinct
-- More strict: typically finds larger "nice" sets
-
-```bash
-# Explicit syntactic mode (same as default)
-python -m src.cli search binary --definability-mode syntactic
-
-# Syntactic is the default
-python -m src.cli search binary
-```
-
-**Characteristics:**
-- Cross-arity constants treated as independent (e.g., TRUE₀, TRUE₂, TRUE₃ are distinct)
-- Projections require explicit composition (e.g., PROJECT_X from {AND, OR} at depth 2)
-- Depth-bounded: only checks compositions up to specified depth
-
-### Truth-Functional Mode
+### Truth-Functional Mode (Default)
 
 **Clone-Theoretic Definability:**
 - Universal projection rule: all projection functions are universally definable
@@ -592,8 +572,11 @@ python -m src.cli search binary
 - More permissive: typically finds smaller "nice" sets (more dependencies detected)
 
 ```bash
-# Truth-functional mode
+# Explicit truth-functional mode (same as default)
 python -m src.cli search binary --definability-mode truth-functional
+
+# Truth-functional is the default
+python -m src.cli search binary
 
 # Works with all commands
 python -m src.cli prove z3 --target-size 17 --definability-mode truth-functional
@@ -605,6 +588,27 @@ python -m src.cli validate binary --definability-mode truth-functional
 - Constants of different arities but same truth value are equivalent
 - More dependencies → typically smaller maximum nice set sizes
 
+### Syntactic Mode
+
+**Composition-Based Definability:**
+- Functions definable only through explicit composition up to max-depth
+- Arity-sensitive: functions of different arities are distinct
+- More strict: typically finds larger "nice" sets
+
+```bash
+# Syntactic mode
+python -m src.cli search binary --definability-mode syntactic
+
+# Works with all commands
+python -m src.cli prove z3 --target-size 3 --definability-mode syntactic
+python -m src.cli validate binary --definability-mode syntactic
+```
+
+**Characteristics:**
+- Cross-arity constants treated as independent (e.g., TRUE₀, TRUE₂, TRUE₃ are distinct)
+- Projections require explicit composition (e.g., PROJECT_X from {AND, OR} at depth 2)
+- Depth-bounded: only checks compositions up to specified depth
+
 ### Comparison
 
 | Aspect | Syntactic | Truth-Functional |
@@ -613,33 +617,33 @@ python -m src.cli validate binary --definability-mode truth-functional
 | **Cross-arity constants** | Independent | Equivalent if same value |
 | **Typical max nice set size** | Larger | Smaller |
 | **Use case** | Composition research | Clone theory research |
-| **Default** | ✓ Yes | No |
+| **Default** | No | ✓ Yes |
 
 ### Example: Binary Search Comparison
 
 ```bash
-# Syntactic mode (default)
-python -m src.cli search binary --definability-mode syntactic
-# Expected: max = 3, ~76 nice sets of size 3
-
-# Truth-functional mode
+# Truth-functional mode (default)
 python -m src.cli search binary --definability-mode truth-functional
 # Expected: Different results due to projection/constant rules
+
+# Syntactic mode
+python -m src.cli search binary --definability-mode syntactic
+# Expected: max = 3, ~76 nice sets of size 3
 ```
 
 ### When to Use Each Mode
 
-**Use Syntactic Mode When:**
-- Studying composition-based definability (default assumption in most logic research)
-- Want strict, depth-bounded independence
-- Reproducing classical results (binary-only max = 3)
-- Conservative estimates of independence
-
 **Use Truth-Functional Mode When:**
-- Studying clone theory or universal algebra
+- Studying clone theory or universal algebra (default choice)
 - Want permissive, clone-theoretic definability
 - Treating projection functions as "free"
 - Analyzing cross-arity constant relationships
+
+**Use Syntactic Mode When:**
+- Studying composition-based definability
+- Want strict, depth-bounded independence
+- Reproducing classical results (binary-only max = 3)
+- Conservative estimates of independence
 
 ### Technical Details
 

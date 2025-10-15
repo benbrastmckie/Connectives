@@ -72,132 +72,6 @@ Neither is inherently "more correct" - the choice depends on your research quest
 
 ### Mathematical Definition
 
-A connective f is **syntactically definable** from basis B at depth d if:
-
-```
-∃ composition tree T where:
-  - All leaf nodes are from B ∪ {variable bindings}
-  - Tree depth ≤ d (default: 3)
-  - T evaluates to f on all inputs
-  - Arity constraints: compositions respect function arities
-```
-
-### Key Characteristics
-
-1. **Depth-Bounded**: Only checks compositions up to `max_depth` (default: 3)
-   - Tradeoff: deeper = more thorough but exponentially slower
-   - Depth 3 is sufficient for most classical results
-
-2. **Arity-Sensitive**: Functions of different arities are treated as distinct
-   - `TRUE₀` (nullary constant) ≠ `TRUE₂` (binary constant)
-   - Cannot compose arity-0 functions to create arity-2 functions
-
-3. **No Implicit Projections**: Projection functions must be composed from basis
-   - `PROJ_X(x,y) = x` is not "free"
-   - Can be expressed as `AND(x, OR(x,y))` if {AND, OR} are available
-
-4. **Composition-Only**: No special universal assumptions
-   - Every definability claim requires an explicit composition witness
-
-### Examples
-
-#### Example 1: NAND from {NOT, AND}
-
-```
-Target: NAND(x,y)
-Basis: {NOT, AND}
-Depth: 2
-
-Composition tree:
-  NOT
-   |
-  AND
-  / \
- x   y
-
-Evaluation: NOT(AND(x,y))
-  - Depth 1: Compute AND(x,y)
-  - Depth 2: Apply NOT to result
-  - Truth table matches NAND ✓
-
-Conclusion: NAND is syntactically definable from {NOT, AND} at depth 2
-```
-
-#### Example 2: Projection from {AND, OR}
-
-```
-Target: PROJ_X(x,y) = x
-Basis: {AND, OR}
-Depth: 2
-
-Composition tree (using absorption law):
-  AND
-  / \
- x  OR
-    / \
-   x   y
-
-Evaluation: AND(x, OR(x,y))
-  Truth table:
-    x | y | OR(x,y) | AND(x, OR) | PROJ_X
-    0 | 0 |    0    |     0      |   0   ✓
-    0 | 1 |    1    |     0      |   0   ✓
-    1 | 0 |    1    |     1      |   1   ✓
-    1 | 1 |    1    |     1      |   1   ✓
-
-Conclusion: PROJ_X is syntactically definable from {AND, OR} at depth 2
-```
-
-#### Example 3: Cross-Arity Constants are Independent
-
-```
-Target: TRUE₂(x,y) = 1  (binary constant)
-Basis: {TRUE₀}          (nullary constant, value = 1)
-Depth: 3
-
-Attempt 1: Direct application?
-  - TRUE₀ has arity 0, cannot apply to arguments (x,y)
-  - Not a valid composition ✗
-
-Attempt 2: Nest TRUE₀?
-  - TRUE₀() returns 1 (no arguments)
-  - Cannot bind result to (x,y) parameters
-  - Still not valid ✗
-
-Attempt 3: Multiple TRUE₀ compositions?
-  - TRUE₀(TRUE₀(TRUE₀())) = 1 (but still arity 0)
-  - Cannot change arity through composition
-  - Not valid ✗
-
-Conclusion: TRUE₂ is NOT syntactically definable from {TRUE₀}
-Reason: Different arities, no arity-changing operations allowed
-```
-
-### When to Use Syntactic Mode
-
-**Recommended Use Cases:**
-
-- **Default choice for most research** (conservative, widely accepted)
-- Studying composition-based definability and construction proofs
-- Reproducing classical logic results (e.g., binary-only maximum = 3)
-- Research on bounded composition depth and computational complexity
-- Conservative estimates of independence (fewer assumptions = stricter)
-
-**Typical Results:**
-
-- Binary connectives only: maximum nice set size = 3
-- Unary + Binary: maximum ≈ 5
-- With ternary connectives: maximum ≥ 35
-- Generally produces **larger nice sets** (stricter independence criterion)
-
-**Research Alignment:**
-
-Most classical logic literature uses syntactic (composition-based) definability, so results will be directly comparable to existing work.
-
-## Truth-Functional Mode
-
-### Mathematical Definition
-
 A connective f is **truth-functionally definable** from basis B if:
 
 ```
@@ -363,6 +237,131 @@ Note: Same result as syntactic mode for non-special cases
 
 Universal algebra and clone theory literature typically use truth-functional (or equivalent) definability notions. Results will be comparable to this research tradition.
 
+## Syntactic Mode
+
+### Mathematical Definition
+
+A connective f is **syntactically definable** from basis B at depth d if:
+
+```
+∃ composition tree T where:
+  - All leaf nodes are from B ∪ {variable bindings}
+  - Tree depth ≤ d (default: 3)
+  - T evaluates to f on all inputs
+  - Arity constraints: compositions respect function arities
+```
+
+### Key Characteristics
+
+1. **Depth-Bounded**: Only checks compositions up to `max_depth` (default: 3)
+   - Tradeoff: deeper = more thorough but exponentially slower
+   - Depth 3 is sufficient for most classical results
+
+2. **Arity-Sensitive**: Functions of different arities are treated as distinct
+   - `TRUE₀` (nullary constant) ≠ `TRUE₂` (binary constant)
+   - Cannot compose arity-0 functions to create arity-2 functions
+
+3. **No Implicit Projections**: Projection functions must be composed from basis
+   - `PROJ_X(x,y) = x` is not "free"
+   - Can be expressed as `AND(x, OR(x,y))` if {AND, OR} are available
+
+4. **Composition-Only**: No special universal assumptions
+   - Every definability claim requires an explicit composition witness
+
+### Examples
+
+#### Example 1: NAND from {NOT, AND}
+
+```
+Target: NAND(x,y)
+Basis: {NOT, AND}
+Depth: 2
+
+Composition tree:
+  NOT
+   |
+  AND
+  / \
+ x   y
+
+Evaluation: NOT(AND(x,y))
+  - Depth 1: Compute AND(x,y)
+  - Depth 2: Apply NOT to result
+  - Truth table matches NAND ✓
+
+Conclusion: NAND is syntactically definable from {NOT, AND} at depth 2
+```
+
+#### Example 2: Projection from {AND, OR}
+
+```
+Target: PROJ_X(x,y) = x
+Basis: {AND, OR}
+Depth: 2
+
+Composition tree (using absorption law):
+  AND
+  / \
+ x  OR
+    / \
+   x   y
+
+Evaluation: AND(x, OR(x,y))
+  Truth table:
+    x | y | OR(x,y) | AND(x, OR) | PROJ_X
+    0 | 0 |    0    |     0      |   0   ✓
+    0 | 1 |    1    |     0      |   0   ✓
+    1 | 0 |    1    |     1      |   1   ✓
+    1 | 1 |    1    |     1      |   1   ✓
+
+Conclusion: PROJ_X is syntactically definable from {AND, OR} at depth 2
+```
+
+#### Example 3: Cross-Arity Constants are Independent
+
+```
+Target: TRUE₂(x,y) = 1  (binary constant)
+Basis: {TRUE₀}          (nullary constant, value = 1)
+Depth: 3
+
+Attempt 1: Direct application?
+  - TRUE₀ has arity 0, cannot apply to arguments (x,y)
+  - Not a valid composition ✗
+
+Attempt 2: Nest TRUE₀?
+  - TRUE₀() returns 1 (no arguments)
+  - Cannot bind result to (x,y) parameters
+  - Still not valid ✗
+
+Attempt 3: Multiple TRUE₀ compositions?
+  - TRUE₀(TRUE₀(TRUE₀())) = 1 (but still arity 0)
+  - Cannot change arity through composition
+  - Not valid ✗
+
+Conclusion: TRUE₂ is NOT syntactically definable from {TRUE₀}
+Reason: Different arities, no arity-changing operations allowed
+```
+
+### When to Use Syntactic Mode
+
+**Recommended Use Cases:**
+
+- Studying composition-based definability and construction proofs
+- Reproducing classical logic results (e.g., binary-only maximum = 3)
+- Research on bounded composition depth and computational complexity
+- Conservative estimates of independence (fewer assumptions = stricter)
+
+**Typical Results:**
+
+- Binary connectives only: maximum nice set size = 3
+- Unary + Binary: maximum ≈ 5
+- With ternary connectives: maximum ≥ 35
+- Generally produces **larger nice sets** (stricter independence criterion)
+
+**Research Alignment:**
+
+Most classical logic literature uses syntactic (composition-based) definability, so results will be directly comparable to existing work.
+
 ## Mode Comparison
 
 ### Side-by-Side Comparison
@@ -375,7 +374,7 @@ Universal algebra and clone theory literature typically use truth-functional (or
 | **Nice set sizes** | Larger (fewer dependencies detected) | Smaller (more dependencies detected) |
 | **Research tradition** | Logic, composition theory, computability | Universal algebra, clone theory |
 | **Use case** | Composition-based research | Clone-theoretic research |
-| **Default mode** | ✓ Yes | No |
+| **Default mode** | No | ✓ Yes |
 | **Implementation** | Pattern enumeration up to depth | Special rules + pattern enumeration |
 | **Performance** | Baseline | Slightly faster (special rules shortcut) |
 
@@ -513,14 +512,14 @@ Result: NOT Independent
 All CLI commands support the `--definability-mode` flag:
 
 ```bash
-# Default: syntactic mode (no flag needed)
+# Default: truth-functional mode (no flag needed)
 python -m src.cli search binary
 
-# Explicit syntactic mode (same as default)
-python -m src.cli search binary --definability-mode syntactic
-
-# Truth-functional mode
+# Explicit truth-functional mode (same as default)
 python -m src.cli search binary --definability-mode truth-functional
+
+# Syntactic mode
+python -m src.cli search binary --definability-mode syntactic
 ```
 
 ### Mode Works with All Commands
@@ -531,8 +530,8 @@ python -m src.cli search binary --definability-mode truth-functional
 # Enumeration search with truth-functional mode
 python -m src.cli search binary --definability-mode truth-functional
 
-# Full arity search with syntactic mode (default)
-python -m src.cli search full --max-arity 3 --definability-mode syntactic
+# Full arity search with truth-functional mode (default)
+python -m src.cli search full --max-arity 3 --definability-mode truth-functional
 
 # Compare modes by running both
 python -m src.cli search binary --definability-mode syntactic > results_syntactic.txt
@@ -545,8 +544,8 @@ python -m src.cli search binary --definability-mode truth-functional > results_t
 # Z3 proof with truth-functional mode
 python -m src.cli prove z3 --target-size 17 --definability-mode truth-functional
 
-# Enumeration proof with syntactic mode (default)
-python -m src.cli prove enum --binary-only --definability-mode syntactic
+# Enumeration proof with truth-functional mode (default)
+python -m src.cli prove enum --binary-only --definability-mode truth-functional
 ```
 
 #### Validation Commands
@@ -655,7 +654,7 @@ The `--definability-mode` flag is added to all relevant commands:
 parser.add_argument(
     '--definability-mode',
     choices=['syntactic', 'truth-functional'],
-    default='syntactic',
+    default='truth-functional',
     help='Definability mode for independence checking'
 )
 
@@ -772,7 +771,7 @@ pytest tests/test_definability_modes.py -vv --tb=short
 
 ### Research Context
 
-- **[RESULTS.md](RESULTS.md)** - Research findings (all use syntactic mode by default unless specified)
+- **[RESULTS.md](RESULTS.md)** - Research findings (mode specified for each result)
 - **[specs/reports/016_definability_notion_analysis.md](../specs/reports/016_definability_notion_analysis.md)** - Detailed definability analysis that inspired this implementation
 - **[specs/plans/012_definability_mode_cli_flag.md](../specs/plans/012_definability_mode_cli_flag.md)** - Implementation plan for definability modes
 
@@ -801,21 +800,20 @@ pytest tests/test_definability_modes.py -vv --tb=short
 
 ### Q1: Which mode should I use for my research?
 
-**Use syntactic mode (default) if:**
-- Studying composition-based definability
-- Want conservative independence estimates
-- Reproducing classical logic results
-- Unsure which to choose (default is safer)
-- Research aligns with logic/computation tradition
-
-**Use truth-functional mode if:**
+**Use truth-functional mode (default) if:**
 - Studying clone theory or universal algebra
 - Want projections treated as "free" (universally available)
 - Researching cross-arity constant relationships
 - Need permissive definability (detecting maximum dependencies)
 - Research aligns with universal algebra tradition
 
-**General Advice**: Start with syntactic mode (default) unless you have a specific reason to use truth-functional. Most classical results use syntactic semantics.
+**Use syntactic mode if:**
+- Studying composition-based definability
+- Want conservative independence estimates
+- Reproducing classical logic results
+- Research aligns with logic/computation tradition
+
+**General Advice**: Truth-functional mode is the default and aligns with universal algebra conventions. Use syntactic mode when reproducing classical logic results or when you need composition-based definability.
 
 ### Q2: Do the modes affect completeness checking?
 
@@ -886,7 +884,7 @@ Yes, but results **aren't directly comparable**:
 
 **Example Research Note:**
 ```
-"All results reported use syntactic mode (default). Truth-functional mode
+"All results reported use truth-functional mode (default). Syntactic mode
 was also tested and gave a maximum nice set size of [N], demonstrating
 [comparison insight]."
 ```
@@ -958,10 +956,9 @@ as equivalent."
 
 **Results Section:**
 ```
-"Using syntactic definability (default), the maximum nice set size for
-binary connectives is 3, matching classical results. Truth-functional
-definability gives [result], reflecting its more permissive notion of
-definability."
+"Using truth-functional definability (default), the maximum nice set size for
+binary connectives is [result]. Syntactic definability gives 3, matching
+classical results from logic literature."
 ```
 
 **Tool Reference:**
@@ -975,8 +972,8 @@ definability."
 ### Key Takeaways
 
 1. **Two definability modes available:**
-   - **Syntactic (default)**: Composition-based, depth-bounded, arity-sensitive
-   - **Truth-functional**: Universal projections + cross-arity constant equivalence + composition
+   - **Truth-functional (default)**: Universal projections + cross-arity constant equivalence + composition
+   - **Syntactic**: Composition-based, depth-bounded, arity-sensitive
 
 2. **Mode choice affects independence checking:**
    - Syntactic: stricter (fewer definability assumptions → larger nice sets)
@@ -995,7 +992,7 @@ definability."
 5. **Easy to use:**
    - Single flag: `--definability-mode [syntactic|truth-functional]`
    - Works with all CLI commands (search, prove, validate, benchmark)
-   - Default (syntactic) matches classical results
+   - Default (truth-functional) aligns with universal algebra conventions
 
 ### Next Steps
 
@@ -1027,7 +1024,7 @@ python -m src.cli search binary --definability-mode truth-functional
 
 - **[USAGE.md § Definability Modes](USAGE.md#definability-modes)** - Practical CLI usage and examples (lines 556-659)
 - **[README.md § Technical Approach](../README.md#technical-approach)** - Pattern enumeration and Post's theorem
-- **[RESULTS.md](RESULTS.md)** - Research findings (syntactic mode used by default)
+- **[RESULTS.md](RESULTS.md)** - Research findings (mode specified for each result)
 - **[src/independence.py](../src/independence.py)** - Complete implementation with inline documentation
 
 ---
