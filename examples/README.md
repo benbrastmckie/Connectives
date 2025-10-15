@@ -4,67 +4,106 @@ Detailed examples demonstrating key findings from the Nice Connectives Solver.
 
 ## Overview
 
-This directory contains verified examples of nice connective sets with complete verification and analysis.
+This directory contains verified examples of nice connective sets with complete verification and analysis, **organized by definability mode**.
 
 **For Interactive Learning**: Try the [Jupyter Notebooks](../notebooks/README.md) for hands-on exploration of connectives, completeness, and search algorithms.
 
 **Note**: For detailed truth tables of ternary connectives (f3_N notation), see the [Ternary Connectives Glossary](../glossary/connectives.md).
 
-### Example Files
+## Organization by Definability Mode
 
-#### Research Results
-- **[RESULTS.md](../docs/RESULTS.md)** - **Complete research findings and summary** (start here)
+As of 2025-10-15, examples are organized into subdirectories by definability mode:
 
-#### Z3 Constraint Solving Examples
-- **[z3_unary_binary_max5.md](z3_unary_binary_max5.md)** - Z3-proven: unary + binary maximum = 5 (0.04s)
-- **[z3_nice_set_17.md](z3_nice_set_17.md)** - Z3-discovered size-17 nice set (0.69s)
-- **[z3_nice_set_29.md](z3_nice_set_29.md)** - Z3-discovered size-29 nice set (3.17s)
-- **[z3_nice_set_30.md](z3_nice_set_30.md)** - Z3-discovered size-30 nice set (245.75s)
-- **[z3_nice_set_31.md](z3_nice_set_31.md)** - Z3-discovered size-31 nice set (359.62s)
-- **[z3_nice_set_32.md](z3_nice_set_32.md)** - Z3-discovered size-32 nice set (35.93s)
-- **[z3_nice_set_33.md](z3_nice_set_33.md)** - Z3-discovered size-33 nice set (24.15s)
-- **[z3_nice_set_34.md](z3_nice_set_34.md)** - Z3-discovered size-34 nice set (86.69s)
-- **[z3_nice_set_35.md](z3_nice_set_35.md)** - Z3-discovered size-35 nice set (2783.17s, ~46 minutes)
+### [syntactic/](syntactic/) - Syntactic (Composition-Based) Mode
 
-#### Enumeration (Brute-Force) Examples
-- **[enum_binary_only_max3.md](enum_binary_only_max3.md)** - Binary-only maximum = 3 (5.17s, found all 76 nice sets)
-- **[enum_unary_binary_max5.md](enum_unary_binary_max5.md)** - Unary + binary maximum = 5 (66.27s, found all 5 nice sets)
-- **[enum_classical_binary_max3.md](enum_classical_binary_max3.md)** - Detailed walkthrough of classical binary-only result
+**Definability**: Requires explicit composition trees, depth-bounded, arity-sensitive
 
-Each example includes:
+**Contains**: Legacy test results generated when syntactic was the default mode
+- 12 test files including binary-only, unary+binary, and Z3 searches (sizes 17, 29-35)
+- Results comparable to classical logic literature
+
+**Use for**: Reproducing classical results, conservative independence estimates
+
+[Browse syntactic/ directory →](syntactic/)
+
+### [truth_functional/](truth_functional/) - Truth-Functional (Clone-Theoretic) Mode
+
+**Definability**: Universal projections + cross-arity constant equivalence + composition
+
+**Contains**: Current test results using the project default mode
+- enum_binary_only.md - Binary search (max=3, 52 nice sets)
+- Additional tests planned (Z3 searches deferred due to time constraints)
+
+**Use for**: Clone theory research, current project standards
+
+[Browse truth_functional/ directory →](truth_functional/)
+
+### Mode Comparison
+
+| Aspect | Syntactic | Truth-Functional |
+|--------|-----------|------------------|
+| **Default** | No (legacy) | **Yes (current)** |
+| **Projections** | Must compose | Universally definable |
+| **Cross-arity constants** | Independent | Equivalent |
+| **Nice set counts** | More sets | Fewer sets |
+| **Max sizes** | Often same | Often same |
+
+**Key insight**: Both modes often find the same maximum sizes, but truth-functional detects more dependencies, resulting in fewer total nice sets.
+
+For complete mode documentation, see [docs/DEFINABILITY.md](../docs/DEFINABILITY.md).
+
+## Navigation
+
+**Browse by Mode**:
+- [syntactic/](syntactic/) - Syntactic mode test results (legacy, 12 files)
+- [truth_functional/](truth_functional/) - Truth-functional mode test results (current default)
+
+**Research Summary**:
+- [RESULTS.md](../docs/RESULTS.md) - Complete research findings summary
+- [DEFINABILITY.md](../docs/DEFINABILITY.md) - Definability modes explained
+
+### Test File Structure
+
+All test files (now in syntactic/ and truth_functional/ subdirectories) include:
 - Complete connective listings with truth tables
 - Verification of completeness (Post classes)
 - Verification of independence (composition depth 3)
 - Search performance data
+- Mode-specific characteristics
 - Key insights and comparisons
+- Reproduction commands
 
 All examples are reproducible using commands documented in each file.
 
 ---
 
-## Quick Reference: Key Findings
+## Quick Reference: Key Findings (Syntactic Mode)
+
+**Note**: These results are from syntactic mode tests in [syntactic/](syntactic/). Truth-functional mode results in [truth_functional/](truth_functional/).
 
 | Example | Size | Arities | Search Time | Status | Link |
 |---------|------|---------|-------------|--------|------|
-| Binary-only | **3** | 2 only | <1s | **Proven max** | [Details](enum_classical_binary_max3.md) |
-| Unary + Binary | **5** | 0,2 | 0.04s | **Proven max** | [Details](z3_unary_binary_max5.md) |
-| Z3: Mixed arity | **17** | 0,3 | 0.69s | Verified | [Details](z3_nice_set_17.md) |
-| Z3: Size 29 | **29** | 0,2,3 | 3.17s | Verified | [Details](z3_nice_set_29.md) |
-| Z3: Size 30 | **30** | 0,2,3 | 245.75s | Verified | [Details](z3_nice_set_30.md) |
-| Z3: Size 31 | **31** | 0,3 | 359.62s | Verified | [Details](z3_nice_set_31.md) |
-| Z3: Size 32 | **32** | 0,2,3 | 35.93s | Verified | [Details](z3_nice_set_32.md) |
-| Z3: Size 33 | **33** | 0,3 | 24.15s | Verified | [Details](z3_nice_set_33.md) |
-| Z3: Size 34 | **34** | 0,2,3 | 86.69s | Verified | [Details](z3_nice_set_34.md) |
-| **Z3: NEW RECORD** | **35** | **0,2,3** | **2783.17s (~46 min)** | **Largest verified** | [Details](z3_nice_set_35.md) |
+| Binary-only | **3** | 2 only | 5.17s | **Proven max** | [syntactic/enum_binary_only_max3.md](syntactic/enum_binary_only_max3.md) |
+| Unary + Binary | **5** | 0,2 | 66.27s | **Proven max** | [syntactic/enum_unary_binary_max5.md](syntactic/enum_unary_binary_max5.md) |
+| Z3: Mixed arity | **17** | 0,3 | 0.69s | Verified | [syntactic/z3_nice_set_17.md](syntactic/z3_nice_set_17.md) |
+| Z3: Size 29 | **29** | 0,2,3 | 3.17s | Verified | [syntactic/z3_nice_set_29.md](syntactic/z3_nice_set_29.md) |
+| Z3: Size 30 | **30** | 0,2,3 | 245.75s | Verified | [syntactic/z3_nice_set_30.md](syntactic/z3_nice_set_30.md) |
+| Z3: Size 31 | **31** | 0,3 | 359.62s | Verified | [syntactic/z3_nice_set_31.md](syntactic/z3_nice_set_31.md) |
+| Z3: Size 32 | **32** | 0,2,3 | 35.93s | Verified | [syntactic/z3_nice_set_32.md](syntactic/z3_nice_set_32.md) |
+| Z3: Size 33 | **33** | 0,3 | 24.15s | Verified | [syntactic/z3_nice_set_33.md](syntactic/z3_nice_set_33.md) |
+| Z3: Size 34 | **34** | 0,2,3 | 86.69s | Verified | [syntactic/z3_nice_set_34.md](syntactic/z3_nice_set_34.md) |
+| **Z3: NEW RECORD** | **35** | **0,2,3** | **2783.17s (~46 min)** | **Largest verified** | [syntactic/z3_nice_set_35.md](syntactic/z3_nice_set_35.md) |
 
 ### Key Finding
 
-**Classical result**: Binary-only maximum = 3 (proven)
-**Unary + Binary**: Maximum = 5 (proven, 67% larger than binary-only)
+**Classical result**: Binary-only maximum = 3 (proven in syntactic mode)
+**Unary + Binary**: Maximum = 5 (proven in syntactic mode, 67% larger than binary-only)
 **This implementation**: Mixed-arity maximum ≥ 35 (1067% larger - 11.7× binary-only!)
 **Performance pattern**: Non-monotonic then sharp increase (360s → 36s → 24s → 87s → 2783s for sizes 31-35)
 **Structural diversity**: Found both single-constant and dual-constant (FALSE+TRUE) nice sets
 **Status**: Size 36+ unknown - solution space becoming very sparse (26,860 candidates checked for size-35)
+
+**Truth-functional comparison**: Binary-only also max=3 but with only 52 nice sets vs 76 in syntactic mode (31% fewer).
 
 See [systematic search findings](../specs/reports/013_systematic_search_findings.md) for complete results.
 
