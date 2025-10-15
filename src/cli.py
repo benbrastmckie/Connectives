@@ -352,7 +352,7 @@ For more information on each subcommand:
     try:
         if args.command == 'prove':
             if args.method == 'z3':
-                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
+                mode = DefinabilityMode[args.definability_mode.replace('-', '_').upper()]
                 return prove.prove_z3(
                     checkpoint=args.checkpoint,
                     interval=args.interval,
@@ -363,12 +363,12 @@ For more information on each subcommand:
                     definability_mode=mode
                 )
             elif args.method == 'enum':
-                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
+                mode = DefinabilityMode[args.definability_mode.replace('-', '_').upper()]
                 return prove.prove_enumeration(definability_mode=mode)
 
         elif args.command == 'validate':
             if args.type == 'binary':
-                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
+                mode = DefinabilityMode[args.definability_mode.replace('-', '_').upper()]
                 return validate.validate_binary(
                     depth=args.depth,
                     use_z3=args.use_z3,
@@ -376,7 +376,7 @@ For more information on each subcommand:
                     definability_mode=mode
                 )
             elif args.type == 'ternary':
-                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
+                mode = DefinabilityMode[args.definability_mode.replace('-', '_').upper()]
                 return validate.validate_ternary(
                     depth=args.depth,
                     compare=args.compare,
@@ -404,14 +404,14 @@ For more information on each subcommand:
 
         elif args.command == 'search':
             if args.type == 'binary':
-                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
+                mode = DefinabilityMode[args.definability_mode.replace('-', '_').upper()]
                 return search.search_binary(
                     max_depth=args.max_depth,
                     verbose=not args.quiet,
                     definability_mode=mode
                 )
             elif args.type == 'full':
-                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
+                mode = DefinabilityMode[args.definability_mode.replace('-', '_').upper()]
                 return search.search_full(
                     max_arity=args.max_arity,
                     max_depth=args.max_depth,
