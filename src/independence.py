@@ -51,6 +51,13 @@ def is_definable(target: Connective, basis: List[Connective],
         if _is_projection(target):
             return True  # All projections definable in truth-functional mode
 
+        # Cross-arity constant equivalence
+        target_sig = _get_truth_function_signature(target)
+        if target_sig in ["constant_0", "constant_1"]:
+            for b in basis:
+                if _get_truth_function_signature(b) == target_sig:
+                    return True  # Cross-arity constants are equivalent
+
     # Use pattern enumeration (proven correct for arity ≤3)
     for depth in range(1, max_depth + 1):
         if _is_definable_at_depth(target, basis, depth, timeout_ms, mode):
@@ -196,6 +203,41 @@ def _is_projection(connective: Connective) -> bool:
         if matches:
             return True
     return False
+
+
+def _get_truth_function_signature(connective: Connective) -> Optional[str]:
+    """Get truth function signature for constant detection.
+
+    Args:
+        connective: Connective to analyze
+
+    Returns:
+        "constant_0" if all outputs are 0 (FALSE_n)
+        "constant_1" if all outputs are 1 (TRUE_n)
+        None otherwise
+    """
+    num_rows = 2 ** connective.arity
+    all_zero = True
+    all_one = True
+
+    for row in range(num_rows):
+        inputs = tuple((row >> (connective.arity - 1 - k)) & 1
+                      for k in range(connective.arity))
+        output = connective.evaluate(inputs)
+
+        if output != 0:
+            all_zero = False
+        if output != 1:
+            all_one = False
+
+        if not all_zero and not all_one:
+            return None
+
+    if all_zero:
+        return "constant_0"
+    if all_one:
+        return "constant_1"
+    return None
 
 
 def _check_composition_enumeration(target: Connective, basis: List[Connective],
