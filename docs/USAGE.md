@@ -15,6 +15,7 @@ Complete guide for using the Nice Connectives Solver.
 - [Validation Commands](#validation-commands)
 - [Benchmark Commands](#benchmark-commands)
 - [Understanding Output](#understanding-output)
+- [Definability Modes](#definability-modes)
 - [Common Workflows](#common-workflows)
 - [Advanced Usage](#advanced-usage)
 - [Performance Tips](#performance-tips)
@@ -549,6 +550,112 @@ Found nice set! (0.69s)
 ```
 
 Z3 uses constraint solving to efficiently explore the search space, checking only complete sets for independence.
+
+---
+
+## Definability Modes
+
+### Overview
+
+The `--definability-mode` flag allows choosing between two notions of function definability:
+
+1. **`syntactic`** (default): Composition-based definability with depth bounds
+2. **`truth-functional`**: Clone-theoretic definability with universal projections and cross-arity constants
+
+### Syntactic Mode (Default)
+
+**Composition-Based Definability:**
+- Functions definable only through explicit composition up to max-depth
+- Arity-sensitive: functions of different arities are distinct
+- More strict: typically finds larger "nice" sets
+
+```bash
+# Explicit syntactic mode (same as default)
+python -m src.cli search binary --definability-mode syntactic
+
+# Syntactic is the default
+python -m src.cli search binary
+```
+
+**Characteristics:**
+- Cross-arity constants treated as independent (e.g., TRUE₀, TRUE₂, TRUE₃ are distinct)
+- Projections require explicit composition (e.g., PROJECT_X from {AND, OR} at depth 2)
+- Depth-bounded: only checks compositions up to specified depth
+
+### Truth-Functional Mode
+
+**Clone-Theoretic Definability:**
+- Universal projection rule: all projection functions are universally definable
+- Cross-arity constant equivalence: TRUE_n ≡ TRUE_m, FALSE_n ≡ FALSE_m
+- More permissive: typically finds smaller "nice" sets (more dependencies detected)
+
+```bash
+# Truth-functional mode
+python -m src.cli search binary --definability-mode truth-functional
+
+# Works with all commands
+python -m src.cli prove z3 --target-size 17 --definability-mode truth-functional
+python -m src.cli validate binary --definability-mode truth-functional
+```
+
+**Characteristics:**
+- All projections (f(x,y,...) = xᵢ) are universally definable from any basis
+- Constants of different arities but same truth value are equivalent
+- More dependencies → typically smaller maximum nice set sizes
+
+### Comparison
+
+| Aspect | Syntactic | Truth-Functional |
+|--------|-----------|------------------|
+| **Projection definability** | Requires composition | Universal |
+| **Cross-arity constants** | Independent | Equivalent if same value |
+| **Typical max nice set size** | Larger | Smaller |
+| **Use case** | Composition research | Clone theory research |
+| **Default** | ✓ Yes | No |
+
+### Example: Binary Search Comparison
+
+```bash
+# Syntactic mode (default)
+python -m src.cli search binary --definability-mode syntactic
+# Expected: max = 3, ~76 nice sets of size 3
+
+# Truth-functional mode
+python -m src.cli search binary --definability-mode truth-functional
+# Expected: Different results due to projection/constant rules
+```
+
+### When to Use Each Mode
+
+**Use Syntactic Mode When:**
+- Studying composition-based definability (default assumption in most logic research)
+- Want strict, depth-bounded independence
+- Reproducing classical results (binary-only max = 3)
+- Conservative estimates of independence
+
+**Use Truth-Functional Mode When:**
+- Studying clone theory or universal algebra
+- Want permissive, clone-theoretic definability
+- Treating projection functions as "free"
+- Analyzing cross-arity constant relationships
+
+### Technical Details
+
+**Syntactic Mode:**
+- Checks definability via pattern enumeration up to depth d
+- `is_definable(target, basis, depth)` → explores all composition trees
+- Arity-respecting: functions of arity n cannot directly use arity m ≠ n inputs
+
+**Truth-Functional Mode:**
+- Adds two special rules before composition checking:
+  1. If target is a projection → return True (universal)
+  2. If target and basis element are constants with same truth value → return True
+- Then falls back to composition checking for other cases
+
+**See Also:**
+- `tests/test_definability_modes.py` - Comprehensive test suite with 28 tests
+- `specs/reports/016_definability_notion_analysis.md` - Detailed analysis
+- `src/independence.py:DefinabilityMode` - Implementation details
 
 ---
 
