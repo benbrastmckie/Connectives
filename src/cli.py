@@ -12,6 +12,7 @@ This provides a single entry point for all nice connectives tools:
 import sys
 import argparse
 from src.commands import prove, validate, benchmark, search
+from src.independence import DefinabilityMode
 
 
 def main():
@@ -103,11 +104,25 @@ For more information on each subcommand:
         default=10000,
         help='Maximum number of complete sets to check before stopping (default: 10000)'
     )
+    prove_z3_parser.add_argument(
+        '--definability-mode',
+        type=str,
+        choices=['syntactic', 'truth-functional'],
+        default='syntactic',
+        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+    )
 
     # prove enum
     prove_enum_parser = prove_subparsers.add_parser(
         'enum',
         help='Pattern enumeration proof'
+    )
+    prove_enum_parser.add_argument(
+        '--definability-mode',
+        type=str,
+        choices=['syntactic', 'truth-functional'],
+        default='syntactic',
+        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
     )
 
     # ===== VALIDATE subcommand =====
@@ -144,6 +159,13 @@ For more information on each subcommand:
         action='store_true',
         help='Disable symmetry breaking (slower)'
     )
+    validate_binary_parser.add_argument(
+        '--definability-mode',
+        type=str,
+        choices=['syntactic', 'truth-functional'],
+        default='syntactic',
+        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+    )
 
     # validate ternary
     validate_ternary_parser = validate_subparsers.add_parser(
@@ -175,6 +197,13 @@ For more information on each subcommand:
         '--verbose',
         action='store_true',
         help='Print detailed progress information'
+    )
+    validate_ternary_parser.add_argument(
+        '--definability-mode',
+        type=str,
+        choices=['syntactic', 'truth-functional'],
+        default='syntactic',
+        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
     )
 
     # ===== BENCHMARK subcommand =====
@@ -272,6 +301,13 @@ For more information on each subcommand:
         action='store_true',
         help='Suppress progress output'
     )
+    search_binary_parser.add_argument(
+        '--definability-mode',
+        type=str,
+        choices=['syntactic', 'truth-functional'],
+        default='syntactic',
+        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+    )
 
     # search full
     search_full_parser = search_subparsers.add_parser(
@@ -295,6 +331,13 @@ For more information on each subcommand:
         action='store_true',
         help='Suppress progress output'
     )
+    search_full_parser.add_argument(
+        '--definability-mode',
+        type=str,
+        choices=['syntactic', 'truth-functional'],
+        default='syntactic',
+        help='Definability notion: syntactic (composition-based) or truth-functional (clone-theoretic)'
+    )
 
     # search validate
     search_validate_parser = search_subparsers.add_parser(
@@ -309,31 +352,38 @@ For more information on each subcommand:
     try:
         if args.command == 'prove':
             if args.method == 'z3':
+                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
                 return prove.prove_z3(
                     checkpoint=args.checkpoint,
                     interval=args.interval,
                     target_size=args.target_size,
                     max_depth=args.max_depth,
                     max_arity=args.max_arity,
-                    max_candidates=args.max_candidates
+                    max_candidates=args.max_candidates,
+                    definability_mode=mode
                 )
             elif args.method == 'enum':
-                return prove.prove_enumeration()
+                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
+                return prove.prove_enumeration(definability_mode=mode)
 
         elif args.command == 'validate':
             if args.type == 'binary':
+                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
                 return validate.validate_binary(
                     depth=args.depth,
                     use_z3=args.use_z3,
-                    use_symmetry_breaking=not args.no_symmetry_breaking
+                    use_symmetry_breaking=not args.no_symmetry_breaking,
+                    definability_mode=mode
                 )
             elif args.type == 'ternary':
+                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
                 return validate.validate_ternary(
                     depth=args.depth,
                     compare=args.compare,
                     use_z3=args.use_z3,
                     use_symmetry_breaking=not args.no_symmetry_breaking,
-                    verbose=args.verbose
+                    verbose=args.verbose,
+                    definability_mode=mode
                 )
 
         elif args.command == 'benchmark':
@@ -354,15 +404,19 @@ For more information on each subcommand:
 
         elif args.command == 'search':
             if args.type == 'binary':
+                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
                 return search.search_binary(
                     max_depth=args.max_depth,
-                    verbose=not args.quiet
+                    verbose=not args.quiet,
+                    definability_mode=mode
                 )
             elif args.type == 'full':
+                mode = DefinabilityMode(args.definability_mode.replace('-', '_').upper())
                 return search.search_full(
                     max_arity=args.max_arity,
                     max_depth=args.max_depth,
-                    verbose=not args.quiet
+                    verbose=not args.quiet,
+                    definability_mode=mode
                 )
             elif args.type == 'validate':
                 return search.search_validate()

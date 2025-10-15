@@ -10,7 +10,7 @@ from typing import List, Set, Tuple, Dict
 from itertools import combinations
 from src.connectives import Connective, generate_all_connectives
 from src.post_classes import is_complete, equivalence_class_representative
-from src.independence import is_independent
+from src.independence import is_independent, DefinabilityMode
 import time
 
 
@@ -49,7 +49,8 @@ def find_nice_sets_of_size(
     connectives: List[Connective],
     size: int,
     max_depth: int = 3,
-    verbose: bool = False
+    verbose: bool = False,
+    definability_mode: DefinabilityMode = DefinabilityMode.SYNTACTIC
 ) -> List[List[Connective]]:
     """
     Find all nice sets of a specific size from a pool of connectives.
@@ -59,6 +60,7 @@ def find_nice_sets_of_size(
         size: Target set size
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         List of nice sets (each set is a list of connectives)
@@ -82,7 +84,7 @@ def find_nice_sets_of_size(
             continue
 
         # Then check independence (slower)
-        if is_independent(combo_list, max_depth):
+        if is_independent(combo_list, max_depth, mode=definability_mode):
             nice_sets.append(combo_list)
             if verbose:
                 print(f"  Found nice set: {[c.name for c in combo_list]}")
@@ -113,7 +115,8 @@ def find_maximum_nice_set(
     connectives: List[Connective],
     max_size: int = 10,
     max_depth: int = 3,
-    verbose: bool = False
+    verbose: bool = False,
+    definability_mode: DefinabilityMode = DefinabilityMode.SYNTACTIC
 ) -> Tuple[int, List[List[Connective]], Dict[str, any]]:
     """
     Find the maximum size of nice sets and examples.
@@ -125,6 +128,7 @@ def find_maximum_nice_set(
         max_size: Maximum size to search up to
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Tuple of (maximum_size, list_of_maximal_nice_sets, metadata)
@@ -146,7 +150,7 @@ def find_maximum_nice_set(
 
     for size in range(1, min(max_size + 1, len(connectives) + 1)):
         start_time = time.time()
-        nice_sets = find_nice_sets_of_size(connectives, size, max_depth, verbose)
+        nice_sets = find_nice_sets_of_size(connectives, size, max_depth, verbose, definability_mode)
         elapsed = time.time() - start_time
 
         if nice_sets:
@@ -178,7 +182,8 @@ def find_maximum_nice_set(
 def search_binary_only(
     max_depth: int = 3,
     verbose: bool = True,
-    use_symmetry_breaking: bool = False
+    use_symmetry_breaking: bool = False,
+    definability_mode: DefinabilityMode = DefinabilityMode.SYNTACTIC
 ) -> Tuple[int, List[List[Connective]]]:
     """
     Search for maximum nice set using only binary connectives.
@@ -189,6 +194,7 @@ def search_binary_only(
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
         use_symmetry_breaking: Apply equivalence class filtering (default False)
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Tuple of (maximum_size, list_of_maximal_nice_sets)
@@ -220,7 +226,8 @@ def search_binary_only(
         binary_connectives,
         max_size=5,  # Binary-only max is 3, so 5 is safe upper bound
         max_depth=max_depth,
-        verbose=verbose
+        verbose=verbose,
+        definability_mode=definability_mode
     )
 
     if verbose:
@@ -244,7 +251,8 @@ def search_incremental_arity(
     max_arity: int = 3,
     max_depth: int = 3,
     stopping_criterion: int = 3,
-    verbose: bool = True
+    verbose: bool = True,
+    definability_mode: DefinabilityMode = DefinabilityMode.SYNTACTIC
 ) -> Tuple[int, List[List[Connective]], Dict[str, any]]:
     """
     Incremental search adding connectives of increasing arity.
@@ -257,6 +265,7 @@ def search_incremental_arity(
         max_depth: Maximum composition depth for independence checking
         stopping_criterion: Stop if no improvement for this many arities
         verbose: Print progress information
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Tuple of (maximum_size, list_of_maximal_nice_sets, statistics)
@@ -308,7 +317,8 @@ def search_incremental_arity(
             connective_pool,
             max_size=min(10, len(connective_pool)),
             max_depth=max_depth,
-            verbose=verbose
+            verbose=verbose,
+            definability_mode=definability_mode
         )
         elapsed = time.time() - start_time
 
@@ -397,13 +407,15 @@ def analyze_nice_set(nice_set: List[Connective]) -> Dict[str, any]:
     return analysis
 
 
-def validate_nice_set(nice_set: List[Connective], max_depth: int = 3) -> Tuple[bool, str]:
+def validate_nice_set(nice_set: List[Connective], max_depth: int = 3,
+                      definability_mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> Tuple[bool, str]:
     """
     Validate that a set is truly nice (complete and independent).
 
     Args:
         nice_set: Set to validate
         max_depth: Maximum composition depth for independence checking
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Tuple of (is_valid, message)
@@ -413,7 +425,7 @@ def validate_nice_set(nice_set: List[Connective], max_depth: int = 3) -> Tuple[b
         return False, "Set is not complete"
 
     # Check independence
-    if not is_independent(nice_set, max_depth):
+    if not is_independent(nice_set, max_depth, mode=definability_mode):
         return False, "Set is not independent"
 
     return True, "Set is valid (complete and independent)"

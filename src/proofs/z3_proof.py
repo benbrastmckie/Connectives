@@ -37,7 +37,7 @@ from src.post_classes import (
     is_t0_preserving, is_t1_preserving,
     is_monotone, is_self_dual, is_affine
 )
-from src.independence import is_independent
+from src.independence import is_independent, DefinabilityMode
 from src.constants import ALL_BINARY
 
 def build_connective_pool(max_arity=3):
@@ -92,7 +92,8 @@ def load_checkpoint(checkpoint_path):
 
 def z3_proof_approach_1_symmetry_breaking(pool, target_size=17, max_depth=3,
                                           checkpoint_path=None, checkpoint_interval=100,
-                                          max_candidates=10000):
+                                          max_candidates=10000,
+                                          definability_mode=DefinabilityMode.SYNTACTIC):
     """
     Use Z3 for smart enumeration with symmetry breaking.
 
@@ -109,6 +110,7 @@ def z3_proof_approach_1_symmetry_breaking(pool, target_size=17, max_depth=3,
         max_depth: Maximum composition depth for independence checking
         checkpoint_path: Path to save/load checkpoints (optional)
         checkpoint_interval: Save checkpoint every N candidates
+        definability_mode: Definability mode (syntactic or truth-functional)
     """
     print("=" * 70)
     print(f"Z3 APPROACH 1: SMART ENUMERATION FOR SIZE-{target_size} NICE SETS")
@@ -278,7 +280,7 @@ def z3_proof_approach_1_symmetry_breaking(pool, target_size=17, max_depth=3,
             continue
 
         # Check independence (the expensive part)
-        independent = is_independent(selected_connectives, max_depth=max_depth)
+        independent = is_independent(selected_connectives, max_depth=max_depth, mode=definability_mode)
 
         if candidates_checked % 100 == 0:
             elapsed = time.time() - start_time

@@ -6,6 +6,7 @@ with different arity configurations.
 """
 
 import sys
+from src.independence import DefinabilityMode
 from src.search import (
     search_binary_only,
     search_incremental_arity,
@@ -15,20 +16,22 @@ from src.search import (
 from src.connectives import Connective
 
 
-def search_binary(max_depth=3, verbose=True):
+def search_binary(max_depth=3, verbose=True, definability_mode=DefinabilityMode.SYNTACTIC):
     """
     Search for nice sets using only binary connectives.
 
     Args:
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Exit code (0 for success, 1 for failure)
     """
     max_size, sets = search_binary_only(
         max_depth=max_depth,
-        verbose=verbose
+        verbose=verbose,
+        definability_mode=definability_mode
     )
 
     if verbose and sets:
@@ -40,7 +43,8 @@ def search_binary(max_depth=3, verbose=True):
     return 0
 
 
-def search_full(max_arity=3, max_depth=3, verbose=True):
+def search_full(max_arity=3, max_depth=3, verbose=True,
+                definability_mode=DefinabilityMode.SYNTACTIC):
     """
     Search for nice sets using multiple arities (incremental search).
 
@@ -48,6 +52,7 @@ def search_full(max_arity=3, max_depth=3, verbose=True):
         max_arity: Maximum arity to consider
         max_depth: Maximum composition depth for independence checking
         verbose: Print progress information
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Exit code (0 for success, 1 for failure)
@@ -55,7 +60,8 @@ def search_full(max_arity=3, max_depth=3, verbose=True):
     max_size, sets, stats = search_incremental_arity(
         max_arity=max_arity,
         max_depth=max_depth,
-        verbose=verbose
+        verbose=verbose,
+        definability_mode=definability_mode
     )
 
     if verbose:

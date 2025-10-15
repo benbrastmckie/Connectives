@@ -7,6 +7,7 @@ nice set size using different methodologies (Z3 and enumeration).
 
 import sys
 
+from src.independence import DefinabilityMode
 from src.proofs.z3_proof import (
     build_connective_pool,
     z3_proof_approach_1_symmetry_breaking
@@ -14,7 +15,8 @@ from src.proofs.z3_proof import (
 from src.proofs import enumeration_proof
 
 
-def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_arity=3, max_candidates=10000):
+def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_arity=3,
+             max_candidates=10000, definability_mode=DefinabilityMode.SYNTACTIC):
     """
     Run Z3-based proof for maximum nice set size.
 
@@ -25,6 +27,7 @@ def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_ari
         max_depth: Maximum composition depth for independence checking
         max_arity: Maximum arity to include in connective pool
         max_candidates: Maximum number of complete sets to check before stopping
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Exit code (0 for success, 1 for failure)
@@ -48,7 +51,8 @@ def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_ari
         max_depth=max_depth,
         checkpoint_path=checkpoint,
         checkpoint_interval=interval,
-        max_candidates=max_candidates
+        max_candidates=max_candidates,
+        definability_mode=definability_mode
     )
 
     print()
@@ -67,13 +71,16 @@ def prove_z3(checkpoint=None, interval=100, target_size=17, max_depth=3, max_ari
         return 1
 
 
-def prove_enumeration():
+def prove_enumeration(definability_mode=DefinabilityMode.SYNTACTIC):
     """
     Run enumeration-based proof for maximum nice set size.
 
     This provides a definitive proof through exhaustive pattern enumeration.
 
+    Args:
+        definability_mode: Definability mode (syntactic or truth-functional)
+
     Returns:
         Exit code (0 for success, 1 for failure)
     """
-    return enumeration_proof.main()
+    return enumeration_proof.main(definability_mode=definability_mode)

@@ -8,8 +8,11 @@ using different arity configurations.
 import sys
 from pathlib import Path
 
+from src.independence import DefinabilityMode
 
-def validate_binary(depth=3, use_z3=False, use_symmetry_breaking=True):
+
+def validate_binary(depth=3, use_z3=False, use_symmetry_breaking=True,
+                    definability_mode=DefinabilityMode.SYNTACTIC):
     """
     Validate binary-only search results.
 
@@ -17,6 +20,7 @@ def validate_binary(depth=3, use_z3=False, use_symmetry_breaking=True):
         depth: Maximum composition depth
         use_z3: Use Z3 SAT backend instead of pattern enumeration
         use_symmetry_breaking: Enable symmetry breaking optimizations
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Exit code (0 for success, 1 for failure)
@@ -41,7 +45,8 @@ def validate_binary(depth=3, use_z3=False, use_symmetry_breaking=True):
         max_size, nice_sets = search_binary_only(
             max_depth=depth,
             verbose=True,
-            use_symmetry_breaking=use_symmetry_breaking
+            use_symmetry_breaking=use_symmetry_breaking,
+            definability_mode=definability_mode
         )
 
         print()
@@ -68,7 +73,8 @@ def validate_binary(depth=3, use_z3=False, use_symmetry_breaking=True):
 
 
 def validate_ternary(depth=3, compare=False, use_z3=False,
-                     use_symmetry_breaking=True, verbose=False):
+                     use_symmetry_breaking=True, verbose=False,
+                     definability_mode=DefinabilityMode.SYNTACTIC):
     """
     Validate ternary search results.
 
@@ -78,6 +84,7 @@ def validate_ternary(depth=3, compare=False, use_z3=False,
         use_z3: Use Z3 SAT backend instead of pattern enumeration
         use_symmetry_breaking: Enable symmetry breaking optimizations
         verbose: Print detailed progress information
+        definability_mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         Exit code (0 for success, 1 for failure)
