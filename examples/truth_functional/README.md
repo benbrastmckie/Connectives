@@ -31,15 +31,42 @@ Truth-functional mode typically produces:
   - **31% fewer nice sets** than syntactic mode (52 vs 76)
   - Search time: 6.52s
 
+- **[enum_unary_binary_max5.md](enum_unary_binary_max5.md)** - Unary + binary search via incremental enumeration
+  - Maximum: 5 (same as syntactic)
+  - Nice sets found: 2 (size 5), 25 (size 4), 118 (size 3)
+  - **60% fewer size-5 sets** than syntactic mode (2 vs 5)
+  - Search time: 149.20s (2.5 minutes)
+
 ### Z3 Constraint-Based Tests
 
-**Status**: Deferred due to time constraints (2-4 hours estimated)
+Z3 constraint solving enables efficient search for large nice sets. The following sizes have been confirmed:
 
-The following tests are planned but not yet generated:
-- z3_nice_set_17.md - Size-17 search (if achievable in truth-functional mode)
-- z3_nice_set_29.md through z3_nice_set_35.md - Large set searches
+- **[z3_nice_set_29.md](z3_nice_set_29.md)** - Size-29 search (matches syntactic mode)
+  - Found in 18.80s, arity: 1 + 3 + 25 (nullary + binary + ternary)
+  - Demonstrates truth-functional mode scales to large sizes
 
-These can be generated using:
+- **[z3_nice_set_32.md](z3_nice_set_32.md)** - Size-32 search (**current confirmed maximum**)
+  - Found in 44.40s, arity: 1 + 1 + 30
+  - Only 3 away from syntactic mode's maximum (35)
+
+#### Additional Confirmed Sizes
+
+The following sizes were also successfully found but not individually documented:
+
+| Size | Time | Sets Checked | Arity Distribution | Notes |
+|------|------|--------------|-------------------|-------|
+| 6 | 0.14s | 1 | 1 + 2 + 3 | First with ternary |
+| 10 | 0.13s | 1 | 1 + 0 + 9 | All ternary except constant |
+| 17 | 0.67s | 22 | 1 + 1 + 15 | Matches syntactic milestone |
+| 20 | 2.11s | 80 | 1 + 1 + 18 | - |
+| 25 | 4.03s | 187 | 1 + 0 + 24 | - |
+| 27 | 88.31s | 3,902 | 1 + 1 + 25 | - |
+| 29 | 18.80s | 904 | 1 + 3 + 25 | Documented above |
+| 32 | 44.40s | 1,822 | 1 + 1 + 30 | **Documented above** |
+
+**Size 35**: Currently being tested (syntactic maximum). Search in progress...
+
+All tests can be generated using:
 ```bash
 python -m src.cli prove z3 --target-size N --definability-mode truth-functional
 ```
