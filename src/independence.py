@@ -10,10 +10,18 @@ connective's truth table.
 from typing import List, Set, Tuple, Optional
 from src.connectives import Connective
 import itertools
+from enum import Enum
+
+
+class DefinabilityMode(Enum):
+    """Definability checking mode."""
+    SYNTACTIC = "syntactic"           # Composition-based (current)
+    TRUTH_FUNCTIONAL = "truth-functional"  # Clone-theoretic
 
 
 def is_definable(target: Connective, basis: List[Connective],
-                max_depth: int = 3, timeout_ms: int = 5000) -> bool:
+                max_depth: int = 3, timeout_ms: int = 5000,
+                mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
     """
     Check if target connective is definable from basis connectives.
 
@@ -25,6 +33,7 @@ def is_definable(target: Connective, basis: List[Connective],
         basis: List of connectives to use as basis
         max_depth: Maximum composition depth to try
         timeout_ms: Timeout in milliseconds (for compatibility, not used)
+        mode: Definability mode (syntactic or truth-functional, default: syntactic)
 
     Returns:
         True if target is definable from basis within the depth bound
@@ -916,7 +925,8 @@ def _try_f_proj_composed(target: Connective,
 
 def is_independent(connectives: List[Connective],
                   max_depth: int = 3,
-                  timeout_ms: int = 5000) -> bool:
+                  timeout_ms: int = 5000,
+                  mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
     """
     Check if a set of connectives is independent.
 
@@ -927,6 +937,7 @@ def is_independent(connectives: List[Connective],
         connectives: List of connectives to check
         max_depth: Maximum composition depth for definability checking
         timeout_ms: Solver timeout per check
+        mode: Definability mode (syntactic or truth-functional, default: syntactic)
 
     Returns:
         True if the set is independent
@@ -940,7 +951,7 @@ def is_independent(connectives: List[Connective],
         basis = connectives[:i] + connectives[i+1:]
 
         # Check if target is definable from basis
-        if is_definable(target, basis, max_depth, timeout_ms):
+        if is_definable(target, basis, max_depth, timeout_ms, mode):
             return False
 
     return True
