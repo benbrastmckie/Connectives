@@ -45,15 +45,22 @@ def is_definable(target: Connective, basis: List[Connective],
     if target in basis:
         return True
 
+    # Mode-specific handling
+    if mode == DefinabilityMode.TRUTH_FUNCTIONAL:
+        # Universal projections check
+        if _is_projection(target):
+            return True  # All projections definable in truth-functional mode
+
     # Use pattern enumeration (proven correct for arity ≤3)
     for depth in range(1, max_depth + 1):
-        if _is_definable_at_depth(target, basis, depth, timeout_ms):
+        if _is_definable_at_depth(target, basis, depth, timeout_ms, mode):
             return True
     return False
 
 
 def _is_definable_at_depth(target: Connective, basis: List[Connective],
-                           depth: int, timeout_ms: int) -> bool:
+                           depth: int, timeout_ms: int,
+                           mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
     """
     Check if target is definable at a specific depth.
 
@@ -65,6 +72,7 @@ def _is_definable_at_depth(target: Connective, basis: List[Connective],
         basis: Basis connectives
         depth: Composition depth
         timeout_ms: Timeout in milliseconds
+        mode: Definability mode (syntactic or truth-functional)
 
     Returns:
         True if definable at this depth
@@ -77,7 +85,7 @@ def _is_definable_at_depth(target: Connective, basis: List[Connective],
     # For deeper compositions, we need to enumerate possible compositions
     # This is complex for variable arity, so we'll use a simpler approach:
     # enumerate all possible expression trees and evaluate them
-    return _check_composition_enumeration(target, basis, depth)
+    return _check_composition_enumeration(target, basis, depth, mode)
 
 
 def _check_depth_one(target: Connective, basis: List[Connective]) -> bool:
@@ -163,8 +171,36 @@ def _check_permutation_match(target: Connective, candidate: Connective,
     return True
 
 
+def _is_projection(connective: Connective) -> bool:
+    """Check if connective is a projection (returns one input unchanged).
+
+    Args:
+        connective: Connective to check
+
+    Returns:
+        True if connective outputs exactly one input variable for all assignments
+    """
+    if connective.arity == 0:
+        return False
+
+    # Check if outputs match exactly one input variable
+    for var_idx in range(connective.arity):
+        matches = True
+        num_rows = 2 ** connective.arity
+        for row in range(num_rows):
+            inputs = tuple((row >> (connective.arity - 1 - k)) & 1
+                          for k in range(connective.arity))
+            if connective.evaluate(inputs) != inputs[var_idx]:
+                matches = False
+                break
+        if matches:
+            return True
+    return False
+
+
 def _check_composition_enumeration(target: Connective, basis: List[Connective],
-                                   max_depth: int) -> bool:
+                                   max_depth: int,
+                                   mode: DefinabilityMode = DefinabilityMode.SYNTACTIC) -> bool:
     """
     Check definability by enumerating small compositions.
 
