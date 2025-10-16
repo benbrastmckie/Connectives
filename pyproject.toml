@@ -54,6 +54,7 @@ addopts = "-v"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "notebook: marks notebook validation tests",
+    "integration: marks integration tests (end-to-end with real execution)",
 ]
 filterwarnings = [
     # Ignore deprecation warnings from external Z3 library
