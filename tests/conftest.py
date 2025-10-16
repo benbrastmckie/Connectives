@@ -5,6 +5,15 @@ This module provides common fixtures used across multiple test files:
 - Sample connective pools for testing
 - Temporary file fixtures for checkpoint testing
 - Mock Z3 solver for unit testing
+
+Fixture Scoping Strategy:
+- session scope: Immutable test data (connective pools, constants)
+  Generated once per test session and reused across all tests.
+  Safe because data is read-only and never modified.
+
+- function scope (default): Mutable fixtures, temporary files, mocks
+  Created fresh for each test to ensure test isolation.
+  Required for fixtures that track state or modify data.
 """
 
 import pytest
@@ -64,6 +73,30 @@ def standard_complete_set():
     Safe because the connective set is immutable (read-only).
     """
     return [NOT, AND, OR]
+
+
+@pytest.fixture(scope="session")
+def tiny_connective_pool():
+    """
+    Provide a tiny connective pool for ultra-fast unit tests.
+
+    Returns a minimal pool with:
+    - 2 constants (arity 0)
+    - 4 unary connectives (arity 1)
+    - 2 binary connectives (AND, OR)
+    Total: 8 connectives
+
+    This is optimized for tests that just need "some connectives" without
+    requiring the full 16 binary connectives. Use this when test speed
+    is critical and coverage doesn't require all connectives.
+
+    Note: Uses session scope - generated once and reused across all tests.
+    """
+    pool = []
+    pool.extend(generate_all_connectives(0))  # 2 constants
+    pool.extend(generate_all_connectives(1))  # 4 unary
+    pool.extend([AND, OR])                     # 2 common binary
+    return pool
 
 
 @pytest.fixture

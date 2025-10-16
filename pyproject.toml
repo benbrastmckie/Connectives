@@ -49,16 +49,28 @@ nice-connectives = "src.cli:main"
 packages = ["src", "src.commands"]
 
 [tool.pytest.ini_options]
+# Test discovery optimization
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
-addopts = "-v"
+
+# Output configuration
+addopts = "-v --tb=short"  # Short traceback for faster output
+
+# Test markers for selective execution
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "notebook: marks notebook validation tests",
     "integration: marks integration tests (end-to-end with real execution)",
 ]
+
+# Filter external warnings
 filterwarnings = [
     # Ignore deprecation warnings from external Z3 library
     "ignore:pkg_resources is deprecated:DeprecationWarning:z3.*",
     "ignore:Deprecated call to.*pkg_resources.*:DeprecationWarning",
 ]
+
+# Performance optimization notes:
+# - Use session-scoped fixtures for immutable test data (see tests/conftest.py)
+# - Run tests in parallel with: pytest -n auto (requires pytest-xdist)
+# - Exclude slow tests during development: pytest -m "not slow"

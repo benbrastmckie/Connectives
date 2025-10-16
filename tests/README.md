@@ -8,7 +8,8 @@ Comprehensive test suite for the nice_connectives project covering all core algo
 **Skipped Tests**: 0
 **Warnings**: 0
 **Framework**: pytest 7.0+
-**Execution Time**: ~60 seconds (excluding slow tests), ~8-10 minutes (full suite)
+**Execution Time**: ~60 seconds (non-slow tests), ~8-10 minutes (full suite)
+**Optimizations**: Session-scoped fixtures, tiny test pools, configurable depth tests
 
 ## Quick Start
 
@@ -335,13 +336,47 @@ pytest tests/test_search.py --cov=src.search
 
 ### Parallel Execution
 
+For faster test execution on multi-core systems:
+
 ```bash
-# Install pytest-xdist
+# Install pytest-xdist (if not already installed)
 pip install pytest-xdist
 
-# Run tests in parallel
+# Run tests in parallel (auto-detect CPU cores)
+pytest tests/ -n auto
+
+# Run non-slow tests in parallel (recommended for development)
+pytest tests/ -m "not slow" -n auto
+
+# Full suite in parallel
 pytest tests/ -n auto
 ```
+
+**Performance Gains**:
+- Expected: 2.5-3x speedup on 4-core systems
+- Non-slow tests: ~60s → ~20s
+- Full suite: ~10min → ~3-4min
+
+### Performance Optimization Tips
+
+The test suite has been optimized for speed:
+
+1. **Session-scoped fixtures**: Connective pools generated once per session
+   - `sample_connective_pool()`: 22 connectives (0-2 arity)
+   - `tiny_connective_pool()`: 8 connectives (minimal for speed)
+   - `minimal_complete_set()`: {NOT, AND}
+   - `standard_complete_set()`: {NOT, AND, OR}
+
+2. **Parallel execution**: Use `-n auto` to distribute tests across CPU cores
+
+3. **Selective test execution**: Use markers to run specific test categories
+   ```bash
+   pytest -m "not slow"      # Skip slow tests
+   pytest -m "integration"   # Only integration tests
+   pytest -m "notebook"      # Only notebook tests
+   ```
+
+4. **Short traceback**: Configured with `--tb=short` for faster output
 
 ## Pre-PR Checklist
 
