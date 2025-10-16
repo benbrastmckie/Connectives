@@ -55,3 +55,8 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "notebook: marks notebook validation tests",
 ]
+filterwarnings = [
+    # Ignore deprecation warnings from external Z3 library
+    "ignore:pkg_resources is deprecated:DeprecationWarning:z3.*",
+    "ignore:Deprecated call to.*pkg_resources.*:DeprecationWarning",
+]

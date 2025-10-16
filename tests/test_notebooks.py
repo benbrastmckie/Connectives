@@ -3,12 +3,15 @@ Test suite for Jupyter notebook validation.
 
 This module tests that all Jupyter notebooks execute without errors,
 ensuring imports work correctly and all cells run successfully.
+
+Uses nbconvert to execute notebooks without requiring the nbval pytest plugin.
 """
 
 import pytest
 from pathlib import Path
 import subprocess
 import sys
+import json
 
 
 # Get project root and notebook directory
@@ -29,17 +32,24 @@ def test_notebook_execution(notebook_path):
     """
     Test that each notebook executes without errors.
 
-    This test runs each notebook through nbval to validate:
-    - All imports resolve correctly
-    - All cells execute without errors
-    - No runtime exceptions occur
+    This test uses jupyter nbconvert to execute notebooks, which:
+    - Validates all imports resolve correctly
+    - Executes all cells in order
+    - Detects any runtime exceptions
 
     Note: This test is marked as 'slow' because notebooks can take
     several seconds to execute. Skip with: pytest -m "not slow"
     """
-    # Use pytest's nbval plugin via command line
+    # Use jupyter nbconvert to execute the notebook
     result = subprocess.run(
-        [sys.executable, "-m", "pytest", "--nbval", str(notebook_path), "-v"],
+        [
+            sys.executable, "-m", "jupyter", "nbconvert",
+            "--to", "notebook",
+            "--execute",
+            "--ExecutePreprocessor.timeout=60",
+            "--stdout",
+            str(notebook_path)
+        ],
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True
@@ -48,7 +58,7 @@ def test_notebook_execution(notebook_path):
     # Check if notebook executed successfully
     assert result.returncode == 0, (
         f"Notebook {notebook_path.name} failed to execute.\n"
-        f"STDOUT:\n{result.stdout}\n"
+        f"STDOUT (truncated): {result.stdout[:500]}...\n"
         f"STDERR:\n{result.stderr}"
     )
 
