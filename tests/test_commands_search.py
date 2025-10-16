@@ -14,8 +14,8 @@ from src.independence import DefinabilityMode
 class TestSearchBinary:
     """Test binary-only search command."""
 
-    @patch('src.search.search_binary_only')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.search_binary_only')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_binary_basic(self, mock_analyze, mock_search):
         """Test basic binary search execution."""
         # Mock search results
@@ -40,7 +40,7 @@ class TestSearchBinary:
             definability_mode=DefinabilityMode.SYNTACTIC
         )
 
-    @patch('src.search.search_binary_only')
+    @patch('src.commands.search.search_binary_only')
     def test_search_binary_no_verbose(self, mock_search):
         """Test binary search with verbose disabled."""
         mock_search.return_value = (3, [])
@@ -50,8 +50,8 @@ class TestSearchBinary:
         # Verify verbose flag was passed
         assert mock_search.call_args[1]['verbose'] is False
 
-    @patch('src.search.search_binary_only')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.search_binary_only')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_binary_with_results(self, mock_analyze, mock_search):
         """Test binary search prints analysis when sets are found."""
         mock_set = [Mock(), Mock()]
@@ -67,7 +67,7 @@ class TestSearchBinary:
         # Analysis should be called for first result
         mock_analyze.assert_called_once_with(mock_set)
 
-    @patch('src.search.search_binary_only')
+    @patch('src.commands.search.search_binary_only')
     def test_search_binary_empty_results(self, mock_search):
         """Test binary search with no results found."""
         mock_search.return_value = (0, [])
@@ -77,7 +77,7 @@ class TestSearchBinary:
         # Should still return 0
         assert exit_code == 0
 
-    @patch('src.search.search_binary_only')
+    @patch('src.commands.search.search_binary_only')
     def test_search_binary_custom_depth(self, mock_search):
         """Test binary search with custom depth."""
         mock_search.return_value = (3, [])
@@ -87,7 +87,7 @@ class TestSearchBinary:
         # Verify depth was passed
         assert mock_search.call_args[1]['max_depth'] == 5
 
-    @patch('src.search.search_binary_only')
+    @patch('src.commands.search.search_binary_only')
     def test_search_binary_syntactic_mode(self, mock_search):
         """Test binary search with syntactic mode."""
         mock_search.return_value = (3, [])
@@ -96,7 +96,7 @@ class TestSearchBinary:
 
         assert mock_search.call_args[1]['definability_mode'] == DefinabilityMode.SYNTACTIC
 
-    @patch('src.search.search_binary_only')
+    @patch('src.commands.search.search_binary_only')
     def test_search_binary_truth_functional_mode(self, mock_search):
         """Test binary search with truth-functional mode."""
         mock_search.return_value = (3, [])
@@ -109,8 +109,8 @@ class TestSearchBinary:
 class TestSearchFull:
     """Test full incremental arity search command."""
 
-    @patch('src.search.search_incremental_arity')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.search_incremental_arity')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_full_basic(self, mock_analyze, mock_search):
         """Test basic full search execution."""
         mock_set = [Mock() for _ in range(16)]
@@ -143,7 +143,7 @@ class TestSearchFull:
             definability_mode=DefinabilityMode.SYNTACTIC
         )
 
-    @patch('src.search.search_incremental_arity')
+    @patch('src.commands.search.search_incremental_arity')
     def test_search_full_no_verbose(self, mock_search):
         """Test full search with verbose disabled."""
         mock_stats = {
@@ -158,7 +158,7 @@ class TestSearchFull:
         # Verify verbose was passed
         assert mock_search.call_args[1]['verbose'] is False
 
-    @patch('src.search.search_incremental_arity')
+    @patch('src.commands.search.search_incremental_arity')
     def test_search_full_custom_parameters(self, mock_search, capsys):
         """Test full search with custom parameters."""
         mock_stats = {
@@ -179,8 +179,8 @@ class TestSearchFull:
         assert "Search Statistics" in captured.out
         assert "Total time: 5.00s" in captured.out
 
-    @patch('src.search.search_incremental_arity')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.search_incremental_arity')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_full_prints_analysis(self, mock_analyze, mock_search, capsys):
         """Test full search prints result analysis."""
         mock_set = [Mock() for _ in range(16)]
@@ -205,7 +205,7 @@ class TestSearchFull:
         assert "Size: 16" in captured.out
         assert "Arity distribution:" in captured.out
 
-    @patch('src.search.search_incremental_arity')
+    @patch('src.commands.search.search_incremental_arity')
     def test_search_full_syntactic_mode(self, mock_search):
         """Test full search with syntactic mode."""
         mock_stats = {'total_time': 1.0, 'connectives_by_arity': {}, 'arity_results': {}}
@@ -215,7 +215,7 @@ class TestSearchFull:
 
         assert mock_search.call_args[1]['definability_mode'] == DefinabilityMode.SYNTACTIC
 
-    @patch('src.search.search_incremental_arity')
+    @patch('src.commands.search.search_incremental_arity')
     def test_search_full_truth_functional_mode(self, mock_search):
         """Test full search with truth-functional mode."""
         mock_stats = {'total_time': 1.0, 'connectives_by_arity': {}, 'arity_results': {}}
@@ -360,8 +360,8 @@ class TestSearchValidate:
 class TestSearchIntegration:
     """Integration tests for search commands."""
 
-    @patch('src.search.search_binary_only')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.search_binary_only')
+    @patch('src.commands.search.analyze_nice_set')
     def test_binary_search_full_workflow(self, mock_analyze, mock_search, capsys):
         """Test complete binary search workflow."""
         # Create mock result
@@ -386,7 +386,7 @@ class TestSearchIntegration:
         captured = capsys.readouterr()
         assert "Analysis of first result" in captured.out
 
-    @patch('src.search.search_incremental_arity')
+    @patch('src.commands.search.search_incremental_arity')
     def test_full_search_no_results(self, mock_search, capsys):
         """Test full search with no results."""
         mock_stats = {
