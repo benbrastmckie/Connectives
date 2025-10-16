@@ -229,9 +229,9 @@ class TestSearchFull:
 class TestSearchValidate:
     """Test search validation command."""
 
-    @patch('src.search.validate_nice_set')
+    @patch('src.commands.search.validate_nice_set')
     @patch('src.post_classes.get_missing_classes')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_validate_success(self, mock_analyze, mock_missing, mock_validate):
         """Test validation of size-16 nice set (success case)."""
         # Mock validation success
@@ -259,7 +259,7 @@ class TestSearchValidate:
         assert len(nice_set) == 16
         assert args[1]['max_depth'] == 5
 
-    @patch('src.search.validate_nice_set')
+    @patch('src.commands.search.validate_nice_set')
     def test_search_validate_failure(self, mock_validate):
         """Test validation failure case."""
         # Mock validation failure
@@ -270,9 +270,9 @@ class TestSearchValidate:
         # Should return 1 for failure
         assert exit_code == 1
 
-    @patch('src.search.validate_nice_set')
+    @patch('src.commands.search.validate_nice_set')
     @patch('src.post_classes.get_missing_classes')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_validate_prints_output(self, mock_analyze, mock_missing,
                                            mock_validate, capsys):
         """Test validation prints expected output."""
@@ -295,7 +295,7 @@ class TestSearchValidate:
         assert "Escapes all Post classes" in captured.out
         assert "CONFIRMED: Maximum nice set size = 16" in captured.out
 
-    @patch('src.search.validate_nice_set')
+    @patch('src.commands.search.validate_nice_set')
     def test_search_validate_failure_output(self, mock_validate, capsys):
         """Test validation failure output."""
         mock_validate.return_value = (False, "Dependencies found")
@@ -308,9 +308,9 @@ class TestSearchValidate:
         assert "VALIDATION FAILED" in captured.out
         assert "Dependencies found" in captured.out
 
-    @patch('src.search.validate_nice_set')
+    @patch('src.commands.search.validate_nice_set')
     @patch('src.post_classes.get_missing_classes')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_validate_checks_post_classes(self, mock_analyze, mock_missing,
                                                    mock_validate):
         """Test validation checks Post classes."""
@@ -325,9 +325,9 @@ class TestSearchValidate:
         nice_set = mock_missing.call_args[0][0]
         assert len(nice_set) == 16
 
-    @patch('src.search.validate_nice_set')
+    @patch('src.commands.search.validate_nice_set')
     @patch('src.post_classes.get_missing_classes')
-    @patch('src.search.analyze_nice_set')
+    @patch('src.commands.search.analyze_nice_set')
     def test_search_validate_analyzes_result(self, mock_analyze, mock_missing,
                                               mock_validate):
         """Test validation analyzes the nice set."""
