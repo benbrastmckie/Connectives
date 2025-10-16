@@ -3,7 +3,7 @@
 **Search Method**: Z3 constraint solving with symmetry breaking
 **Verification**: Complete and Independent at depth 3
 **Definability Mode**: Truth-functional (clone-theoretic)
-**Status**: Large nice set (maximum is 33)
+**Status**: Large nice set (likely maximum is 33)
 
 ## Set Composition
 
@@ -83,7 +83,7 @@ Each connective was verified to be non-definable from the others using Z3's cons
 
 ## Key Insights
 
-1. **Near-maximum size**: Size 32 is one away from the proven maximum (33)
+1. **Near-maximum size**: Size 32 is one away from the likely maximum (33)
 2. **Only 3 from syntactic maximum**: Close to syntactic mode's maximum of 35
 3. **Ternary overwhelmingly dominant**: 94% of the set (30/32) is ternary functions
 4. **Minimal non-ternary content**: Just 1 constant and 1 binary function needed
@@ -150,7 +150,7 @@ Sizes between 32 and 35 have not been systematically tested. Future work could:
 ## See Also
 
 - **[z3_nice_set_29.md](z3_nice_set_29.md)** - Matches syntactic mode's lower bound
-- **[z3_nice_set_33.md](z3_nice_set_33.md)** - **Truth-functional mode MAXIMUM (proven)**
+- **[z3_nice_set_33.md](z3_nice_set_33.md)** - **Truth-functional mode likely maximum**
 - **[../syntactic/z3_nice_set_32.md](../syntactic/z3_nice_set_32.md)** - Syntactic mode equivalent
 - **[../syntactic/z3_nice_set_35.md](../syntactic/z3_nice_set_35.md)** - Syntactic mode maximum (2 larger)
 - **[enum_unary_binary_max5.md](enum_unary_binary_max5.md)** - Enumeration baseline
@@ -158,4 +158,4 @@ Sizes between 32 and 35 have not been systematically tested. Future work could:
 
 ---
 
-**Size 32 is near the proven maximum of 33 for truth-functional mode. Sizes 34-35 have been proven impossible via exhaustive Z3 search.**
+**Size 32 is near the likely maximum of 33 for truth-functional mode. Extensive searches (10,000+ candidates) found no nice sets at sizes 34-35.**

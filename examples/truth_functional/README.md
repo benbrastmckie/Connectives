@@ -47,11 +47,11 @@ Z3 constraint solving enables efficient search for large nice sets. The followin
 
 - **[z3_nice_set_32.md](z3_nice_set_32.md)** - Size-32 search (near-maximum)
   - Found in 44.40s, arity: 1 + 1 + 30
-  - One away from the proven maximum
+  - One away from the likely maximum
 
-- **[z3_nice_set_33.md](z3_nice_set_33.md)** - Size-33 search (**PROVEN MAXIMUM**)
+- **[z3_nice_set_33.md](z3_nice_set_33.md)** - Size-33 search (**Likely Maximum**)
   - Found in 20.35s, arity: 1 + 0 + 32 (97% ternary!)
-  - **Maximum for truth-functional mode** (sizes 34-35 proven impossible)
+  - **Appears to be maximum** (sizes 34-35: none found in extensive search)
 
 #### Additional Confirmed Sizes
 
@@ -67,18 +67,18 @@ The following sizes were also successfully found but not individually documented
 | 27 | 88.31s | 3,902 | 1 + 1 + 25 | - |
 | 29 | 18.80s | 904 | 1 + 3 + 25 | Documented above |
 | 32 | 44.40s | 1,822 | 1 + 1 + 30 | Documented above |
-| **33** | **20.35s** | **1,239** | **1 + 0 + 32** | **MAXIMUM** (documented above) |
+| **33** | **20.35s** | **1,239** | **1 + 0 + 32** | **Likely maximum** (documented above) |
 
-#### Impossibility Proofs
+#### Extensive Searches Beyond Size 33
 
-The following sizes have been **proven impossible** via exhaustive Z3 search:
+The following sizes show no results after extensive Z3-guided search:
 
 | Size | Candidates Checked | Time | Result |
 |------|-------------------|------|--------|
 | **34** | 10,000 | 362.89s (~6 min) | **0 nice sets found** |
 | **35** | 10,000 | 400.44s (~6.7 min) | **0 nice sets found** |
 
-**Conclusion**: Truth-functional mode maximum is **exactly 33**.
+**Strong evidence suggests maximum = 33** (though not mathematically proven).
 
 All tests can be generated using:
 ```bash
@@ -98,7 +98,7 @@ For equivalent results in **syntactic mode**, see:
 | Binary-only max | 3 | 3 | Same maximum |
 | Binary-only count (size 3) | 76 sets | 52 sets | 31% fewer |
 | Unary+binary max | 5 | 5 | Same maximum |
-| **Mixed-arity max** | **35** | **33 (proven)** | **-2 (5.7% smaller)** |
+| **Mixed-arity max** | **35** | **33 (likely)** | **-2 (5.7% smaller if confirmed)** |
 
 ### Why Fewer Nice Sets?
 

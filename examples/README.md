@@ -34,7 +34,7 @@ As of 2025-10-15, examples are organized into subdirectories by definability mod
 - 2 enumeration tests (binary-only max=3, unary+binary max=5)
 - 3 documented Z3 tests (sizes 29, 32, 33)
 - 8 additional confirmed Z3 sizes (6, 10, 17, 20, 25, 27)
-- **Proven maximum: 33** (sizes 34-35 proven impossible)
+- **Likely maximum: 33** (sizes 34-35: none found in extensive search)
 
 **Use for**: Clone theory research, current project standards
 
@@ -50,13 +50,13 @@ As of 2025-10-15, examples are organized into subdirectories by definability mod
 | **Nice set counts** | More sets | Fewer sets (31-60% fewer) |
 | **Binary-only max** | 3 | 3 (same) |
 | **Unary+binary max** | 5 | 5 (same) |
-| **Mixed-arity max** | 35 | **33 (proven)** |
+| **Mixed-arity max** | 35 | **33 (likely)** |
 
 **Key insights**:
 - Truth-functional detects more dependencies (31-60% fewer nice sets at all sizes)
 - Smaller maximums match exactly (binary-only, unary+binary)
-- Mixed-arity maximum only 5.7% smaller (33 vs 35) despite stricter rules
-- Truth-functional maximum **proven exactly** via impossibility proofs
+- Mixed-arity maximum only 5.7% smaller (33 vs 35, if confirmed) despite stricter rules
+- Strong empirical evidence for maximum = 33 (10,000+ candidates checked for sizes 34-35)
 
 For complete mode documentation, see [docs/DEFINABILITY.md](../docs/DEFINABILITY.md).
 
