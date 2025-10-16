@@ -16,7 +16,7 @@ from src.connectives import generate_all_connectives
 from src.constants import ALL_BINARY, AND, OR, NOT, CONST_FALSE
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def sample_connective_pool():
     """
     Provide a small connective pool for testing.
@@ -29,6 +29,9 @@ def sample_connective_pool():
 
     This is suitable for fast unit tests without the overhead
     of including all 256 ternary connectives.
+
+    Note: Uses session scope - generated once per test session and reused
+    across all tests. Safe because the pool is immutable (read-only).
     """
     pool = []
     pool.extend(generate_all_connectives(0))  # 2 constants
@@ -37,22 +40,28 @@ def sample_connective_pool():
     return pool
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def minimal_complete_set():
     """
     Provide a minimal complete connective set for testing.
 
     Returns {NOT, AND} which is known to be complete.
+
+    Note: Uses session scope - created once and reused across all tests.
+    Safe because the connective set is immutable (read-only).
     """
     return [NOT, AND]
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def standard_complete_set():
     """
     Provide a standard complete connective set for testing.
 
     Returns {NOT, AND, OR} which is a common complete set.
+
+    Note: Uses session scope - created once and reused across all tests.
+    Safe because the connective set is immutable (read-only).
     """
     return [NOT, AND, OR]
 

@@ -1,9 +1,9 @@
-# Size-33 Nice Set (Truth-Functional Mode) - Likely Maximum
+# Size-33 Nice Set (Truth-Functional Mode)
 
 **Search Method**: Z3 constraint solving with symmetry breaking
 **Verification**: Complete and Independent at depth 3
 **Definability Mode**: Truth-functional (clone-theoretic)
-**Status**: **Likely maximum** (sizes 34-35: none found in extensive search)
+**Status**: **Confirmed example** (larger sizes may exist with extended search)
 
 ## Set Composition
 
@@ -51,26 +51,9 @@ Each connective was verified to be non-definable from the others using Z3's cons
 
 **Result**: Independent (truth-functional mode, depth 3) ✓
 
-## Evidence for Maximum
+## Search Context
 
-### Size 34 Extensive Search
-- **Candidates checked**: 10,000 complete sets
-- **Time**: 362.89 seconds (~6 minutes)
-- **Nice sets found**: **ZERO**
-- **Conclusion**: No size-34 nice sets found in extensive search
-
-### Size 35 Extensive Search
-- **Candidates checked**: 10,000 complete sets
-- **Time**: 400.44 seconds (~6.7 minutes)
-- **Nice sets found**: **ZERO**
-- **Conclusion**: No size-35 nice sets found in extensive search
-
-### Maximum Determination
-- Size 33: ✓ **EXISTS** (found in 20.35s)
-- Size 34: ✗ **None found** (10,000 candidates checked)
-- Size 35: ✗ **None found** (10,000 candidates checked)
-
-**Strong evidence suggests maximum = 33** (though not mathematically proven)
+This size-33 nice set was found quickly during systematic Z3 search. Larger sizes require more extensive search with higher candidate limits.
 
 ## Search Performance
 
@@ -84,57 +67,33 @@ Each connective was verified to be non-definable from the others using Z3's cons
 |------|------|--------------|--------|
 | 29 | 18.80s | 904 | ✓ Found |
 | 32 | 44.40s | 1,822 | ✓ Found |
-| **33** | **20.35s** | **1,239** | **✓ Found (likely maximum)** |
-| 34 | 362.89s | 10,000 | ✗ **None found** |
-| 35 | 400.44s | 10,000 | ✗ **None found** |
+| **33** | **20.35s** | **1,239** | **✓ Found** |
 
 **Key observation**: Size 33 was faster to find than size 32, demonstrating non-monotonic search complexity.
 
 ## Key Insights
 
-1. **Likely maximum**: Size 33 appears to be the maximum for truth-functional mode (sizes 34-35: none found in 10,000+ candidates each)
-2. **2 less than syntactic**: If 33 is the maximum, truth-functional is only 5.7% smaller than syntactic (35)
-3. **Nearly pure ternary**: 97% ternary functions (32/33), highest ratio in all confirmed sizes
-4. **Fast discovery**: Found in just 20.35s
-5. **Minimal structure**: Only requires FALSE constant (no binary functions needed)
-6. **Extensive verification**: Sizes 34-35 show no results after checking 10,000+ candidate sets each
+1. **Nearly pure ternary**: 97% ternary functions (32/33), highest ratio among found sets
+2. **Fast discovery**: Found in just 20.35s
+3. **Minimal structure**: Only requires FALSE constant (no binary functions needed)
+4. **High-quality example**: Demonstrates that large nice sets exist in truth-functional mode
 
 ## Mode Comparison
 
-### Truth-Functional vs Syntactic (Maximum Sizes)
+### Truth-Functional vs Syntactic
 
-| Mode | Maximum Size | Arity Distribution | Discovery | Search Beyond |
-|------|--------------|-------------------|-----------|---------------|
-| **Truth-Functional** | **33 (likely)** | 1 + 0 + 32 | 20.35s | Sizes 34-35: none found (10,000 each) |
-| **Syntactic** | **35** | 1 + 1 + 33 | ~46 min | Size 36+ unknown |
-
-**Key differences**:
-1. **Slightly smaller maximum**: 33 vs 35 (5.7% reduction, if 33 is maximum)
-2. **Much faster to find**: 20s vs 46 minutes (135× faster)
-3. **Strong evidence for limit**: Sizes 34-35 show no results after extensive search
-4. **Stricter independence**: Universal projections likely reduce achievable size slightly
-
-### Why Truth-Functional Maximum is Smaller
-
-Truth-functional mode's additional rules eliminate larger sets:
-1. **Universal projection rule**: Makes certain 34-35 sized sets dependent
-2. **Cross-arity constant equivalence**: Further constrains independence at large sizes
-3. **More permissive definability**: Detects dependencies that syntactic mode misses
-
-Despite these stricter rules, the maximum reduction is only **2 connectives** (from 35 to 33), a remarkably small difference given the significantly stricter independence criteria.
+This size-33 set demonstrates that truth-functional mode can achieve large nice sets comparable to syntactic mode. The stricter independence rules in truth-functional mode (universal projections and cross-arity constant equivalence) create additional dependencies, but large nice sets remain achievable.
 
 ## Significance
 
 ### Scientific Value
-- **Strong evidence for maximum**: Extensive search (10,000+ candidates for sizes 34-35) suggests 33 is likely the maximum
-- **Minimal reduction vs syntactic**: Only 5.7% smaller despite stricter rules (if confirmed)
-- **Theoretical validation**: Suggests truth-functional mode is nearly as permissive as syntactic for maximum sizes
-- **Empirical bounds**: Provides strong upper bound evidence via extensive search
+- **High-quality example**: Demonstrates that large nice sets exist in truth-functional mode
+- **Nearly pure ternary**: Shows that minimal structure (97% ternary) can achieve large size
+- **Theoretical interest**: Validates that truth-functional independence doesn't overly restrict set sizes
 
 ### Computational Achievement
 - **Fast discovery**: Found in just 20 seconds
-- **Extensive verification**: 10,000+ candidates checked for sizes 34-35 with no results
-- **Scalability**: Demonstrates Z3 effectiveness for both finding sets and establishing empirical bounds
+- **Efficient search**: Z3 constraint solving with symmetry breaking effectively navigates large search space
 
 ## How to Reproduce
 
@@ -146,20 +105,6 @@ python -m src.cli prove z3 --target-size 33 --definability-mode truth-functional
 # - Search time: ~15-25 seconds
 # - Will find a size-33 nice set (specific set may vary)
 # - Complete sets checked: ~1000-1500
-
-# Search for size 34 (optional - takes ~6 minutes)
-python -m src.cli prove z3 --target-size 34 --definability-mode truth-functional
-
-# Expected: 10,000 candidates checked, 0 found
-
-# Search for size 35 (optional - takes ~6.7 minutes)
-python -m src.cli prove z3 --target-size 35 --definability-mode truth-functional
-
-# Expected: 10,000 candidates checked, 0 found
-
-# Compare with syntactic mode maximum:
-python -m src.cli prove z3 --target-size 35 --definability-mode syntactic
-# Expected: size-35 nice set found (syntactic maximum)
 ```
 
 ## See Also
@@ -173,4 +118,4 @@ python -m src.cli prove z3 --target-size 35 --definability-mode syntactic
 
 ---
 
-**Size 33 appears to be the maximum for truth-functional mode, with strong empirical evidence from extensive searches of sizes 34-35 (10,000+ candidates each, none found). If confirmed, the truth-functional maximum would be only 5.7% smaller than syntactic mode's 35, demonstrating that stricter independence checking has minimal impact on achievable nice set sizes.**
+**Size 33 demonstrates that truth-functional mode can achieve large nice sets with nearly pure ternary composition. Extended searches with higher candidate limits may reveal larger examples.**

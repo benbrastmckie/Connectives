@@ -351,7 +351,18 @@ nice_connectives/
 
 ## Contributing
 
-We welcome contributions! Whether you've found a bug, have an improvement idea, or want to add new features, here's how to contribute:
+We welcome contributions! Whether you've found a bug, have an improvement idea, or want to add new features, we're here to help you contribute successfully.
+
+**Complete guides available:**
+- **[GitHub Setup Guide](docs/GITHUB.md)** - Fork the repository, set up SSH keys, and configure your development environment
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - Complete workflow from creating a feature branch to submitting a pull request
+
+**Summary:**
+- **Code Style**: Follow existing patterns in the codebase (see [CLAUDE.md](CLAUDE.md))
+- **Testing**: Add tests for new features (see [tests/README.md](tests/README.md))
+- **Documentation**: Update relevant docs in `docs/` and docstrings
+- **Commits**: Use clear, descriptive commit messages (see the [Commit Guidelines](docs/CONTRIBUTING.md#commit-guidelines) section)
+- **Dependencies**: Minimize new dependencies and justify if needed
 
 ### Reporting Issues
 
@@ -363,59 +374,6 @@ We welcome contributions! Whether you've found a bug, have an improvement idea, 
 - Relevant error messages or logs
 
 **Have a question?** Open an issue with the "question" label.
-
-### Submitting Improvements
-
-**Have an improvement or new feature?**
-
-1. **Fork the repository**
-   ```bash
-   # Click "Fork" on GitHub, then clone your fork
-   git clone https://github.com/YOUR-USERNAME/nice_connectives.git
-   cd nice_connectives
-   ```
-
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. **Make your changes**
-   - Follow existing code style and conventions
-   - Add tests for new functionality
-   - Update documentation as needed
-
-4. **Run the test suite**
-   ```bash
-   pytest tests/ -v
-   # Ensure all tests pass (175 tests should pass)
-   ```
-
-5. **Commit your changes**
-   ```bash
-   git add .
-   git commit -m "Brief description of your changes"
-   ```
-
-6. **Push to your fork**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-7. **Open a Pull Request**
-   - Go to the original repository on GitHub
-   - Click "New Pull Request"
-   - Select your fork and branch
-   - Describe your changes clearly
-   - Link any related issues
-
-### Development Guidelines
-
-- **Code Style**: Follow existing patterns in the codebase
-- **Testing**: Add tests for new features (see [tests/README.md](tests/README.md))
-- **Documentation**: Update relevant docs in `docs/` and docstrings
-- **Commits**: Use clear, descriptive commit messages
-- **Dependencies**: Minimize new dependencies; justify if needed
 
 ### Areas for Contribution
 

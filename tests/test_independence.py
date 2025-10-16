@@ -7,7 +7,7 @@ from src.connectives import Connective
 from src.constants import AND, OR, NOT, NAND, XOR, PROJECT_X, PROJECT_Y
 from src.independence import (
     is_definable, is_independent, find_redundant_connectives,
-    get_independent_subset
+    get_independent_subset, DefinabilityMode
 )
 
 
@@ -158,10 +158,16 @@ class TestKnownDependencies:
         pass
 
     def test_projection_from_and_const(self):
-        """Test projection definability with constants."""
-        # If we had constants, we could define projections
-        # For now, test that projections are NOT definable from just AND
-        assert not is_definable(PROJECT_X, [AND], max_depth=3)
+        """Test projection definability with constants in syntactic mode.
+
+        In syntactic mode, projections are NOT definable from just AND.
+        In truth-functional mode (default), universal projections are always definable.
+        """
+        # In syntactic mode, PROJECT_X should NOT be definable from just AND
+        assert not is_definable(PROJECT_X, [AND], max_depth=3, mode=DefinabilityMode.SYNTACTIC)
+
+        # In truth-functional mode, PROJECT_X IS definable (universal projection rule)
+        assert is_definable(PROJECT_X, [AND], max_depth=3, mode=DefinabilityMode.TRUTH_FUNCTIONAL)
 
 
 class TestCompositionDepth:

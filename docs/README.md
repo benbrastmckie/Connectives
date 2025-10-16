@@ -104,6 +104,46 @@ Installation instructions for:
 
 ---
 
+### Contributing
+
+#### [GITHUB.md](GITHUB.md)
+**GitHub account setup and repository access**
+
+Complete guide for setting up GitHub and repository access:
+- Creating a GitHub account (for beginners)
+- Understanding fork vs clone
+- When to fork (contributing changes)
+- When to clone (read-only access)
+- SSH key setup (Linux, macOS, Windows)
+- Uploading SSH keys to GitHub
+- Verifying SSH connection
+- Converting clone to fork
+- Troubleshooting SSH issues
+
+**Start here** if you want to contribute and need to set up GitHub or SSH keys.
+
+---
+
+#### [CONTRIBUTING.md](CONTRIBUTING.md)
+**Complete contribution workflow guide**
+
+Step-by-step guide for contributing code:
+- Prerequisites and setup verification
+- Feature branch workflow
+- Creating and naming branches
+- Development process following project standards
+- Running tests (pytest, all 175+ tests)
+- Updating documentation
+- Commit message guidelines
+- Submitting pull requests
+- Code review process
+- Responding to feedback
+- Troubleshooting common issues
+
+**Read this** after GitHub setup to learn the complete contribution workflow from branch to pull request.
+
+---
+
 ### Research and Results
 
 #### [RESULTS.md](RESULTS.md)
@@ -140,6 +180,9 @@ Complete research summary:
 **I want AI help:**
 → Use [CLAUDE_CODE.md](CLAUDE_CODE.md)
 
+**I want to contribute to the project:**
+→ Start with [GITHUB.md](GITHUB.md) for setup, then [CONTRIBUTING.md](CONTRIBUTING.md) for workflow
+
 **I want to see the research results:**
 → Read [RESULTS.md](RESULTS.md)
 
@@ -161,6 +204,8 @@ docs/
 ├── DEFINABILITY.md      # Definability modes (syntactic vs truth-functional)
 ├── JUPYTER.md           # Jupyter notebook usage guide
 ├── CLAUDE_CODE.md       # AI assistance with Claude Code
+├── GITHUB.md            # GitHub setup and SSH configuration
+├── CONTRIBUTING.md      # Complete contribution workflow
 └── RESULTS.md           # Research findings and conclusions
 ```
 
@@ -214,7 +259,10 @@ When contributing documentation:
 5. Update cross-references when adding new docs
 6. Use clear, concise language
 
-For AI-assisted documentation work, see [CLAUDE_CODE.md](CLAUDE_CODE.md).
+For complete contribution guidelines, see:
+- **[GITHUB.md](GITHUB.md)** - Set up your GitHub account and SSH keys
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Learn the full contribution workflow
+- **[CLAUDE_CODE.md](CLAUDE_CODE.md)** - Get AI assistance with documentation work
 
 ---
 

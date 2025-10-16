@@ -1489,10 +1489,10 @@ python -m src.cli benchmark full --runs 5
 **Definition:** The depth of a composition tree is the maximum nesting level.
 
 **Examples:**
-- f(x, y): depth 0 (base function)
-- g(f(x, y)): depth 1
-- h(g(f(x, y))): depth 2
-- h(f(x), g(y)): depth 1 (both branches have depth 1)
+- f(x, y): direct application (depth 1)
+- g(f(x, y)): one level of nesting (depth 2)
+- h(g(f(x, y))): two levels of nesting (depth 3)
+- h(f(x), g(y)): both f and g at depth 1, then h applied → depth 2
 
 **Bounded composition:** Definability restricted to depth ≤ d.
 

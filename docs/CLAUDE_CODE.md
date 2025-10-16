@@ -175,20 +175,259 @@ how it's used in the nice set examples?
 
 Claude will look up the connective in the glossary and show you where it appears.
 
-#### Example 3: Making Code Changes
+#### Example 3: Developing a Feature on a New Branch
+
+This example shows the complete workflow for developing a feature using Claude Code, following the [Contributing Guide](CONTRIBUTING.md).
 
 ```
-Can you add a function to src/connectives.py that converts a
-ternary connective's truth table to a human-readable formula?
+I want to add a feature that displays truth tables in a more readable
+format. Can you help me follow the contribution workflow from
+docs/CONTRIBUTING.md to:
+1. Create a feature branch
+2. Implement the feature
+3. Add tests
+4. Update documentation
+```
+
+**Claude will guide you through each step:**
+
+**Step 1: Create Feature Branch**
+```
+Let me help you create a feature branch following the project's
+contribution guidelines.
+
+First, let's make sure your master branch is up to date:
+```
+
+Claude will run:
+```bash
+git checkout master
+git pull upstream master
+```
+
+Then create your feature branch:
+```bash
+git checkout -b feature/readable-truth-tables
+```
+
+**Step 2: Implement the Feature**
+```
+Now I'll add a function to src/connectives.py that formats truth
+tables in a readable way.
 ```
 
 Claude will:
-1. Read the existing code
-2. Write the new function
-3. Explain the implementation
-4. Ask if you want to apply the changes
+1. Read the existing code in src/connectives.py
+2. Write a new `format_truth_table()` function
+3. Show you the implementation
+4. Explain the design decisions
 
-#### Example 4: Running Searches
+```python
+def format_truth_table(connective, arity):
+    """
+    Format a connective's truth table in human-readable form.
+
+    Args:
+        connective: BitVec representation of truth table
+        arity: Number of inputs (0, 1, 2, or 3)
+
+    Returns:
+        str: Formatted truth table with headers and rows
+    """
+    # Implementation here...
+```
+
+**Step 3: Add Tests**
+```
+Following the testing guidelines in docs/CONTRIBUTING.md, I'll add
+tests to tests/test_connectives.py
+```
+
+Claude will create test cases like:
+```python
+def test_format_truth_table_binary():
+    """Test formatting for binary connectives."""
+    # Test AND connective
+    formatted = format_truth_table(AND, 2)
+    assert "A B | Output" in formatted
+    assert "T T | T" in formatted
+    # ... more assertions
+```
+
+**Step 4: Run Tests**
+```
+Let me run the test suite to make sure everything passes:
+```
+
+Claude will execute:
+```bash
+pytest tests/ -v
+```
+
+And show you the results (should be 175+ passing tests).
+
+**Step 5: Update Documentation**
+```
+According to docs/CONTRIBUTING.md, we should update relevant
+documentation. I'll add this feature to:
+- src/README.md (API documentation)
+- Docstrings in the code
+```
+
+**Step 6: Commit Changes**
+```
+Following the commit guidelines in docs/CONTRIBUTING.md#commit-guidelines,
+I'll create a clear commit message:
+```
+
+Claude will help you commit:
+```bash
+git add src/connectives.py tests/test_connectives.py src/README.md
+git commit -m "feat: add readable truth table formatting
+
+Implements format_truth_table() function that displays truth tables
+with proper headers and formatting. Includes comprehensive tests and
+documentation updates."
+```
+
+Your feature is now ready for a pull request! See [Example 4](#example-4-submitting-a-pull-request) for the next steps.
+
+#### Example 4: Submitting a Pull Request
+
+After developing your feature (as shown in [Example 3](#example-3-developing-a-feature-on-a-new-branch)), Claude Code can guide you through submitting a pull request following the [Contributing Guide](CONTRIBUTING.md).
+
+```
+My feature is complete with passing tests. Can you help me submit
+a pull request following the guidelines in docs/CONTRIBUTING.md?
+```
+
+**Claude will guide you through the PR process:**
+
+**Step 1: Push Your Branch**
+```
+First, let's push your feature branch to your fork on GitHub:
+```
+
+Claude will run:
+```bash
+git push origin feature/readable-truth-tables
+```
+
+If this is your first push of this branch, Claude will use:
+```bash
+git push -u origin feature/readable-truth-tables
+```
+
+**Step 2: Create the Pull Request**
+```
+Now I'll help you create a pull request. According to
+docs/CONTRIBUTING.md#submitting-a-pull-request, you need to:
+
+1. Go to your fork on GitHub
+2. You'll see a yellow banner with "Compare & pull request"
+3. Click that button
+
+Alternatively, you can use the GitHub CLI if you have it installed.
+Would you like me to create the PR using the gh command?
+```
+
+If you have `gh` CLI installed, Claude can run:
+```bash
+gh pr create --title "Add readable truth table formatting" --body "$(cat <<'EOF'
+## Summary
+Adds a new `format_truth_table()` function that displays connective
+truth tables in a human-readable format with proper headers and
+formatting.
+
+## Changes
+- Added `format_truth_table()` function to src/connectives.py
+- Added comprehensive test coverage in tests/test_connectives.py
+- Updated API documentation in src/README.md
+
+## Testing
+- All 177 tests pass (175 existing + 2 new)
+- Tested with binary, ternary, and edge cases
+- Run: `pytest tests/test_connectives.py::test_format_truth_table* -v`
+
+## Documentation
+- Updated src/README.md with new function documentation
+- Added docstrings following project standards
+- Included usage examples
+
+## Checklist
+- [x] All tests pass
+- [x] Code follows project style (CLAUDE.md)
+- [x] Documentation updated
+- [x] Commit messages are clear
+
+Follows guidelines from docs/CONTRIBUTING.md
+EOF
+)"
+```
+
+**Step 3: Address Review Feedback**
+
+Once your PR is submitted, reviewers may provide feedback. Claude Code can help:
+
+```
+I received review feedback on my PR. The reviewer suggests
+simplifying the formatting logic. Can you help me address this?
+```
+
+Claude will:
+1. Read the PR comments and understand the feedback
+2. Make the requested changes
+3. Run tests to ensure they still pass
+4. Help you commit and push the updates
+
+```bash
+# Claude makes the changes, then:
+git add src/connectives.py
+git commit -m "refactor: simplify truth table formatting logic per review feedback"
+git push origin feature/readable-truth-tables
+```
+
+The PR will automatically update with your new commits.
+
+**Step 4: After PR is Merged**
+
+Once your PR is merged, Claude can help clean up:
+
+```
+My PR was merged! Can you help me clean up my local repository
+following the post-merge steps in docs/CONTRIBUTING.md?
+```
+
+Claude will run:
+```bash
+# Switch back to master
+git checkout master
+
+# Pull the merged changes
+git pull upstream master
+
+# Delete your feature branch locally
+git branch -d feature/readable-truth-tables
+
+# Delete the feature branch from your fork
+git push origin --delete feature/readable-truth-tables
+
+# Update your fork's master
+git push origin master
+```
+
+```
+Great! Your contribution is now part of the project. Ready to start
+your next feature?
+```
+
+**Learn More:**
+- Complete workflow: [docs/CONTRIBUTING.md](CONTRIBUTING.md)
+- GitHub setup: [docs/GITHUB.md](GITHUB.md)
+- Commit guidelines: [docs/CONTRIBUTING.md#commit-guidelines](CONTRIBUTING.md#commit-guidelines)
+- PR process: [docs/CONTRIBUTING.md#submitting-a-pull-request](CONTRIBUTING.md#submitting-a-pull-request)
+
+#### Example 5: Running Searches
 
 ```
 I want to search for a size-36 nice set. Can you help me set up
@@ -198,7 +437,7 @@ search?
 
 Claude will suggest the command with optimized parameters.
 
-#### Example 5: Understanding Research Results
+#### Example 6: Understanding Research Results
 
 ```
 Can you explain the pattern in search times for sizes 31-35?
@@ -207,7 +446,7 @@ Why did size-32 search faster than size-31?
 
 Claude will analyze the data in the example files and provide insights.
 
-#### Example 6: Documentation Updates
+#### Example 7: Documentation Updates
 
 ```
 The RESULTS.md file says the maximum is size 30, but we've now
