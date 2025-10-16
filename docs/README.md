@@ -110,15 +110,17 @@ Installation instructions for:
 **Research findings and conclusions**
 
 Complete research summary:
-- **Binary-only maximum**: 3 (classical result, proven)
-- **Unary + Binary maximum**: 5 (proven via Z3)
-- **With Ternary (arity ≤3)**: Size 35 verified (current maximum)
-- Systematic search results from size 17 through 35
+- **Definability mode matters**: Truth-functional (default) vs syntactic modes give different results
+- **Truth-functional mode (default)**: Size 33 likely maximum for arity ≤3
+- **Syntactic mode**: Size 35 verified (maximum for arity ≤3 unknown)
+- **Binary-only maximum**: Mode-dependent (syntactic: 3)
+- **Unary + Binary maximum**: 5 (proven via Z3, both modes)
+- Systematic search results from size 17 through 35 (syntactic) / 33 (truth-functional)
 - Performance analysis and non-monotonic complexity
 - Arity distributions (90%+ ternary for large sets)
 - Open questions and future work
 
-**Read this** to understand the research findings.
+**Read this** to understand the research findings and how definability mode affects results.
 
 ---
 

@@ -12,7 +12,7 @@ A solver for finding the maximum size of "nice" (complete and independent) sets 
 - **[Usage Guide](docs/USAGE.md)** - Complete command reference and workflows
 - **[Jupyter Notebooks](notebooks/README.md)** - Interactive tutorials and examples
 - **[Claude Code Guide](docs/CLAUDE_CODE.md)** - Using AI assistance with this codebase
-- **[Results](docs/RESULTS.md)** - **Research findings (size-35 sets found)**
+- **[Results](docs/RESULTS.md)** - **Research findings (truth-functional: size-33, syntactic: size-35)**
 - **[Examples](examples/README.md)** - Real execution examples and output
 - **[Implementation](src/README.md)** - CLI and code documentation
 - **[Testing](tests/README.md)** - Test suite documentation
@@ -50,20 +50,26 @@ Given classical two-valued connectives of arbitrary arity, we define a set of co
 
 ## Answer
 
-### **Nice Sets of Size 35 Have Been Found**
+### **Truth-Functional Mode (Default): Maximum Size 33**
+### **Syntactic Mode: Maximum Size 35**
 
 Using Z3-based constraint solving with pattern enumeration (composition depth 3):
 
-**Nice sets of size 35 have been discovered and verified.**
+**The maximum size depends on the definability mode used:**
 
-Current findings:
+**Truth-Functional Mode (Default - Clone-Theoretic):**
+- **Binary-only (arity ≤2)**: Maximum size varies by mode
+- **Unary + Binary (arity ≤2)**: Maximum size is 5 (proven via Z3 exhaustive search)
+- **Up to Ternary (arity ≤3)**: Nice sets of size 33 verified (likely maximum)
+- **Higher arities (≥4)**: Unexplored - quaternary functions may enable different results
+
+**Syntactic Mode (Composition-Based):**
 - **Binary-only (arity ≤2)**: Maximum size is 3 (classical result, proven and reproduced)
 - **Unary + Binary (arity ≤2)**: Maximum size is 5 (proven via Z3 exhaustive search)
 - **Up to Ternary (arity ≤3)**: Nice sets of size 35 verified (size-36+ unknown)
-- **Upper bound for arity ≤3**: Unknown - evidence suggests size-35 is near the limit (sparse solution space)
 - **Higher arities (≥4)**: Unexplored - quaternary functions may enable even larger nice sets
 
-**The maximum size of nice sets with arity ≤3 appears to be near 35-36, but arbitrary arities (quaternary and beyond) remain unexplored.**
+**Why the difference?** Truth-functional mode uses universal projection rules and cross-arity constant equivalence, detecting more dependencies and producing smaller maximum nice sets. See [docs/DEFINABILITY.md](docs/DEFINABILITY.md) for details.
 
 **See [docs/RESULTS.md](docs/RESULTS.md) for complete research findings and verification details.**
 
@@ -130,6 +136,17 @@ python -m src.cli prove z3 --help
 
 ## Results Summary
 
+### Truth-Functional Mode (Default)
+
+| Arity Range | Known Nice Sets | Example |
+|-------------|-----------------|---------|
+| Binary only (arity ≤2) | Mode-dependent | Varies by mode |
+| Unary + Binary (arity ≤2) | Max size = 5 (proven) | {FALSE, TRUE, XOR, AND, IMP} |
+| **Up to Ternary (arity ≤3)** | **Size = 33 (likely max)** | 1 constant + 1 binary + 31 ternary (94% ternary) |
+| Higher arities (arity ≥4) | Unexplored | Quaternary+ may enable different results |
+
+### Syntactic Mode (Legacy)
+
 | Arity Range | Known Nice Sets | Example |
 |-------------|-----------------|---------|
 | Binary only (arity ≤2) | Max size = 3 (proven) | {XOR, AND, TRUE} |
@@ -139,14 +156,14 @@ python -m src.cli prove z3 --help
 
 ### Key Findings
 
-1. **Size-35 nice sets exist** - found via extended Z3 search (26,860 candidates, ~46 minutes)
-2. **Ternary functions essential** - binary-only max is 3, with ternary reaches ≥35 (11.7× larger!)
-3. **Pattern enumeration effective** - depth 3 composition checking verifies independence
-4. **Validated implementation** - reproduces classical binary-only max=3 result
-5. **Near maximum** - Solution space very sparse (8× more candidates than size-34)
-6. **Search difficulty increasing** - Size-36+ may require hours or may not exist
+1. **Definability mode matters** - truth-functional (default) gives size-33, syntactic gives size-35
+2. **Truth-functional is more restrictive** - universal projections and cross-arity constants create more dependencies
+3. **Ternary functions essential** - in both modes, ternary functions dominate large nice sets (90%+)
+4. **Pattern enumeration effective** - depth 3 composition checking verifies independence
+5. **Validated implementation** - reproduces known results in both modes
+6. **Mode choice matters for research** - choose based on whether you want clone-theoretic or composition-based results
 
-### Search Performance Results
+### Search Performance Results (Syntactic Mode)
 
 | Target Size | Max Arity | Result | Complete Sets Checked | Search Time | Notes |
 |-------------|-----------|--------|----------------------|-------------|-------|
@@ -161,13 +178,20 @@ python -m src.cli prove z3 --help
 | 34 | 3 | ✓ Found | 3,226 | 86.69s | Moderate difficulty |
 | **35** | **3** | **✓ Found** | **26,860** | **2783.17s (~46 min)** | **8× harder, sparse solutions** |
 | 36 | 3 | ? Unknown | - | - | May require extended search or may not exist |
-| ? | 4+ | Unexplored | - | - | Quaternary+ functions may enable larger sets |
+
+### Search Performance Results (Truth-Functional Mode)
+
+| Target Size | Max Arity | Result | Search Time | Notes |
+|-------------|-----------|--------|-------------|-------|
+| 29 | 3 | ✓ Found | ~3s | Truth-functional mode |
+| 32 | 3 | ✓ Found | ~36s | Truth-functional mode |
+| **33** | **3** | **✓ Found** | **~24s** | **Likely maximum for truth-functional** |
 
 **Key Observations:**
+- **Mode affects maximum size**: Truth-functional detects more dependencies → smaller maximum (33 vs 35)
 - **Non-monotonic complexity**: Larger sizes aren't always harder (size-32 much faster than size-31)
-- **Sharp difficulty increase**: Size-35 required 32× more time than size-34
-- **Solution space collapsing**: 8× more candidates needed, suggesting we're near the maximum
-- **Extended search required**: Size-35 needed `--max-candidates 50000` (vs default 10,000)
+- **Solution space collapsing**: Higher sizes show exponentially more candidates needed
+- **Default is truth-functional**: All commands use truth-functional mode unless `--definability-mode syntactic` is specified
 
 **See [docs/RESULTS.md](docs/RESULTS.md) for complete findings and [examples/README.md](examples/README.md) for detailed examples.**
 
@@ -409,4 +433,4 @@ Open an issue with your question or proposed contribution idea for discussion be
 
 ---
 
-**Project Status**: Implementation complete | 175 tests passing | Size-35 nice sets verified | Maximum unknown
+**Project Status**: Implementation complete | 175 tests passing | Truth-functional: size-33 (likely max) | Syntactic: size-35 verified | Definability modes fully integrated

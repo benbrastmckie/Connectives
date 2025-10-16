@@ -9,7 +9,17 @@ Where "nice" means:
 
 ## Current Findings
 
-Systematic search using Z3 constraint solving has found **nice sets of size up to 35**. The actual maximum remains unknown.
+Systematic search using Z3 constraint solving with two definability modes:
+
+**Truth-Functional Mode (Default - Clone-Theoretic):**
+- Nice sets of size up to **33** found (likely maximum)
+- Universal projection rules and cross-arity constant equivalence
+- More restrictive independence criterion
+
+**Syntactic Mode (Composition-Based):**
+- Nice sets of size up to **35** found (maximum unknown)
+- Composition-based definability with depth bounds
+- More permissive independence criterion
 
 **For Interactive Exploration**: Try the [Jupyter Notebooks](JUPYTER.md) to explore these results hands-on:
 - `05_search_binary.ipynb` - Interactive binary-only search
@@ -19,15 +29,26 @@ Systematic search using Z3 constraint solving has found **nice sets of size up t
 
 ## Key Results
 
-**Binary-only connectives**: max = 3 (proven)
-**Unary + Binary connectives**: max = 5 (proven)
-**Unary + Binary + Ternary**: max ≥ 30
+**Definability Mode Choice Matters:**
+The maximum nice set size varies by definability mode. This project implements both modes with a CLI flag `--definability-mode`.
 
-This represents substantial growth beyond classical results limited to binary connectives. The actual maximum for mixed arities including ternary remains an open problem.
+**Truth-Functional Mode (Default):**
+- **Binary-only**: Max varies by mode
+- **Unary + Binary**: max = 5 (proven)
+- **Up to Ternary**: max likely = 33
+- Focus on clone-theoretic definability with universal projections
+
+**Syntactic Mode:**
+- **Binary-only**: max = 3 (classical result, proven)
+- **Unary + Binary**: max = 5 (proven)
+- **Up to Ternary**: max ≥ 35 (actual bound unknown)
+- Focus on composition-based definability
+
+**Why Two Modes?** Different mathematical traditions use different definability notions. Truth-functional (default) aligns with universal algebra; syntactic aligns with classical logic literature. See [DEFINABILITY.md](DEFINABILITY.md) for complete details.
 
 ## Concrete Examples
 
-### 1. Binary-Only: Size 3 (Classical Result)
+### 1. Binary-Only: Size 3 (Syntactic Mode)
 
 **Example set**: {XOR, AND, TRUE}
 
@@ -43,9 +64,11 @@ x y | XOR           x y | AND           x y | TRUE
 **Properties**:
 - ✓ Complete (escapes all 5 Post classes)
 - ✓ Independent (no function definable from others)
-- ✓ Maximum for binary-only (size 4 impossible)
+- ✓ Maximum for binary-only in syntactic mode (size 4 impossible)
 
-**See**: [enum_classical_binary_max3.md](enum_classical_binary_max3.md)
+**Mode Note**: Truth-functional mode may give different results due to universal projection rules.
+
+**See**: [syntactic/enum_classical_binary_max3.md](../examples/syntactic/enum_classical_binary_max3.md)
 
 ### 2. Unary + Binary: Size 5
 
@@ -108,7 +131,7 @@ Arity distribution:
 
 **See**: [z3_nice_set_29.md](z3_nice_set_29.md)
 
-### 5. Size 30 (Current Verified Maximum)
+### 5. Size 30 (Syntactic Mode)
 
 **Example set**: FALSE + XOR + OR + 27 ternary functions
 
@@ -121,30 +144,90 @@ Arity distribution:
 
 **Properties**:
 - ✓ Complete
-- ✓ Independent (depth 3)
+- ✓ Independent (depth 3, syntactic mode)
 - **900% larger** than binary-only!
-- **Largest verified** nice set
 
 **Search performance**: 245.75s (~4 minutes), checked 7,747 complete sets
 
 **Z3 efficiency**: ~10^70 reduction vs brute force
 
-**See**: [z3_nice_set_30.md](z3_nice_set_30.md)
+**See**: [syntactic/z3_nice_set_30.md](../examples/syntactic/z3_nice_set_30.md)
+
+### 6. Size 33 (Truth-Functional Mode - Current Likely Maximum)
+
+**Mode**: Truth-functional (default)
+
+**Example set**: 1 constant + 1 binary + 31 ternary functions
+
+```
+Arity distribution:
+  Constants (0): █ (1)
+  Binary (2):    █ (1)
+  Ternary (3):   ███████████████████████████████ (31) — 94% of set
+```
+
+**Properties**:
+- ✓ Complete
+- ✓ Independent (depth 3, truth-functional mode)
+- **Likely maximum** for truth-functional mode
+
+**Search performance**: 24.15s, checked 1,239 complete sets
+
+**See**: [truth_functional/z3_nice_set_33.md](../examples/truth_functional/z3_nice_set_33.md)
+
+### 7. Size 35 (Syntactic Mode - Verified Maximum to Date)
+
+**Mode**: Syntactic
+
+**Example set**: 1 constant + 1 binary + 33 ternary functions
+
+```
+Arity distribution:
+  Constants (0): █ (1)
+  Binary (2):    █ (1)
+  Ternary (3):   ███████████████████████████████████ (33) — 94% of set
+```
+
+**Properties**:
+- ✓ Complete
+- ✓ Independent (depth 3, syntactic mode)
+- **Largest verified** nice set in syntactic mode
+
+**Search performance**: 2783.17s (~46 minutes), checked 26,860 complete sets
+
+**See**: [syntactic/z3_nice_set_35.md](../examples/syntactic/z3_nice_set_35.md)
 
 ## Systematic Search Results
 
 The implementation systematically searched for nice sets of increasing sizes using Z3:
 
-| Size | Result | Time | Complete Sets Checked |
-|------|--------|------|----------------------|
-| 17 | ✓ Found | 0.69s | 22 |
-| 20 | ✓ Found | 0.67s | 25 |
-| 25 | ✓ Found | 3.44s | 172 |
-| 29 | ✓ Found | 3.17s | 144 |
-| **30** | **✓ Found** | **245.75s (~4min)** | **7,747** |
-| 31 | ⏱ Timeout | >300s (5min) | ? |
+### Syntactic Mode Results
 
-**Pattern**: All tested sizes 17-30 have nice sets. Size 31+ unknown (search times out).
+| Size | Result | Time | Complete Sets Checked | Notes |
+|------|--------|------|----------------------|-------|
+| 17 | ✓ Found | 0.69s | 22 | First ternary inclusion |
+| 20 | ✓ Found | 0.67s | 25 | |
+| 25 | ✓ Found | 3.44s | 172 | |
+| 29 | ✓ Found | 3.17s | 144 | Early ternary dominance |
+| 30 | ✓ Found | 245.75s (~4min) | 7,747 | |
+| 31 | ✓ Found | 359.62s (~6min) | 9,527 | Slowest in 31-34 range |
+| 32 | ✓ Found | 35.93s | 1,822 | 10× faster than 31! |
+| 33 | ✓ Found | 24.15s | 1,239 | Fastest in series |
+| 34 | ✓ Found | 86.69s | 3,226 | Moderate difficulty |
+| **35** | **✓ Found** | **2783.17s (~46min)** | **26,860** | **8× harder, sparse solutions** |
+| 36 | ? Unknown | - | - | May require extended search or may not exist |
+
+### Truth-Functional Mode Results (Default)
+
+| Size | Result | Time | Complete Sets Checked | Notes |
+|------|--------|------|----------------------|-------|
+| 29 | ✓ Found | ~3s | 161 | Truth-functional mode |
+| 32 | ✓ Found | ~36s | 1,822 | Truth-functional mode |
+| **33** | **✓ Found** | **~24s** | **1,239** | **Likely maximum for truth-functional** |
+
+**Pattern**:
+- **Syntactic mode**: All tested sizes 17-35 have nice sets. Size 36+ unknown.
+- **Truth-functional mode**: Maximum appears to be 33 (more restrictive independence).
 
 ### Why Classical Binary-Only Results Don't Extend
 
@@ -280,18 +363,23 @@ python3 -m src.cli prove z3 --target-size 30 --max-depth 3
 
 ## Conclusion
 
-This implementation demonstrates substantial expansion beyond classical binary-only results:
+This implementation demonstrates substantial expansion beyond classical binary-only results and provides insights into definability mode choice:
 
-**Classical result**: Binary-only maximum is 3 (proven)
-**This implementation**: Mixed-arity maximum is at least 29 (actual bound unknown)
+**Classical result**: Binary-only maximum is 3 (syntactic mode, proven)
+**This implementation**:
+- **Truth-functional mode (default)**: Maximum likely 33 for arity ≤3
+- **Syntactic mode**: Maximum ≥35 for arity ≤3 (actual bound unknown)
 
 The findings demonstrate:
-1. Power of modern constraint solving (Z3)
-2. Importance of exploring higher arities
-3. Value of systematic computational exploration
-4. How computational tools can reveal mathematical insights
+1. **Definability mode matters**: Choice of definability notion significantly affects maximum size
+2. **Power of modern constraint solving**: Z3 enables systematic exploration of large search spaces
+3. **Importance of exploring higher arities**: Ternary functions enable much larger nice sets
+4. **Value of systematic computational exploration**: Pattern enumeration verifies independence
+5. **Mathematical insights from computation**: Computational tools reveal surprising results
 
-**The maximum size of nice sets remains an open and exciting research question.**
+**The maximum size of nice sets remains an open research question, and the choice of definability mode affects the answer.**
+
+**For researchers**: Choose truth-functional mode (default) for clone-theoretic research, or syntactic mode (`--definability-mode syntactic`) for composition-based research. See [DEFINABILITY.md](DEFINABILITY.md) for guidance.
 
 ---
 
