@@ -1,398 +1,476 @@
-# Test Suite Documentation
+# Test Suite
 
-Comprehensive test suite for the Nice Connectives solver.
+Comprehensive test suite for the nice_connectives project covering all core algorithms, CLI infrastructure, proof systems, and command implementations.
 
-## Overview
+## Current Status
 
-The test suite validates all aspects of the implementation:
-- Connective representation and evaluation
-- Post's Completeness Theorem implementation
-- Independence checking via bounded composition
-- Search algorithms for finding nice sets
-- Performance benchmarks and depth crossover analysis
+**Test Count**: 338+ passing tests
+**Skipped Tests**: 0
+**Warnings**: 0
+**Framework**: pytest 7.0+
+**Execution Time**: ~60 seconds (excluding slow tests), ~8-10 minutes (full suite)
 
-**Status**: 175 tests passing (138 core + 9 depth crossover + 9 notebooks + 19 other tests)
-
-## Running Tests
-
-### All Tests
+## Quick Start
 
 ```bash
-# Run full test suite
-pytest tests/ -v
+# Fast tests for development (60 seconds)
+pytest tests/ -m "not slow"
 
-# Run with coverage
-pytest tests/ --cov=src
-```
+# Full test suite for PRs (8-10 minutes)
+pytest tests/
 
-### Custom Pytest Marks
-
-The test suite uses custom markers for test categorization:
-
-- **`@pytest.mark.slow`**: Long-running tests (benchmarks, extended searches)
-  ```bash
-  # Run only slow tests
-  pytest -m slow tests/
-
-  # Skip slow tests (useful for quick validation)
-  pytest -m "not slow" tests/
-  ```
-
-- **`@pytest.mark.notebook`**: Notebook validation tests
-  ```bash
-  # Run only notebook tests
-  pytest -m notebook tests/
-
-  # Skip notebook tests
-  pytest -m "not notebook" tests/
-  ```
-
-View all registered marks:
-```bash
-pytest --markers | grep -E "(slow|notebook)"
-```
-
-### Specific Test Files
-
-```bash
-# Test connectives module (38 tests)
-pytest tests/test_connectives.py -v
-
-# Test Post class membership (57 tests)
-pytest tests/test_post_classes.py -v
-
-# Test independence checking (28 tests)
-pytest tests/test_independence.py -v
-
-# Test depth/performance crossover (9 tests)
-pytest tests/test_depth_crossover.py -v
-
-# Test search algorithms (6 tests, 4 skipped)
+# Specific test file
 pytest tests/test_search.py -v
 
-# Test notebook validation (9 tests - 7 notebooks + 2 structure tests)
-pytest tests/test_notebooks.py -v
-
-# Run all notebooks with nbval (direct validation)
-pytest --nbval notebooks/*.ipynb
-```
-
-### Running with Coverage
-
-```bash
-# Core modules with coverage report
-pytest tests/test_connectives.py tests/test_post_classes.py \
-       tests/test_independence.py tests/test_depth_crossover.py \
-       --cov=src --cov-report=term-missing
-
-# Expected: 138 core tests passing in ~2 seconds, 41% overall coverage
+# With coverage report
+pytest tests/ --cov=src --cov-report=html
 ```
 
 ## Test Organization
 
-### test_connectives.py (38 tests)
-Tests for truth table representation and evaluation:
-- BitVec encoding correctness
+### Core Algorithm Tests
+
+#### test_connectives.py (48 tests)
+Tests for connective representation and evaluation:
+- BitVec encoding and truth table operations
+- Connective creation, equality, and hashing
 - evaluate() and evaluate_all() methods
-- Connective equality and hashing
-- generate_all_connectives() function
 - Standard connective definitions (AND, OR, NOT, XOR, etc.)
+- generate_all_connectives() for arbitrary arities
 - Projection functions
 
-**Coverage**: 96% of connectives.py
+**Coverage**: Core connective operations
 
-### test_post_classes.py (57 tests)
-Tests for completeness checking:
-- T0 (0-preserving) membership
-- T1 (1-preserving) membership
+#### test_post_classes.py (36 tests)
+Tests for Post's completeness theorem implementation:
+- T0 (0-preserving) membership detection
+- T1 (1-preserving) membership detection
 - Monotonicity checking
-- Self-dual checking
-- Affine checking
-- is_complete() function with known complete sets
-- Symmetry breaking and equivalence classes
+- Self-dual function detection
+- Affine (linear) function detection
+- is_complete() validation with known complete/incomplete sets
+- get_missing_classes() utility functions
 
-**Coverage**: 96% of post_classes.py
+**Coverage**: All five Post classes
 
-### test_independence.py (28 tests)
-Tests for independence checking:
-- Depth-1 composition (permutations)
-- Depth-2 composition patterns (f(g(x,y), h(x,y)))
-- Depth-3 composition patterns (De Morgan's Law)
-- Binary-constant compositions (f(c, g(x,y)))
-- Unary chains (u(v(f(x,y))))
-- is_independent() function with known independent/dependent sets
-- Edge cases and boundary conditions
+#### test_independence.py (28 tests)
+Tests for composition-based independence checking:
+- Depth-1 compositions (direct substitution)
+- Depth-2 compositions (nested functions)
+- Depth-3 compositions (De Morgan's Law detection)
+- Binary-constant compositions
+- Unary function chains
+- is_definable() and is_independent() functions
+- Known dependency detection (OR from {NOT, AND})
 
-**Coverage**: 61% of independence.py
+**Coverage**: Composition pattern enumeration
 
-### test_search.py (6 tests + 4 skipped)
+#### test_search.py (51 tests)
 Tests for search algorithms:
 - find_nice_sets_of_size() with various sizes
-- find_maximum_nice_set() on binary connectives
-- Binary-only search (validates max=3 result)
-- analyze_nice_set() and validate_nice_set() functions
-- *Incremental arity search (skipped - too slow for CI)*
+- find_maximum_nice_set() optimization
+- search_binary_only() (validates max=3)
+- search_incremental_arity() (includes slow tests)
+- analyze_nice_set() result analysis
+- validate_nice_set() validation logic
+- Known results verification
+- Performance benchmarks
 
-**Coverage**: 38% of search.py
+**Coverage**: Search algorithms and validation
 
-### test_depth_crossover.py (9 tests)
-Performance tests for depth parameter tuning:
-- Fast depths (1-5) complete quickly
-- Slow depths (7-10) take measurably longer
-- Depth consistency across multiple runs
-- Performance trend validation
+### Infrastructure Tests
 
-**Coverage**: Focused on independence.py performance characteristics
+#### test_cli.py (23 tests)
+Tests for CLI argument parsing:
+- Main parser structure
+- Subcommand argument parsing (prove, validate, benchmark, search)
+- Flag handling (definability-mode, verbose, checkpoint)
+- Error handling for invalid commands
+- Required vs optional arguments
 
-### test_notebooks.py (9 tests)
+**Coverage**: CLI infrastructure
+
+#### test_constants.py (22 tests)
+Tests for constants module:
+- get_binary_by_value() lookup function
+- get_connective_by_name() lookup function
+- Case insensitivity handling
+- ALL_BINARY collection completeness
+- Edge cases and invalid inputs
+
+**Coverage**: Helper functions and collections
+
+### Command Implementation Tests
+
+#### test_commands_prove.py (12 tests)
+Tests for prove command implementations:
+- prove_z3() function with various parameters
+- prove_enumeration() function
+- Checkpoint file handling
+- Definability mode flag handling
+- Mock Z3 execution for unit tests
+
+**Coverage**: Prove command logic
+
+#### test_commands_validate.py (12 tests)
+Tests for validate command implementations:
+- validate_binary() function
+- validate_ternary() function
+- Symmetry breaking flag handling
+- Comparison mode for ternary validation
+- Success/failure exit codes
+
+**Coverage**: Validate command logic
+
+#### test_commands_search.py (24 tests)
+Tests for search command implementations:
+- search_binary() function
+- search_full() incremental arity search
+- search_validate() size-16 validation
+- Verbose/quiet flag behavior
+- Result analysis and reporting
+- Mock patching for search functions
+
+**Coverage**: Search command logic
+
+#### test_commands_benchmark.py (15 tests)
+Tests for benchmark command implementations:
+- benchmark_full() function structure
+- benchmark_quick() function structure
+- benchmark_depth() function structure
+- Error handling for missing benchmark modules
+- Parameter validation
+
+**Coverage**: Benchmark command structure
+
+### Proof System Tests
+
+#### test_z3_proof.py (17 tests)
+Tests for Z3 proof system:
+- build_connective_pool() with various max_arity values
+- save_checkpoint() creates valid JSON
+- load_checkpoint() reads data correctly
+- Checkpoint data structure validation
+- Small pool search integration test
+- Checkpoint timestamp and elapsed time tracking
+
+**Coverage**: Z3 proof infrastructure
+
+#### test_enumeration_proof.py (3 tests)
+Tests for enumeration proof approach:
+- Proof function existence
+- Basic structure validation
+- Function signatures
+
+**Coverage**: Enumeration proof structure
+
+### Validation Tests
+
+#### test_notebooks.py (9 tests)
 Tests for Jupyter notebook validation:
-- Notebook execution tests (7 parametrized tests, one per notebook)
-- Notebook existence and structure validation
-- Import compatibility verification
-- Runtime error detection
+- Notebook execution tests (7 notebooks)
+- Notebook existence verification
+- Directory structure validation
+- Uses jupyter nbconvert for execution testing
 
-**Marks**: All tests marked as `@pytest.mark.notebook`, execution tests also marked `@pytest.mark.slow`
+**Coverage**: All 7 Jupyter notebooks
 
-**Usage**:
-```bash
-# Run notebook tests (requires nbval)
-pytest tests/test_notebooks.py -v
+### Test Infrastructure
 
-# Skip slow notebook execution tests
-pytest tests/test_notebooks.py -m "not slow" -v
+#### conftest.py
+Shared fixtures for all tests:
+- `sample_connective_pool()` - Small pool for testing
+- `temp_checkpoint_file()` - Temporary file fixture
+- `mock_z3_solver()` - Mocked Z3 solver
 
-# Run notebooks directly with nbval
-pytest --nbval notebooks/*.ipynb
+## Test Markers
+
+Test markers allow selective test execution:
+
+```python
+@pytest.mark.slow         # Tests taking >1 second
+@pytest.mark.notebook     # Notebook validation tests
+@pytest.mark.integration  # End-to-end with real execution
 ```
 
-**Coverage**: Validates all 7 Jupyter notebooks execute without errors
+### Usage
 
-## Testing Strategy
+```bash
+# Run only slow tests
+pytest tests/ -m "slow"
 
-### Unit Tests
-- Each module tested independently
-- Focus on individual function correctness
-- Edge cases: arity 0, arity 1, empty sets
+# Exclude slow tests (recommended for development)
+pytest tests/ -m "not slow"
 
-### Integration Tests
-- End-to-end search workflows
-- Composition detection across multiple depths
-- Complete + independent validation
+# Run only notebook tests
+pytest tests/ -m "notebook"
 
-### Regression Tests
-- Validates known results (binary max=3)
-- Ensures size-16 nice set is valid
-- Prevents regressions during refactoring
+# Run only integration tests
+pytest tests/ -m "integration"
 
-## Test Conventions
+# Exclude multiple markers
+pytest tests/ -m "not slow and not notebook"
+```
+
+## Testing Conventions
 
 ### Naming
-- Test files: `test_*.py`
-- Test functions: `def test_feature_name():`
-- Descriptive names explain what is being tested
+
+- **Test files**: `test_*.py` or `*_test.py`
+- **Test classes**: `class Test<Feature>:`
+- **Test functions**: `def test_<specific_behavior>():`
+
+### Structure
+
+```python
+class TestFeature:
+    """Test suite for feature."""
+
+    def test_basic_case(self):
+        """Test normal operation."""
+        # Arrange
+        input_data = setup()
+
+        # Act
+        result = feature(input_data)
+
+        # Assert
+        assert result == expected
+```
 
 ### Assertions
+
 ```python
-# Use clear assertions
+# Clear assertion messages
 assert result == expected, f"Expected {expected}, got {result}"
 
 # Test both positive and negative cases
-assert is_complete(complete_set)
-assert not is_complete(incomplete_set)
+assert is_complete([NOT, AND])
+assert not is_complete([AND, OR])
 ```
 
-### Test Data
+### Parametrization
+
 ```python
-# Define test connectives clearly
-AND = Connective(2, 0b1000, "AND")
-OR = Connective(2, 0b1110, "OR")
-NOT = Connective(1, 0b01, "NOT")
+@pytest.mark.parametrize("input,expected", [
+    (1, 2),
+    (2, 4),
+    (3, 6),
+])
+def test_multiple_inputs(input, expected):
+    assert function(input) == expected
 ```
 
-## Key Test Cases
+## Mock Patching
 
-### Binary-Only Maximum = 3
+### Critical Rule
+
+**Patch where functions are USED, not where they're DEFINED**
+
 ```python
-def test_binary_maximum():
-    """Validates that binary-only nice sets have maximum size 3."""
-    max_size, sets = search_binary_only(max_depth=3)
-    assert max_size == 3
-    assert len(sets) > 0
+# In src/commands/search.py:
+from src.search import search_binary_only
+
+# CORRECT - Patch where it's used
+@patch('src.commands.search.search_binary_only')
+def test_command(mock_search):
+    mock_search.return_value = (3, [])
+    search_binary()
+
+# INCORRECT - Patching where it's defined won't work
+@patch('src.search.search_binary_only')  # Won't be called!
 ```
 
-### Size-16 Nice Set Validation
+### Common Patterns
+
 ```python
-def test_size_16_validation():
-    """Validates known size-16 nice set."""
-    nice_16 = [...]  # 1 binary + 15 ternary
-    is_valid, _ = validate_nice_set(nice_16, max_depth=5)
-    assert is_valid
+# Mock return values
+@patch('src.module.function')
+def test_with_mock(mock_func):
+    mock_func.return_value = expected_value
+
+# Mock multiple functions (bottom-up in decorator order)
+@patch('src.module.second_func')
+@patch('src.module.first_func')
+def test_multiple(mock_first, mock_second):
+    pass
+
+# Use fixtures for file I/O
+def test_with_file(tmp_path):
+    file = tmp_path / "test.txt"
+    file.write_text("content")
 ```
 
-### De Morgan's Law Detection
-```python
-def test_de_morgan():
-    """Ensures OR is detected as definable from {NOT, AND}."""
-    OR = Connective(2, 0b1110, "OR")
-    NOT = Connective(1, 0b01, "NOT")
-    AND = Connective(2, 0b1000, "AND")
+## Running Tests
 
-    assert is_definable(OR, [NOT, AND], max_depth=3)
+### Development Workflow
+
+```bash
+# 1. Run fast tests during development
+pytest tests/ -m "not slow" -v
+
+# 2. Run specific test file you're working on
+pytest tests/test_my_module.py -v
+
+# 3. Run related tests
+pytest tests/test_connectives.py tests/test_search.py -v
+
+# 4. Before committing, run full suite
+pytest tests/
 ```
 
-## Test Coverage
+### Coverage Reports
 
-Current coverage by module (as of latest test run):
-- `connectives.py`: 96% (core data structure fully tested)
-- `post_classes.py`: 96% (all 5 Post classes tested)
-- `independence.py`: 61% (main patterns covered, some edge cases untested)
-- `search.py`: 38% (core functions tested, CLI integration untested)
-- `constants.py`: 88% (standard connectives validated)
-- `cli.py`: 6% (minimal CLI testing, integration tests needed)
-- `commands/`: 9-18% (command implementations largely untested)
-- `proofs/`: 9% (proof scripts not covered by unit tests)
+```bash
+# Terminal report
+pytest tests/ --cov=src --cov-report=term-missing
 
-**Overall**: 41% coverage across 1454 statements
+# HTML report
+pytest tests/ --cov=src --cov-report=html
+open htmlcov/index.html
 
-### Coverage Goals
+# Coverage for specific module
+pytest tests/test_search.py --cov=src.search
+```
 
-**High Priority** (Core functionality):
-- ✅ `connectives.py` - 96% (excellent)
-- ✅ `post_classes.py` - 96% (excellent)
-- 🟡 `independence.py` - 61% (good, could improve edge cases)
-- 🟡 `search.py` - 38% (adequate for core, missing utility functions)
+### Parallel Execution
 
-**Lower Priority** (CLI/Integration):
-- 🔴 `cli.py` - 6% (CLI integration testing)
-- 🔴 `commands/*` - 9-18% (command-line tools)
-- 🔴 `proofs/*` - 9% (proof generation scripts)
+```bash
+# Install pytest-xdist
+pip install pytest-xdist
 
-The test suite focuses on correctness of core algorithms (connectives, Post classes, independence checking). CLI and integration tests are minimal since these are primarily used for research workflows rather than production code.
+# Run tests in parallel
+pytest tests/ -n auto
+```
+
+## Pre-PR Checklist
+
+Before submitting a pull request:
+
+- [ ] All tests pass: `pytest tests/` (338+ passed, 0 failed, 0 skipped)
+- [ ] No warnings in output
+- [ ] New features have tests (80%+ coverage)
+- [ ] Slow tests marked with `@pytest.mark.slow`
+- [ ] Mock expensive operations (Z3, large searches)
+- [ ] Tests have clear docstrings
 
 ## Adding New Tests
 
-### 1. Identify Functionality
-Determine what needs testing (new feature, edge case, bug fix)
+### Process
 
-### 2. Create Test Function
+1. **Identify what to test** (new feature, bug fix, edge case)
+2. **Choose appropriate test file** (or create new one)
+3. **Write test following conventions**
+4. **Use fixtures from conftest.py**
+5. **Add appropriate markers** (`@pytest.mark.slow` if >1s)
+6. **Run tests**: `pytest tests/test_new.py -v`
+7. **Verify coverage**: `pytest tests/test_new.py --cov=src.module`
+
+### Example
+
 ```python
-def test_new_feature():
-    """Test description."""
-    # Arrange
-    input_data = setup_test_data()
+"""
+Test suite for new feature.
 
-    # Act
-    result = function_to_test(input_data)
+Tests basic functionality, edge cases, and integration.
+"""
 
-    # Assert
-    assert result == expected_value
-```
+import pytest
+from unittest.mock import Mock, patch
 
-### 3. Run Tests
-```bash
-pytest tests/test_new_file.py::test_new_feature -v
-```
 
-### 4. Verify Coverage
-```bash
-pytest tests/test_new_file.py --cov=src.module_name
-```
-
-## Performance Notes
-
-Test execution characteristics:
-- **Fast tests** (connectives, post_classes, independence): ~2 seconds for 138 core tests
-- **Slow tests** (search with large state spaces): Some tests skipped to avoid timeouts
-- **Incremental search tests**: Skipped in regular runs (can take minutes)
-- **Total execution time**: ~2-3 seconds for standard test suite
-
-### Skipped Tests
-
-Some tests are marked with `@pytest.mark.skip` because they:
-- Take too long for regular testing (incremental arity search)
-- Require extensive computation (full state space exploration)
-- Are primarily for benchmarking rather than correctness validation
-
-Run skipped tests manually when needed:
-```bash
-pytest -v --runxfail tests/test_search.py
-```
-
-## Continuous Integration
-
-Tests are designed to be CI-friendly:
-- Fast execution (< 5 seconds for core suite)
-- Deterministic results (no random failures)
-- Clear error messages for debugging
-- Timeouts prevent runaway tests (10s default)
-
-## Test Development Guidelines
-
-### Adding New Tests
-
-When adding new functionality:
-
-1. **Write tests first** (TDD approach recommended for core algorithms)
-2. **Group related tests** in classes (e.g., `TestBinaryConnectives`)
-3. **Use descriptive names** - test name should explain what is being tested
-4. **Test edge cases** - empty sets, boundary values, invalid inputs
-5. **Include docstrings** - explain the purpose of each test
-
-Example structure:
-```python
 class TestNewFeature:
-    """Test suite for new feature."""
+    """Test new feature implementation."""
 
     def test_basic_functionality(self):
-        """Basic feature should work with standard inputs."""
-        # Arrange
-        input_data = create_test_data()
+        """Test normal operation with valid input."""
+        result = new_feature(input_value)
+        assert result == expected
 
-        # Act
-        result = new_feature(input_data)
+    @pytest.mark.parametrize("input,expected", [
+        (0, result_for_zero),
+        (1, result_for_one),
+        (-1, result_for_negative),
+    ])
+    def test_edge_cases(self, input, expected):
+        """Test boundary conditions."""
+        assert new_feature(input) == expected
 
-        # Assert
-        assert result == expected_output
-
-    def test_edge_case(self):
-        """Feature should handle edge case correctly."""
-        # Test edge case
+    @pytest.mark.slow
+    def test_expensive_operation(self):
+        """Test long-running operation."""
+        result = expensive_new_feature()
+        assert result is not None
 ```
 
-### Test Quality Standards
+## Troubleshooting
 
-- **Coverage target**: Core modules should have >90% coverage
-- **Performance**: Tests should complete in <10 seconds each
-- **Independence**: Tests should not depend on each other
-- **Clarity**: Assertions should have clear failure messages
-- **Maintainability**: Avoid hardcoded values, use constants
+### Mock Not Called
 
-### When to Skip Tests
+**Problem**: `AssertionError: Expected 'function' to be called once. Called 0 times.`
 
-Mark tests with `@pytest.mark.skip` when:
-- Execution time > 30 seconds
-- Testing exploratory/experimental features
-- Requiring external resources not in CI environment
-- Primarily for benchmarking, not correctness
+**Solution**: Check mock patch path - patch where function is USED, not DEFINED
 
-Always include a reason:
-```python
-@pytest.mark.skip(reason="Takes >5 minutes for full search space")
-def test_exhaustive_search():
-    ...
+### Tests Skipped
+
+**Problem**: Output shows "X skipped"
+
+**Solution**: Remove `@pytest.mark.skip` decorators, use markers instead
+
+### Unknown Marker Warning
+
+**Problem**: `PytestUnknownMarkWarning: Unknown pytest.mark.mymarker`
+
+**Solution**: Register marker in `pyproject.toml`:
+```toml
+[tool.pytest.ini_options]
+markers = [
+    "mymarker: description",
+]
 ```
 
-## Test Summary
+### Import Errors
 
-**Total**: 175 passing tests (138 core + 37 additional tests)
-**Execution**: ~2 seconds for core suite, longer for slow tests
-**Coverage**: 41% overall, 96% for core modules
-**Framework**: pytest with coverage, timeout plugins
+**Problem**: `ModuleNotFoundError: No module named 'src'`
+
+**Solution**: Run pytest from project root:
+```bash
+cd /path/to/nice_connectives
+pytest tests/
+```
+
+## Additional Resources
+
+- **[docs/TESTING.md](../docs/TESTING.md)** - Comprehensive testing guide
+- **[CLAUDE.md](../CLAUDE.md)** - Project testing protocols
+- **[specs/plans/016_comprehensive_test_coverage.md](../specs/plans/016_comprehensive_test_coverage.md)** - Test implementation plan
+- **pytest Documentation**: https://docs.pytest.org/
+- **unittest.mock Guide**: https://docs.python.org/3/library/unittest.mock.html
+
+## Quick Reference
+
+```bash
+# Fast development tests (60s)
+pytest tests/ -m "not slow"
+
+# Full suite for PRs (8-10min)
+pytest tests/
+
+# Specific test
+pytest tests/test_search.py::TestBinaryOnlySearch::test_binary_only_max_size_is_3 -v
+
+# With coverage
+pytest tests/ --cov=src --cov-report=html
+
+# Parallel execution
+pytest tests/ -n auto
+```
+
+**Expected Result**: `338 passed, 0 failed, 0 skipped, 0 warnings`
 
 ## Navigation
 
-- [← Project README](../README.md)
-- [Source Code](../src/README.md)
-- [Examples](../examples/README.md)
+- [← Project Root](../README.md)
 - [Documentation](../docs/README.md)
-- [CLAUDE.md](../CLAUDE.md) - Testing protocols
+- [Comprehensive Testing Guide](../docs/TESTING.md)
+- [Source Code](../src/README.md)
