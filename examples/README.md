@@ -31,8 +31,10 @@ As of 2025-10-15, examples are organized into subdirectories by definability mod
 **Definability**: Universal projections + cross-arity constant equivalence + composition
 
 **Contains**: Current test results using the project default mode
-- enum_binary_only.md - Binary search (max=3, 52 nice sets)
-- Additional tests planned (Z3 searches deferred due to time constraints)
+- 2 enumeration tests (binary-only max=3, unary+binary max=5)
+- 3 documented Z3 tests (sizes 29, 32, 33)
+- 8 additional confirmed Z3 sizes (6, 10, 17, 20, 25, 27)
+- **Proven maximum: 33** (sizes 34-35 proven impossible)
 
 **Use for**: Clone theory research, current project standards
 
@@ -45,10 +47,16 @@ As of 2025-10-15, examples are organized into subdirectories by definability mod
 | **Default** | No (legacy) | **Yes (current)** |
 | **Projections** | Must compose | Universally definable |
 | **Cross-arity constants** | Independent | Equivalent |
-| **Nice set counts** | More sets | Fewer sets |
-| **Max sizes** | Often same | Often same |
+| **Nice set counts** | More sets | Fewer sets (31-60% fewer) |
+| **Binary-only max** | 3 | 3 (same) |
+| **Unary+binary max** | 5 | 5 (same) |
+| **Mixed-arity max** | 35 | **33 (proven)** |
 
-**Key insight**: Both modes often find the same maximum sizes, but truth-functional detects more dependencies, resulting in fewer total nice sets.
+**Key insights**:
+- Truth-functional detects more dependencies (31-60% fewer nice sets at all sizes)
+- Smaller maximums match exactly (binary-only, unary+binary)
+- Mixed-arity maximum only 5.7% smaller (33 vs 35) despite stricter rules
+- Truth-functional maximum **proven exactly** via impossibility proofs
 
 For complete mode documentation, see [docs/DEFINABILITY.md](../docs/DEFINABILITY.md).
 

@@ -3,7 +3,7 @@
 **Search Method**: Z3 constraint solving with symmetry breaking
 **Verification**: Complete and Independent at depth 3
 **Definability Mode**: Truth-functional (clone-theoretic)
-**Status**: **Current confirmed maximum for truth-functional mode**
+**Status**: Large nice set (maximum is 33)
 
 ## Set Composition
 
@@ -83,8 +83,8 @@ Each connective was verified to be non-definable from the others using Z3's cons
 
 ## Key Insights
 
-1. **Current confirmed maximum**: Size 32 is the largest currently verified for truth-functional mode
-2. **Near syntactic parity**: Only 3 away from syntactic mode's maximum of 35
+1. **Near-maximum size**: Size 32 is one away from the proven maximum (33)
+2. **Only 3 from syntactic maximum**: Close to syntactic mode's maximum of 35
 3. **Ternary overwhelmingly dominant**: 94% of the set (30/32) is ternary functions
 4. **Minimal non-ternary content**: Just 1 constant and 1 binary function needed
 5. **Scalability**: Truth-functional mode can achieve very large nice sets despite stricter independence
@@ -150,11 +150,12 @@ Sizes between 32 and 35 have not been systematically tested. Future work could:
 ## See Also
 
 - **[z3_nice_set_29.md](z3_nice_set_29.md)** - Matches syntactic mode's lower bound
+- **[z3_nice_set_33.md](z3_nice_set_33.md)** - **Truth-functional mode MAXIMUM (proven)**
 - **[../syntactic/z3_nice_set_32.md](../syntactic/z3_nice_set_32.md)** - Syntactic mode equivalent
-- **[../syntactic/z3_nice_set_35.md](../syntactic/z3_nice_set_35.md)** - Syntactic mode maximum
+- **[../syntactic/z3_nice_set_35.md](../syntactic/z3_nice_set_35.md)** - Syntactic mode maximum (2 larger)
 - **[enum_unary_binary_max5.md](enum_unary_binary_max5.md)** - Enumeration baseline
 - **[../../docs/DEFINABILITY.md](../../docs/DEFINABILITY.md)** - Complete mode comparison
 
 ---
 
-**This result establishes size 32 as the current confirmed maximum for truth-functional mode, demonstrating that stricter independence checking only slightly reduces the achievable nice set size compared to syntactic mode (32 vs 35).**
+**Size 32 is near the proven maximum of 33 for truth-functional mode. Sizes 34-35 have been proven impossible via exhaustive Z3 search.**

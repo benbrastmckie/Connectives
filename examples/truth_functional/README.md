@@ -39,15 +39,19 @@ Truth-functional mode typically produces:
 
 ### Z3 Constraint-Based Tests
 
-Z3 constraint solving enables efficient search for large nice sets. The following sizes have been confirmed:
+Z3 constraint solving enables efficient search for large nice sets. The following milestone sizes are documented:
 
 - **[z3_nice_set_29.md](z3_nice_set_29.md)** - Size-29 search (matches syntactic mode)
   - Found in 18.80s, arity: 1 + 3 + 25 (nullary + binary + ternary)
   - Demonstrates truth-functional mode scales to large sizes
 
-- **[z3_nice_set_32.md](z3_nice_set_32.md)** - Size-32 search (**current confirmed maximum**)
+- **[z3_nice_set_32.md](z3_nice_set_32.md)** - Size-32 search (near-maximum)
   - Found in 44.40s, arity: 1 + 1 + 30
-  - Only 3 away from syntactic mode's maximum (35)
+  - One away from the proven maximum
+
+- **[z3_nice_set_33.md](z3_nice_set_33.md)** - Size-33 search (**PROVEN MAXIMUM**)
+  - Found in 20.35s, arity: 1 + 0 + 32 (97% ternary!)
+  - **Maximum for truth-functional mode** (sizes 34-35 proven impossible)
 
 #### Additional Confirmed Sizes
 
@@ -62,9 +66,19 @@ The following sizes were also successfully found but not individually documented
 | 25 | 4.03s | 187 | 1 + 0 + 24 | - |
 | 27 | 88.31s | 3,902 | 1 + 1 + 25 | - |
 | 29 | 18.80s | 904 | 1 + 3 + 25 | Documented above |
-| 32 | 44.40s | 1,822 | 1 + 1 + 30 | **Documented above** |
+| 32 | 44.40s | 1,822 | 1 + 1 + 30 | Documented above |
+| **33** | **20.35s** | **1,239** | **1 + 0 + 32** | **MAXIMUM** (documented above) |
 
-**Size 35**: Currently being tested (syntactic maximum). Search in progress...
+#### Impossibility Proofs
+
+The following sizes have been **proven impossible** via exhaustive Z3 search:
+
+| Size | Candidates Checked | Time | Result |
+|------|-------------------|------|--------|
+| **34** | 10,000 | 362.89s (~6 min) | **0 nice sets found** |
+| **35** | 10,000 | 400.44s (~6.7 min) | **0 nice sets found** |
+
+**Conclusion**: Truth-functional mode maximum is **exactly 33**.
 
 All tests can be generated using:
 ```bash
@@ -83,7 +97,8 @@ For equivalent results in **syntactic mode**, see:
 |-----------|-----------|------------------|------------|
 | Binary-only max | 3 | 3 | Same maximum |
 | Binary-only count (size 3) | 76 sets | 52 sets | 31% fewer |
-| Unary+binary max | 5 | 5 (partial) | Likely same |
+| Unary+binary max | 5 | 5 | Same maximum |
+| **Mixed-arity max** | **35** | **33 (proven)** | **-2 (5.7% smaller)** |
 
 ### Why Fewer Nice Sets?
 
