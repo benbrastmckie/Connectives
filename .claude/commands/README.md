@@ -6,6 +6,23 @@ Custom slash command definitions for Claude Code. Each command extends Claude's 
 
 ## Recent Changes
 
+### Orchestration Enhancement (2025-10-12)
+Complete multi-agent workflow coordination with enhanced capabilities:
+
+**/orchestrate**:
+- Research phase creates persistent report files in `specs/reports/{topic}/`
+- Debug loop creates persistent debug reports in `debug/{topic}/`
+- Planning phase cross-references research reports automatically
+- Documentation phase generates comprehensive workflow summaries
+- Complete artifact traceability from research through implementation
+
+**Integration Benefits**:
+- Agents create files directly (no inline summaries)
+- Topic-based organization for better discoverability
+- Clear separation: specs/ (gitignored) vs debug/ (tracked)
+- Full end-to-end workflow automation with proper documentation
+- Intelligent error recovery with persistent debugging artifacts
+
 ### Command Consolidation (2025-10-10)
 
 **Deprecated Commands**:
@@ -15,15 +32,13 @@ Custom slash command definitions for Claude Code. Each command extends Claude's 
 about when to use which command. All update capabilities have been integrated into
 `/revise` for a single, clear command for all content modifications.
 
-**Migration**: See [Command Selection Guide](.claude/docs/command-selection-guide.md)
+**Migration**: See [Command Selection Guide](.claude/docs/creating-commands.md)
 
 ### Command Consolidation (2025-10-06)
 Consolidated redundant commands for a cleaner interface:
 - `/cleanup` → **Removed** (use `/setup --cleanup` instead)
 - `/validate-setup` → **Removed** (use `/setup --validate` instead)
 - `/analyze-agents` + `/analyze-patterns` → **Removed** (use `/analyze [type]` instead)
-
-**Migration**: See `.claude/docs/MIGRATION_GUIDE.md` for command replacements
 
 ### Shared Utilities Integration (2025-10-06)
 Commands now reference shared utility libraries in `.claude/lib/`:
@@ -32,6 +47,42 @@ Commands now reference shared utility libraries in `.claude/lib/`:
 - `artifact-utils.sh` - Artifact tracking and registry
 - `error-utils.sh` - Error classification and recovery
 - `adaptive-planning-logger.sh` - Adaptive planning logging
+
+### Phase 7 Modularization (2025-10-15)
+
+**Reference-Based Composition Pattern**: Commands now use a modular documentation architecture where detailed sections are extracted to `commands/shared/` files and referenced via markdown links.
+
+**File Size Reductions**:
+- `orchestrate.md`: 2,720 → 850 lines (68.8% reduction, 1,870 lines saved)
+- `implement.md`: 987 → 498 lines (49.5% reduction, 489 lines saved)
+- `setup.md`: 911 → 375 lines (58.8% reduction, 536 lines saved)
+- `revise.md`: 878 → 406 lines (53.8% reduction, 472 lines saved)
+- **Total**: 5,496 → 2,129 lines (61.3% reduction, 3,367 lines saved)
+
+**Shared Documentation Files Created** (`commands/shared/`):
+- `workflow-phases.md` (1,903 lines) - 5 workflow phases for orchestration
+- `phase-execution.md` (383 lines) - Checkpoint, test, commit workflow
+- `implementation-workflow.md` (152 lines) - Implementation patterns
+- `setup-modes.md` (406 lines) - 5 setup command modes
+- `bloat-detection.md` (266 lines) - Bloat detection algorithms
+- `extraction-strategies.md` (348 lines) - Extraction preferences
+- `standards-analysis.md` (247 lines) - Standards analysis procedures
+- `revise-auto-mode.md` (434 lines) - Auto-mode specification
+- `revision-types.md` (109 lines) - 5 revision types
+
+**Consolidated Utilities** (`lib/`):
+- `plan-core-bundle.sh` (1,159 lines) - Consolidates 3 planning utilities
+- `unified-logger.sh` (717 lines) - Consolidates 2 loggers
+- `base-utils.sh` (~100 lines) - Common error(), warn(), info() functions
+
+**Benefits**:
+- **Reduced Duplication**: Common patterns documented once, referenced everywhere
+- **Improved Maintainability**: Update shared file once, all commands benefit
+- **Better Navigation**: Command files show summaries, shared files provide details
+- **Simplified Imports**: 3 → 1 for planning utils, 2 → 1 for loggers
+- **Backward Compatibility**: Wrapper files maintain compatibility during transition
+
+**See**: [commands/shared/README.md](shared/README.md) for shared documentation index
 
 ## Purpose
 
@@ -170,13 +221,18 @@ Commands provide structured, repeatable workflows for:
 #### /orchestrate
 **Purpose**: Coordinate subagents through end-to-end development workflows
 
-**Usage**: `/orchestrate <workflow-description> [--parallel] [--sequential]`
+**Usage**: `/orchestrate <workflow-description> [--parallel] [--sequential] [--create-pr]`
 
 **Features**:
-- Multi-agent coordination
+- Multi-agent coordination with persistent artifacts
+- Research phase creates report files in `specs/reports/{topic}/`
+- Debug loop creates report files in `debug/{topic}/`
+- Planning phase cross-references research reports
+- Documentation phase with comprehensive summaries
 - Parallel or sequential execution
-- Progress tracking
-- Error handling and recovery
+- Progress tracking with TodoWrite
+- Intelligent error recovery with debugging loop
+- Optional PR creation on completion
 
 ---
 
@@ -323,7 +379,7 @@ See `.claude/templates/example-feature.yaml` for template structure.
 - Better features (auto-mode, research integration, structure recommendations)
 - Single command for all content modifications
 
-**See**: [Command Selection Guide](../docs/command-selection-guide.md) for migration examples
+**See**: [Command Selection Guide](../docs/creating-commands.md) for migration examples
 
 ---
 

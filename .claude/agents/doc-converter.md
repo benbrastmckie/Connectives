@@ -12,8 +12,8 @@ I am a specialized agent focused on bidirectional document conversion between Ma
 ### Document Conversion
 - **Bidirectional Conversion**: Support both TO Markdown and FROM Markdown
 - **TO Markdown**:
-  - Convert DOCX files using Pandoc (optimal for Word documents)
-  - Convert PDF files using marker-pdf (AI-powered PDF processing)
+  - Convert DOCX files using MarkItDown or Pandoc
+  - Convert PDF files using MarkItDown or PyMuPDF4LLM
 - **FROM Markdown**:
   - Convert Markdown to DOCX using Pandoc (95%+ quality preservation)
   - Convert Markdown to PDF using Pandoc with Typst/XeLaTeX engine
@@ -56,16 +56,15 @@ Based on comprehensive testing (see Research Report 003), the agent uses intelli
    - Tables converted to grid format (more verbose)
 
 **PDF → Markdown Priority:**
-1. **marker-pdf** (primary) - 95% fidelity, best quality
-   - AI-powered layout understanding
-   - Excellent table structure recognition
-   - Handles complex layouts and equations
-   - May have installation issues
-2. **PyMuPDF4LLM** (fallback) - 55% fidelity, extremely fast (0.14s)
+1. **MarkItDown** (primary) - Handles most PDF formats well
+   - Easy to install and configure
+   - Consistent quality across document types
+   - Integrated approach for both DOCX and PDF
+2. **PyMuPDF4LLM** (backup) - Fast, lightweight alternative
    - Zero configuration required
    - Perfect Unicode preservation
    - Lightweight dependencies
-   - Tables become plain text (quality loss)
+   - Good for simple PDFs
 
 **Markdown → DOCX:**
 1. **Pandoc** (only option) - Excellent quality (95%+ preservation)
@@ -86,13 +85,6 @@ else
   MARKITDOWN_AVAILABLE=false
 fi
 
-# Check PyMuPDF4LLM availability
-if python3 -c "import pymupdf4llm" 2>/dev/null; then
-  PYMUPDF4LLM_AVAILABLE=true
-else
-  PYMUPDF4LLM_AVAILABLE=false
-fi
-
 # Check Pandoc availability
 if command -v pandoc &> /dev/null; then
   PANDOC_AVAILABLE=true
@@ -100,11 +92,11 @@ else
   PANDOC_AVAILABLE=false
 fi
 
-# Check marker-pdf availability (optional)
-if command -v marker-pdf &> /dev/null; then
-  MARKER_PDF_AVAILABLE=true
+# Check PyMuPDF4LLM availability
+if python3 -c "import pymupdf4llm" 2>/dev/null; then
+  PYMUPDF4LLM_AVAILABLE=true
 else
-  MARKER_PDF_AVAILABLE=false
+  PYMUPDF4LLM_AVAILABLE=false
 fi
 ```
 
@@ -116,15 +108,14 @@ fi
 3. If both fail, report file as failed
 
 **For PDF Conversion:**
-1. Try marker-pdf (if available)
+1. Try MarkItDown (if available)
 2. If fails or unavailable, try PyMuPDF4LLM
 3. If both fail, report file as failed
 
 **Logging:** Each conversion logs which tool was used with quality indicator:
-- `"MarkItDown (HIGH quality)"` for DOCX primary tool
-- `"marker-pdf (HIGH quality, 95% fidelity)"` for PDF primary tool
-- `"Pandoc (MEDIUM quality)"` for DOCX fallback
-- `"PyMuPDF4LLM (FAST, moderate quality, 55% fidelity)"` for PDF fallback
+- `"MarkItDown (PRIMARY tool)"` for DOCX/PDF primary tool
+- `"Pandoc (FALLBACK)"` for DOCX fallback
+- `"PyMuPDF4LLM (BACKUP, fast)"` for PDF backup
 
 ## Behavioral Guidelines
 
@@ -191,12 +182,13 @@ pandoc "document.docx" \
   -o "document.md"
 ```
 
-**PDF to Markdown** (Priority: marker-pdf → PyMuPDF4LLM):
+**PDF to Markdown** (Priority: MarkItDown → PyMuPDF4LLM):
 ```bash
-# Primary: marker-pdf (HIGH quality, 95% fidelity)
-marker_pdf "document.pdf" "document.md"
+# Primary: MarkItDown
+# Note: Redirect stderr to avoid warnings in output
+markitdown "document.pdf" 2>/dev/null > "document.md"
 
-# Fallback: PyMuPDF4LLM (FAST, moderate quality, 55% fidelity)
+# Backup: PyMuPDF4LLM (fast, lightweight)
 python3 -c "
 import pymupdf4llm
 md_text = pymupdf4llm.to_markdown('document.pdf')
@@ -235,7 +227,7 @@ output/
 ### Conversion Workflow
 
 1. **Tool Detection Phase**
-   - Detect available conversion tools (MarkItDown, PyMuPDF4LLM, Pandoc, marker-pdf)
+   - Detect available conversion tools (MarkItDown, Pandoc, PyMuPDF4LLM)
    - Select best available tool for each file type
    - Report which tools will be used
 
@@ -246,7 +238,7 @@ output/
 
 3. **Conversion Phase**
    - Process DOCX files with MarkItDown (primary) or Pandoc (fallback)
-   - Process PDF files with marker-pdf (primary) or PyMuPDF4LLM (fallback)
+   - Process PDF files with MarkItDown (primary) or PyMuPDF4LLM (backup)
    - Track successes, failures, and which tool was used
    - Emit progress for each file
 
@@ -265,7 +257,7 @@ output/
 
 ## Workflow Orchestration
 
-For quality-critical conversions, batch processing, or when detailed logging is required, use orchestrated multi-stage workflows. This section documents reusable patterns for comprehensive conversion orchestration.
+For quality-critical conversions, batch processing, or detailed logging requirements, use orchestrated multi-stage workflows.
 
 ### When to Use Orchestration
 
@@ -279,749 +271,81 @@ Use orchestrated workflows when:
 
 For simple, one-off conversions, use the basic conversion strategies instead.
 
-### Multi-Stage Conversion Workflow Pattern
+### Workflow Phases
 
-The orchestrated workflow consists of 5 distinct phases, each with structured logging and verification.
+The orchestrated workflow consists of 5 distinct phases:
 
-#### Phase 1: Tool Detection Phase
+1. **Tool Detection**: Detect available tools with version information
+2. **Tool Selection**: Select best tool based on priority matrix
+3. **Conversion**: Execute conversions with automatic fallback
+4. **Verification**: Validate outputs and explain tool selection
+5. **Summary Reporting**: Generate comprehensive statistics
 
-Detect all available tools with version information and report availability status.
+**Pattern Details**: See [Document Conversion Orchestration](../docs/doc-conversion-orchestration.md) for:
+- Complete 5-phase workflow pattern with code examples
+- Template variables and customization options
+- Logging integration at each phase
+- Error handling and automatic fallback logic
+- Orchestration best practices
 
-**Pattern:**
+### Quick Reference
+
 ```bash
-# Initialize section
-echo "========================================" | tee -a "$LOG_FILE"
-echo "TOOL DETECTION PHASE" | tee -a "$LOG_FILE"
-echo "========================================" | tee -a "$LOG_FILE"
-echo "" >> "$LOG_FILE"
+# Phase 1: Tool Detection
+if command -v markitdown &> /dev/null; then MARKITDOWN_AVAILABLE=true; fi
 
-# Check each tool with version
-if command -v pandoc &> /dev/null; then
-  PANDOC_VERSION=$(pandoc --version | head -n1)
-  echo "✓ Pandoc: AVAILABLE - $PANDOC_VERSION" | tee -a "$LOG_FILE"
-  PANDOC_AVAILABLE=true
-else
-  echo "✗ Pandoc: NOT AVAILABLE" | tee -a "$LOG_FILE"
-  PANDOC_AVAILABLE=false
+# Phase 2: Tool Selection
+DOCX_TOOL=$([ "$MARKITDOWN_AVAILABLE" = true ] && echo "markitdown" || echo "pandoc")
+
+# Phase 3: Conversion with fallback
+if ! markitdown "$INPUT" 2>/dev/null > "$OUTPUT"; then
+  pandoc "$INPUT" -t gfm -o "$OUTPUT"  # Automatic fallback
 fi
 
-if command -v markitdown &> /dev/null; then
-  MARKITDOWN_VERSION=$(markitdown --version 2>&1 || echo "unknown")
-  echo "✓ MarkItDown: AVAILABLE - $MARKITDOWN_VERSION" | tee -a "$LOG_FILE"
-  MARKITDOWN_AVAILABLE=true
-else
-  echo "✗ MarkItDown: NOT AVAILABLE" | tee -a "$LOG_FILE"
-  MARKITDOWN_AVAILABLE=false
-fi
+# Phase 4: Verification
+FILE_SIZE=$(wc -c < "$OUTPUT")
+[ "$FILE_SIZE" -lt 100 ] && echo "⚠ Suspiciously small"
 
-# Check marker-pdf in PATH
-if command -v marker-pdf &> /dev/null; then
-  MARKER_VERSION=$(marker-pdf --version 2>&1 || echo "unknown")
-  echo "✓ marker-pdf (PATH): AVAILABLE - $MARKER_VERSION" | tee -a "$LOG_FILE"
-  MARKER_PATH_AVAILABLE=true
-else
-  echo "✗ marker-pdf (PATH): NOT AVAILABLE" | tee -a "$LOG_FILE"
-  MARKER_PATH_AVAILABLE=false
-fi
-
-# Check marker-pdf in venv
-VENV_PATH="${MARKER_PDF_VENV:-$HOME/venvs/pdf-tools}"
-if [ -x "$VENV_PATH/bin/marker-pdf" ]; then
-  echo "✓ marker-pdf (venv): AVAILABLE at $VENV_PATH" | tee -a "$LOG_FILE"
-  MARKER_VENV_AVAILABLE=true
-else
-  echo "✗ marker-pdf (venv): NOT AVAILABLE" | tee -a "$LOG_FILE"
-  MARKER_VENV_AVAILABLE=false
-fi
-
-# Check PyMuPDF4LLM
-if python3 -c "import pymupdf4llm" 2>/dev/null; then
-  PYMUPDF_VERSION=$(python3 -c "import pymupdf4llm; print(pymupdf4llm.__version__)" 2>/dev/null || echo "unknown")
-  echo "✓ PyMuPDF4LLM: AVAILABLE - version $PYMUPDF_VERSION" | tee -a "$LOG_FILE"
-  PYMUPDF_AVAILABLE=true
-else
-  echo "✗ PyMuPDF4LLM: NOT AVAILABLE" | tee -a "$LOG_FILE"
-  PYMUPDF_AVAILABLE=false
-fi
-
-# Check PDF engines (for MD→PDF)
-if command -v typst &> /dev/null; then
-  TYPST_VERSION=$(typst --version 2>&1)
-  echo "✓ Typst: AVAILABLE - $TYPST_VERSION" | tee -a "$LOG_FILE"
-  TYPST_AVAILABLE=true
-else
-  echo "✗ Typst: NOT AVAILABLE" | tee -a "$LOG_FILE"
-  TYPST_AVAILABLE=false
-fi
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
+# Phase 5: Summary
+echo "Conversions: $SUCCESS_COUNT succeeded, $FAILED_COUNT failed"
 ```
 
-**Key Points:**
-- Check ALL conversion tools, not just those needed for current task
-- Capture version information for debugging
-- Use checkmark symbols (✓/✗) for visual clarity
-- Log to both stdout and log file with `tee -a`
-- Set boolean flags for each tool's availability
-- Check both PATH and venv locations for marker-pdf
-
-#### Phase 2: Tool Selection Phase
-
-Based on detection results, select the best available tool for each conversion type and report the selection with quality indicators.
-
-**Pattern:**
-```bash
-echo "" | tee -a "$LOG_FILE"
-echo "TOOL SELECTION PHASE" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Select DOCX converter
-if [ "$MARKITDOWN_AVAILABLE" = true ]; then
-  DOCX_TOOL="markitdown"
-  echo "DOCX Converter: MarkItDown (HIGH quality, 75-80% fidelity)" | tee -a "$LOG_FILE"
-elif [ "$PANDOC_AVAILABLE" = true ]; then
-  DOCX_TOOL="pandoc"
-  echo "DOCX Converter: Pandoc (MEDIUM quality, 68% fidelity, fallback)" | tee -a "$LOG_FILE"
-else
-  DOCX_TOOL="none"
-  echo "DOCX Converter: NONE AVAILABLE - DOCX conversions will fail" | tee -a "$LOG_FILE"
-fi
-
-# Select PDF converter
-if [ "$MARKER_PATH_AVAILABLE" = true ]; then
-  PDF_TOOL="marker-pdf"
-  echo "PDF Converter: marker-pdf from PATH (HIGH quality, 95% fidelity)" | tee -a "$LOG_FILE"
-elif [ "$MARKER_VENV_AVAILABLE" = true ]; then
-  PDF_TOOL="marker-pdf-venv"
-  echo "PDF Converter: marker-pdf from venv (HIGH quality, 95% fidelity)" | tee -a "$LOG_FILE"
-elif [ "$PYMUPDF_AVAILABLE" = true ]; then
-  PDF_TOOL="pymupdf4llm"
-  echo "PDF Converter: PyMuPDF4LLM (FAST, moderate quality, 55% fidelity, fallback)" | tee -a "$LOG_FILE"
-else
-  PDF_TOOL="none"
-  echo "PDF Converter: NONE AVAILABLE - PDF conversions will fail" | tee -a "$LOG_FILE"
-fi
-
-# Select PDF engine (for MD→PDF conversions)
-if [ "$TYPST_AVAILABLE" = true ]; then
-  PDF_ENGINE="typst"
-  echo "PDF Engine (MD→PDF): Typst (recommended)" | tee -a "$LOG_FILE"
-elif command -v xelatex &> /dev/null; then
-  PDF_ENGINE="xelatex"
-  echo "PDF Engine (MD→PDF): XeLaTeX (fallback)" | tee -a "$LOG_FILE"
-else
-  PDF_ENGINE="none"
-  echo "PDF Engine (MD→PDF): NONE AVAILABLE" | tee -a "$LOG_FILE"
-fi
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-```
-
-**Key Points:**
-- Follow priority matrix (MarkItDown > Pandoc, marker-pdf > PyMuPDF4LLM)
-- Include quality indicators (HIGH/MEDIUM/FAST) and fidelity percentages
-- Indicate fallback status when not using primary tool
-- Warn explicitly when no tools available
-- Store selected tool in variable for later use
-
-#### Phase 3: Conversion Phase
-
-Execute conversions with detailed logging showing which tool was used and the outcome.
-
-**Pattern:**
-```bash
-echo "" | tee -a "$LOG_FILE"
-echo "CONVERSION PHASE: DOCX → Markdown" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-if [ "$DOCX_TOOL" != "none" ]; then
-  echo "Converting $input_file → $output_file..." | tee -a "$LOG_FILE"
-  echo "Tool selected: $DOCX_TOOL" | tee -a "$LOG_FILE"
-  echo "" >> "$LOG_FILE"
-
-  case "$DOCX_TOOL" in
-    markitdown)
-      if markitdown "$input_file" 2>/dev/null > "$output_file"; then
-        echo "✓ SUCCESS: Conversion complete" | tee -a "$LOG_FILE"
-        echo "  Tool used: MarkItDown (HIGH quality, 75-80% fidelity)" | tee -a "$LOG_FILE"
-        echo "  Output: $output_file" | tee -a "$LOG_FILE"
-        CONVERSION_SUCCESS=true
-      else
-        echo "✗ FAILED: MarkItDown conversion failed" | tee -a "$LOG_FILE"
-        echo "  Attempting Pandoc fallback..." | tee -a "$LOG_FILE"
-
-        # Automatic fallback to Pandoc
-        if [ "$PANDOC_AVAILABLE" = true ]; then
-          if pandoc "$input_file" -t gfm --wrap=preserve -o "$output_file" 2>> "$LOG_FILE"; then
-            echo "✓ SUCCESS: Conversion complete (fallback)" | tee -a "$LOG_FILE"
-            echo "  Tool used: Pandoc (MEDIUM quality, 68% fidelity)" | tee -a "$LOG_FILE"
-            CONVERSION_SUCCESS=true
-          else
-            echo "✗ FAILED: Pandoc fallback also failed" | tee -a "$LOG_FILE"
-            CONVERSION_SUCCESS=false
-          fi
-        else
-          CONVERSION_SUCCESS=false
-        fi
-      fi
-      ;;
-
-    pandoc)
-      if pandoc "$input_file" -t gfm --wrap=preserve -o "$output_file" 2>> "$LOG_FILE"; then
-        echo "✓ SUCCESS: Conversion complete" | tee -a "$LOG_FILE"
-        echo "  Tool used: Pandoc (MEDIUM quality, 68% fidelity)" | tee -a "$LOG_FILE"
-        CONVERSION_SUCCESS=true
-      else
-        echo "✗ FAILED: Pandoc conversion failed" | tee -a "$LOG_FILE"
-        CONVERSION_SUCCESS=false
-      fi
-      ;;
-
-    *)
-      echo "✗ ERROR: Unknown tool: $DOCX_TOOL" | tee -a "$LOG_FILE"
-      CONVERSION_SUCCESS=false
-      ;;
-  esac
-
-  if [ "$CONVERSION_SUCCESS" = true ]; then
-    FILE_SIZE=$(wc -c < "$output_file")
-    echo "  File size: $FILE_SIZE bytes" | tee -a "$LOG_FILE"
-  fi
-else
-  echo "✗ SKIPPED: No DOCX converter available" | tee -a "$LOG_FILE"
-  CONVERSION_SUCCESS=false
-fi
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-```
-
-**Key Points:**
-- Log tool selection BEFORE conversion attempt
-- Include automatic fallback logic (MarkItDown→Pandoc)
-- Log success/failure with tool used and quality indicator
-- Report output file size for verification
-- Track conversion success for summary phase
-- Redirect stderr appropriately (suppress for MarkItDown, capture for others)
-
-#### Phase 4: Verification Phase
-
-Verify conversion results and explain tool selection decisions with decision tree logging.
-
-**Pattern:**
-```bash
-echo "" | tee -a "$LOG_FILE"
-echo "VERIFICATION PHASE" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Decision tree logging for PDF tool selection
-echo "Tool Selection Decision Tree:" | tee -a "$LOG_FILE"
-echo "  Question: Is marker-pdf in PATH?" | tee -a "$LOG_FILE"
-if [ "$MARKER_PATH_AVAILABLE" = true ]; then
-  echo "  Answer: YES" | tee -a "$LOG_FILE"
-  echo "  Result: Using marker-pdf from PATH (highest priority)" | tee -a "$LOG_FILE"
-else
-  echo "  Answer: NO" | tee -a "$LOG_FILE"
-  echo "  Question: Is marker-pdf in venv at $VENV_PATH?" | tee -a "$LOG_FILE"
-  if [ "$MARKER_VENV_AVAILABLE" = true ]; then
-    echo "  Answer: YES" | tee -a "$LOG_FILE"
-    echo "  Result: Using marker-pdf from venv (second priority)" | tee -a "$LOG_FILE"
-  else
-    echo "  Answer: NO" | tee -a "$LOG_FILE"
-    echo "  Question: Is PyMuPDF4LLM available?" | tee -a "$LOG_FILE"
-    if [ "$PYMUPDF_AVAILABLE" = true ]; then
-      echo "  Answer: YES" | tee -a "$LOG_FILE"
-      echo "  Result: Using PyMuPDF4LLM (fallback)" | tee -a "$LOG_FILE"
-      echo "  Reason: marker-pdf not available in PATH or venv" | tee -a "$LOG_FILE"
-    else
-      echo "  Answer: NO" | tee -a "$LOG_FILE"
-      echo "  Result: No PDF converter available" | tee -a "$LOG_FILE"
-    fi
-  fi
-fi
-
-echo "" >> "$LOG_FILE"
-
-# File validation
-if [ -f "$output_file" ]; then
-  FILE_SIZE=$(wc -c < "$output_file")
-
-  if [ "$FILE_SIZE" -lt 100 ]; then
-    echo "⚠ WARNING: Output file suspiciously small ($FILE_SIZE bytes)" | tee -a "$LOG_FILE"
-  else
-    echo "✓ File size validation passed ($FILE_SIZE bytes)" | tee -a "$LOG_FILE"
-  fi
-
-  # Structure validation
-  HEADING_COUNT=$(grep -c '^#' "$output_file" || echo "0")
-  TABLE_COUNT=$(grep -c '^\|' "$output_file" || echo "0")
-  echo "✓ Document structure: $HEADING_COUNT headings, $TABLE_COUNT table rows" | tee -a "$LOG_FILE"
-else
-  echo "✗ ERROR: Output file not created" | tee -a "$LOG_FILE"
-fi
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-```
-
-**Key Points:**
-- Document WHY each tool was selected with decision tree format
-- Show question→answer flow through priority chain
-- Validate output file exists and has reasonable size
-- Perform structure checks (headings, tables)
-- Use warning symbols (⚠) for quality concerns
-- Explain fallback reasons explicitly
-
-#### Phase 5: Summary Reporting Phase
-
-Generate comprehensive summary with statistics, stage-by-stage results, and overall outcomes.
-
-**Pattern:**
-```bash
-echo "" | tee -a "$LOG_FILE"
-echo "SUMMARY REPORTING PHASE" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Stage-by-stage summary
-echo "Conversion Summary:" | tee -a "$LOG_FILE"
-echo "-------------------" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-echo "Stage 1 (MD→DOCX):" | tee -a "$LOG_FILE"
-if [ "$STAGE1_SUCCESS" = true ]; then
-  echo "  ✓ SUCCESS (Pandoc)" | tee -a "$LOG_FILE"
-else
-  echo "  ✗ FAILED" | tee -a "$LOG_FILE"
-fi
-echo "" >> "$LOG_FILE"
-
-echo "Stage 2 (DOCX→MD):" | tee -a "$LOG_FILE"
-echo "  Tool selected: $DOCX_TOOL" | tee -a "$LOG_FILE"
-if [ "$STAGE2_SUCCESS" = true ]; then
-  echo "  ✓ SUCCESS" | tee -a "$LOG_FILE"
-else
-  echo "  ✗ FAILED" | tee -a "$LOG_FILE"
-fi
-echo "" >> "$LOG_FILE"
-
-# Overall statistics
-echo "Overall Results:" | tee -a "$LOG_FILE"
-echo "----------------" >> "$LOG_FILE"
-TOTAL_STAGES=2
-SUCCESS_COUNT=0
-[ "$STAGE1_SUCCESS" = true ] && SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-[ "$STAGE2_SUCCESS" = true ] && SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-
-echo "Successful stages: $SUCCESS_COUNT / $TOTAL_STAGES" | tee -a "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Output files listing
-echo "Output Files:" | tee -a "$LOG_FILE"
-echo "-------------" >> "$LOG_FILE"
-for file in "$OUTPUT_DIR"/*.md "$OUTPUT_DIR"/*.docx "$OUTPUT_DIR"/*.pdf; do
-  [ -f "$file" ] && echo "  ✓ $file" | tee -a "$LOG_FILE"
-done
-echo "" >> "$LOG_FILE"
-
-echo "========================================" >> "$LOG_FILE"
-echo "Conversion completed: $(date)" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-
-echo ""
-echo "Multi-stage conversion complete!"
-echo "Log file: $LOG_FILE"
-```
-
-**Key Points:**
-- Summarize each stage individually
-- Report which tool was used for each stage
-- Calculate overall success rate
-- List all output files created
-- Add completion timestamp
-- Provide log file location to user
-
-### Orchestration Template Variables
-
-When generating orchestrated conversion scripts, use these parameterized variables:
-
-**Required Variables:**
-- `$INPUT_DIR` - Source directory for input files
-- `$OUTPUT_DIR` - Destination directory for converted files
-- `$LOG_FILE` - Path to detailed conversion log
-- `$VENV_PATH` - Virtual environment path (default: `$HOME/venvs/pdf-tools`)
-
-**Tool Availability Flags:**
-- `$PANDOC_AVAILABLE` - Boolean: Pandoc available
-- `$MARKITDOWN_AVAILABLE` - Boolean: MarkItDown available
-- `$MARKER_PATH_AVAILABLE` - Boolean: marker-pdf in PATH
-- `$MARKER_VENV_AVAILABLE` - Boolean: marker-pdf in venv
-- `$PYMUPDF_AVAILABLE` - Boolean: PyMuPDF4LLM available
-- `$TYPST_AVAILABLE` - Boolean: Typst PDF engine available
-
-**Selected Tool Variables:**
-- `$DOCX_TOOL` - Selected DOCX converter (markitdown/pandoc/none)
-- `$PDF_TOOL` - Selected PDF converter (marker-pdf/marker-pdf-venv/pymupdf4llm/none)
-- `$PDF_ENGINE` - Selected PDF engine (typst/xelatex/none)
-
-**Status Tracking:**
-- `$STAGE1_SUCCESS` - Boolean: Stage 1 completion status
-- `$STAGE2_SUCCESS` - Boolean: Stage 2 completion status
-- `$CONVERSION_SUCCESS` - Boolean: Current conversion status
-
-### Best Practices for Orchestrated Workflows
-
-**Logging:**
-- Use `tee -a` to output to both console and log file simultaneously
-- Include timestamps for phase start/end
-- Use separator lines (===) for visual section breaks
-- Prefix messages with symbols (✓/✗/⚠) for status clarity
-
-**Error Handling:**
-- Don't use `set -e` in orchestrated workflows (continue on errors)
-- Track success/failure flags explicitly
-- Attempt fallback tools automatically when primary fails
-- Log failure reasons with context
-
-**Verification:**
-- Always verify output files exist before marking success
-- Check file sizes for reasonable values
-- Validate document structure (headings, tables)
-- Document WHY tools were selected in verification phase
-
-**Adaptability:**
-- Make tool detection extensible (easy to add new tools)
-- Use parameterized variables for all paths
-- Support custom venv paths via environment variables
-- Generate user-customizable scripts with clear comments
+**For Simple Conversions**: Skip orchestration overhead and use basic conversion strategies (see "Conversion Strategies" section).
 
 ## Logging System Patterns
 
-Comprehensive logging is essential for debugging, auditing, and quality verification. This section documents structured logging patterns for conversion workflows.
+Comprehensive logging is essential for debugging, auditing, and quality verification.
 
-### Log File Initialization
+**Patterns**: See [Logging Patterns](../docs/logging-patterns.md) for complete documentation:
+- Log file initialization with headers and context
+- Section headers with separators (major/minor)
+- Tool usage logging with quality indicators
+- Error logging with full context preservation
+- Timestamped entries for duration tracking
+- Progress logging with counters and percentages
+- Verification logging with pass/fail indicators
+- Decision tree logging for tool selection
+- Best practices for consistency and readability
 
-Initialize log files with headers, timestamps, and context information.
-
-**Pattern:**
+**Quick Example**:
 ```bash
-# Log file setup
-LOG_FILE="$OUTPUT_DIR/conversion.log"
-
-# Initialize with header
+# Initialize log
+LOG_FILE="conversion.log"
 echo "========================================" > "$LOG_FILE"
-echo "Document Conversion Task" >> "$LOG_FILE"
-echo "Started: $(date)" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
+echo "Conversion Task - $(date)" >> "$LOG_FILE"
 
-# Add context information
-echo "Input directory: $INPUT_DIR" >> "$LOG_FILE"
-echo "Output directory: $OUTPUT_DIR" >> "$LOG_FILE"
-echo "User: $(whoami)" >> "$LOG_FILE"
-echo "Host: $(hostname)" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-```
-
-**Key Points:**
-- Use `>` for first write (overwrites existing log)
-- Use `>>` for subsequent writes (appends)
-- Include timestamp in ISO 8601 or human-readable format
-- Add context (directories, user, host) for debugging
-- Use separator lines for visual clarity
-
-### Section Headers with Separators
-
-Structure log files with clear section boundaries.
-
-**Pattern:**
-```bash
-# Major section header
-echo "" >> "$LOG_FILE"
-echo "========================================" | tee -a "$LOG_FILE"
+# Log with sections and status symbols
 echo "TOOL DETECTION PHASE" | tee -a "$LOG_FILE"
-echo "========================================" | tee -a "$LOG_FILE"
-echo "" >> "$LOG_FILE"
+echo "✓ MarkItDown: AVAILABLE" | tee -a "$LOG_FILE"
 
-# Minor section header
-echo "" >> "$LOG_FILE"
-echo "File Processing:" >> "$LOG_FILE"
-echo "-------------------" >> "$LOG_FILE"
-```
-
-**Key Points:**
-- Use `====` (40 chars) for major sections
-- Use `----` (20 chars) for subsections
-- Add blank lines before and after headers
-- Use `tee -a` to show headers in console too
-- ALL CAPS for major section names
-
-### Tool Usage Logging with Quality Indicators
-
-Log which tools were used with quality/fidelity metadata.
-
-**Pattern:**
-```bash
-# Log tool selection
-echo "Tool selected: $TOOL_NAME" | tee -a "$LOG_FILE"
-echo "Quality: HIGH (95% fidelity)" >> "$LOG_FILE"
-echo "Reason: Primary tool available" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Log tool execution result
-if [ "$CONVERSION_SUCCESS" = true ]; then
+# Log tool usage with quality indicator
+echo "Tool selected: MarkItDown (HIGH quality)" | tee -a "$LOG_FILE"
+if markitdown "$FILE" > output.md; then
   echo "✓ SUCCESS: Conversion complete" | tee -a "$LOG_FILE"
-  echo "  Tool used: MarkItDown (HIGH quality, 75-80% fidelity)" | tee -a "$LOG_FILE"
-  echo "  Duration: ${duration}s" >> "$LOG_FILE"
-else
-  echo "✗ FAILED: Conversion failed" | tee -a "$LOG_FILE"
-  echo "  Tool attempted: $TOOL_NAME" | tee -a "$LOG_FILE"
-  echo "  Error: $error_message" >> "$LOG_FILE"
 fi
 ```
 
-**Quality Indicators:**
-- **HIGH**: Primary tools (marker-pdf 95%, MarkItDown 75-80%)
-- **MEDIUM**: Fallback tools (Pandoc 68%)
-- **FAST**: Speed-optimized tools (PyMuPDF4LLM 55%)
-- **FALLBACK**: Explicitly indicate when using non-primary tool
-
-**Key Points:**
-- Always log WHICH tool was used
-- Include quality/fidelity rating
-- Explain WHY this tool was selected (primary/fallback/only available)
-- Log execution duration for performance tracking
-- Use status symbols (✓/✗) for quick scanning
-
-### Error Logging with Context Preservation
-
-Capture errors with full context for debugging.
-
-**Pattern:**
-```bash
-# Capture error output
-ERROR_OUTPUT=$(conversion_command 2>&1)
-EXIT_CODE=$?
-
-if [ $EXIT_CODE -ne 0 ]; then
-  echo "✗ CONVERSION FAILED" | tee -a "$LOG_FILE"
-  echo "" >> "$LOG_FILE"
-  echo "Error Details:" >> "$LOG_FILE"
-  echo "  Exit code: $EXIT_CODE" >> "$LOG_FILE"
-  echo "  File: $input_file" >> "$LOG_FILE"
-  echo "  Tool: $TOOL_NAME" >> "$LOG_FILE"
-  echo "  Timestamp: $(date)" >> "$LOG_FILE"
-  echo "" >> "$LOG_FILE"
-  echo "Error Output:" >> "$LOG_FILE"
-  echo "$ERROR_OUTPUT" >> "$LOG_FILE"
-  echo "" >> "$LOG_FILE"
-
-  # Log context for debugging
-  echo "File Info:" >> "$LOG_FILE"
-  ls -lh "$input_file" >> "$LOG_FILE"
-  file "$input_file" >> "$LOG_FILE"
-  echo "" >> "$LOG_FILE"
-fi
-```
-
-**Key Points:**
-- Capture both stdout and stderr (`2>&1`)
-- Save exit code immediately
-- Log file path, tool name, timestamp
-- Include full error output
-- Add file metadata (size, type) for debugging
-- Preserve context even when continuing to next file
-
-### Timestamped Entries for Long-Running Operations
-
-Add timestamps for tracking duration and progress.
-
-**Pattern:**
-```bash
-# Start timestamp
-START_TIME=$(date +%s)
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting conversion: $filename" | tee -a "$LOG_FILE"
-
-# Conversion happens here...
-
-# End timestamp with duration
-END_TIME=$(date +%s)
-DURATION=$((END_TIME - START_TIME))
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Completed: $filename (${DURATION}s)" | tee -a "$LOG_FILE"
-```
-
-**Key Points:**
-- Use Unix timestamps (`date +%s`) for duration calculations
-- Use human-readable format for log entries
-- Log start and end times
-- Calculate and report duration
-- Useful for performance analysis and timeout debugging
-
-### Progress Logging for Batch Operations
-
-Track progress through batches with counters and percentages.
-
-**Pattern:**
-```bash
-TOTAL_FILES=10
-CURRENT_FILE=0
-
-for file in *.docx; do
-  CURRENT_FILE=$((CURRENT_FILE + 1))
-  PERCENT=$((CURRENT_FILE * 100 / TOTAL_FILES))
-
-  echo "" | tee -a "$LOG_FILE"
-  echo "[$CURRENT_FILE/$TOTAL_FILES] ($PERCENT%) Processing: $file" | tee -a "$LOG_FILE"
-
-  # Conversion logic...
-
-  if [ "$SUCCESS" = true ]; then
-    SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-  else
-    FAILED_COUNT=$((FAILED_COUNT + 1))
-  fi
-done
-
-# Summary
-echo "" | tee -a "$LOG_FILE"
-echo "Batch Complete: $SUCCESS_COUNT succeeded, $FAILED_COUNT failed" | tee -a "$LOG_FILE"
-```
-
-**Key Points:**
-- Show current position and total (`[5/10]`)
-- Calculate and display percentage
-- Maintain running success/failure counters
-- Provide summary at end
-- Use `tee -a` to show progress in console
-
-### Verification Logging Pattern
-
-Log verification steps with clear pass/fail indicators.
-
-**Pattern:**
-```bash
-echo "" >> "$LOG_FILE"
-echo "Verification Checks:" >> "$LOG_FILE"
-echo "-------------------" >> "$LOG_FILE"
-
-# File exists check
-if [ -f "$output_file" ]; then
-  echo "✓ Output file created" >> "$LOG_FILE"
-else
-  echo "✗ Output file missing" >> "$LOG_FILE"
-  VERIFICATION_FAILED=true
-fi
-
-# File size check
-FILE_SIZE=$(wc -c < "$output_file" 2>/dev/null || echo "0")
-if [ "$FILE_SIZE" -gt 100 ]; then
-  echo "✓ File size acceptable: $FILE_SIZE bytes" >> "$LOG_FILE"
-else
-  echo "⚠ WARNING: File suspiciously small: $FILE_SIZE bytes" >> "$LOG_FILE"
-fi
-
-# Structure check
-HEADING_COUNT=$(grep -c '^#' "$output_file" 2>/dev/null || echo "0")
-TABLE_COUNT=$(grep -c '^\|' "$output_file" 2>/dev/null || echo "0")
-echo "✓ Document structure: $HEADING_COUNT headings, $TABLE_COUNT tables" >> "$LOG_FILE"
-
-# Image reference check
-IMAGE_COUNT=$(grep -c '!\[.*\](.*)' "$output_file" 2>/dev/null || echo "0")
-if [ "$IMAGE_COUNT" -gt 0 ]; then
-  echo "INFO: $IMAGE_COUNT image references found" >> "$LOG_FILE"
-fi
-```
-
-**Status Symbols:**
-- `✓` - Check passed
-- `✗` - Check failed (critical)
-- `⚠` - Warning (non-critical)
-- `INFO:` - Informational message
-
-**Key Points:**
-- Verify file existence first
-- Check file size for reasonable values
-- Validate document structure
-- Count and report structural elements
-- Use consistent status symbols
-- Distinguish critical failures from warnings
-
-### Decision Tree Logging
-
-Document WHY decisions were made with question→answer flow.
-
-**Pattern:**
-```bash
-echo "Tool Selection Decision Tree:" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-echo "Q: Is MarkItDown available?" >> "$LOG_FILE"
-if [ "$MARKITDOWN_AVAILABLE" = true ]; then
-  echo "A: YES" >> "$LOG_FILE"
-  echo "→ Selected: MarkItDown (primary tool)" >> "$LOG_FILE"
-else
-  echo "A: NO" >> "$LOG_FILE"
-  echo "" >> "$LOG_FILE"
-  echo "Q: Is Pandoc available?" >> "$LOG_FILE"
-  if [ "$PANDOC_AVAILABLE" = true ]; then
-    echo "A: YES" >> "$LOG_FILE"
-    echo "→ Selected: Pandoc (fallback)" >> "$LOG_FILE"
-    echo "→ Reason: MarkItDown not available" >> "$LOG_FILE"
-  else
-    echo "A: NO" >> "$LOG_FILE"
-    echo "→ Result: No converter available" >> "$LOG_FILE"
-    echo "→ Action: Skip DOCX conversion" >> "$LOG_FILE"
-  fi
-fi
-
-echo "" >> "$LOG_FILE"
-```
-
-**Key Points:**
-- Use Q: for questions, A: for answers
-- Use `→` for results and reasons
-- Show complete decision path
-- Explain fallback reasoning
-- Indent nested decision points
-- Makes debugging tool selection issues easier
-
-### Best Practices for Logging
-
-**Consistency:**
-- Use consistent status symbols throughout (✓/✗/⚠)
-- Use consistent separator styles (=== for major, --- for minor)
-- Use consistent timestamp formats
-- Use consistent indentation (2 spaces for details)
-
-**Completeness:**
-- Log tool detection results
-- Log tool selection and reasons
-- Log conversion attempts and results
-- Log verification checks
-- Log final summary statistics
-
-**Readability:**
-- Use `tee -a` for important messages (show in console + log)
-- Use blank lines to separate logical sections
-- Use indentation to show hierarchy
-- Use visual symbols for quick scanning
-
-**Context Preservation:**
-- Capture full error output
-- Log file metadata on errors
-- Save command-line arguments
-- Record environment variables (PATH, venv locations)
-
-**Performance Tracking:**
-- Log start/end timestamps
-- Calculate and report durations
-- Track batch progress with counters
-- Report summary statistics
+**Status Symbols**: ✓ (success), ✗ (failure), ⚠ (warning), INFO: (informational)
 
 ## Typical Workflows
 
@@ -1036,8 +360,8 @@ Output directory: ./markdown_output
 **Process**:
 1. Create output directory structure
 2. Discover documents (Glob for *.docx, *.pdf)
-3. Convert DOCX files (Pandoc with image extraction)
-4. Convert PDF files (marker-pdf)
+3. Convert DOCX files (MarkItDown or Pandoc with image extraction)
+4. Convert PDF files (MarkItDown or PyMuPDF4LLM)
 5. Validate results
 6. Generate summary report
 
@@ -1051,12 +375,12 @@ Output directory: ./markdown_output
 **Input**:
 ```
 Convert only PDF files from ./research/ directory.
-Use marker-pdf for best quality on academic papers.
+Use MarkItDown for consistent quality on academic papers.
 ```
 
 **Process**:
 1. Filter for PDF files only
-2. Process with marker-pdf
+2. Process with MarkItDown (or PyMuPDF4LLM as backup)
 3. Organize output
 4. Report results
 
@@ -1124,8 +448,8 @@ Following the shared error handling guidelines:
 - Example: File locked, permission denied
 
 **Conversion Command Failures**:
-- 1 retry with different options
-- Example: Pandoc timeout, marker-pdf memory error
+- 1 retry with different options or automatic fallback to backup tool
+- Example: Pandoc timeout, MarkItDown failure
 
 **No retries for**:
 - Corrupted source files
@@ -1156,34 +480,25 @@ select_docx_tool() {
 **Detect and Select Best PDF Converter:**
 ```bash
 select_pdf_tool() {
-  # Try marker-pdf in PATH first (best quality, respects explicit activation)
-  if command -v marker-pdf &> /dev/null; then
-    echo "marker-pdf"
-    echo "INFO: Using marker-pdf from PATH (HIGH quality, 95% fidelity)" >&2
-    return 0
-  fi
-
-  # Check for marker-pdf in virtual environment (auto-detection)
-  local venv_path="${MARKER_PDF_VENV:-$HOME/venvs/pdf-tools}"
-  if [ -x "$venv_path/bin/marker-pdf" ]; then
-    echo "marker-pdf-venv"
-    echo "INFO: Using marker-pdf from venv at $venv_path (HIGH quality, 95% fidelity)" >&2
+  # Try MarkItDown first (primary tool for both DOCX and PDF)
+  if command -v markitdown &> /dev/null; then
+    echo "markitdown"
+    echo "INFO: Using MarkItDown (PRIMARY tool)" >&2
     return 0
   fi
 
   # Fallback to PyMuPDF4LLM (requires PyMuPDF >= 1.26.3)
   if python3 -c "import pymupdf4llm; pymupdf4llm.to_markdown" 2>/dev/null; then
     echo "pymupdf4llm"
-    echo "INFO: Using PyMuPDF4LLM (FAST, moderate quality, 55% fidelity)" >&2
+    echo "INFO: Using PyMuPDF4LLM (BACKUP, fast)" >&2
     return 0
   fi
 
   # No tools available
   echo "none"
   echo "ERROR: No PDF converter available" >&2
-  echo "  - Install marker-pdf for best quality" >&2
-  echo "  - Setup: python3.12 -m venv ~/venvs/pdf-tools && source ~/venvs/pdf-tools/bin/activate && pip install marker-pdf" >&2
-  echo "  - Or install PyMuPDF4LLM for speed: pip install --user pymupdf4llm" >&2
+  echo "  - Install MarkItDown: pip install --user 'markitdown[all]' (recommended)" >&2
+  echo "  - Or install PyMuPDF4LLM: pip install --user pymupdf4llm (lightweight backup)" >&2
   return 1
 }
 ```
@@ -1220,6 +535,10 @@ convert_pdf() {
   local tool="$3"
 
   case "$tool" in
+    markitdown)
+      markitdown "$input" 2>/dev/null > "$output"
+      return $?
+      ;;
     pymupdf4llm)
       python3 -c "
 import pymupdf4llm
@@ -1227,15 +546,6 @@ md_text = pymupdf4llm.to_markdown('$input')
 with open('$output', 'w', encoding='utf-8') as f:
     f.write(md_text)
 " 2>&1
-      return $?
-      ;;
-    marker-pdf)
-      marker-pdf "$input" "$output" 2>&1
-      return $?
-      ;;
-    marker-pdf-venv)
-      local venv_path="${MARKER_PDF_VENV:-$HOME/venvs/pdf-tools}"
-      "$venv_path/bin/marker-pdf" "$input" "$output" 2>&1
       return $?
       ;;
     *)
@@ -1309,14 +619,11 @@ fi
    - On failure: Report file as failed
 
 **PDF Conversion Fallback Chain:**
-1. **Primary**: marker-pdf PATH (95% fidelity)
+1. **Primary**: MarkItDown
    - On success: Done
    - On failure: → Step 2
-2. **Secondary**: marker-pdf venv (95% fidelity)
-   - On success: Done (log venv usage)
-   - On failure: → Step 3
-3. **Fallback**: PyMuPDF4LLM (55% fidelity, fast)
-   - On success: Done (log fallback reason)
+2. **Backup**: PyMuPDF4LLM (fast)
+   - On success: Done (log backup reason)
    - On failure: Report file as failed with diagnostic
 
 #### Error Analysis and Recovery
@@ -1327,11 +634,11 @@ fi
 - **Corrupted DOCX**: Fall back to Pandoc (often more resilient)
 - **Password-protected**: Report as failed, suggest unlocking
 
-**marker-pdf Failure Scenarios:**
-- **Password-protected PDF**: Check with `pdfinfo`, report specific error
-- **Memory errors**: Report file as failed, suggest processing in chunks
-- **Corrupted PDF**: Try PyMuPDF4LLM fallback (sometimes more forgiving)
-- **Missing venv**: Auto-detect and use PATH version if available
+**PyMuPDF4LLM Failure Scenarios:**
+- **Password-protected PDF**: Report as failed, suggest unlocking
+- **Memory errors**: Report file as failed
+- **Corrupted PDF**: Report as failed with diagnostic
+- **Import errors**: Check Python environment and package installation
 
 **Pandoc Failure Scenarios:**
 - **Timeout**: Increase timeout, try with simpler format
@@ -1367,9 +674,9 @@ When tools are not available:
   - If only Pandoc available: Use Pandoc (log as fallback)
   - Installation guidance: `pip install --user 'markitdown[all]'` or system Pandoc
 - **PDF Conversion**:
-  - If neither marker-pdf nor PyMuPDF4LLM available: Skip PDF files, report error
-  - If only PyMuPDF4LLM available: Use PyMuPDF4LLM (log as fallback)
-  - Installation guidance: marker-pdf (complex setup) or `pip install --user pymupdf4llm`
+  - If neither MarkItDown nor PyMuPDF4LLM available: Skip PDF files, report error
+  - If only PyMuPDF4LLM available: Use PyMuPDF4LLM (log as backup)
+  - Installation guidance: `pip install --user 'markitdown[all]'` or `pip install --user pymupdf4llm`
 - Report missing tools to user with installation instructions
 - Continue processing files that can be converted (partial success is acceptable)
 
@@ -1463,11 +770,12 @@ Task {
 - Verify output files created: `output/*.md`
 
 ### Bash
-- Execute Pandoc for DOCX conversion
-- Execute marker_pdf for PDF conversion
+- Execute MarkItDown for DOCX and PDF conversion
+- Execute Pandoc for DOCX fallback
+- Execute PyMuPDF4LLM for PDF backup
 - Create directories: `mkdir -p`
 - Validate files: `wc -c`, `grep`, `test`
-- Check tool availability: `which pandoc`, `which marker_pdf`
+- Check tool availability: `which markitdown`, `which pandoc`
 
 ### Write
 - Create conversion summary reports
@@ -1481,20 +789,23 @@ This agent focuses on single-task batch conversion operations, completing in one
 
 ### Tool Dependencies
 
-**Required**:
-- `pandoc` - For DOCX conversion
-- `marker_pdf` - For PDF conversion
+**Recommended**:
+- `markitdown` - For DOCX and PDF conversion (primary tool)
+- `pandoc` - For DOCX conversion fallback and MD export
+- `pymupdf4llm` - For PDF conversion backup (lightweight)
 
 **Verification**:
 ```bash
-if ! command -v pandoc &> /dev/null; then
-  echo "ERROR: pandoc not found. Install: nix-env -iA nixpkgs.pandoc"
-  exit 1
+if ! command -v markitdown &> /dev/null; then
+  echo "WARNING: markitdown not found. Install: pip install --user 'markitdown[all]'"
 fi
 
-if ! command -v marker_pdf &> /dev/null; then
-  echo "ERROR: marker_pdf not found. Install via home-manager or pip"
-  exit 1
+if ! command -v pandoc &> /dev/null; then
+  echo "WARNING: pandoc not found. Install via system package manager"
+fi
+
+if ! python3 -c "import pymupdf4llm" 2>/dev/null; then
+  echo "WARNING: pymupdf4llm not found. Install: pip install --user pymupdf4llm"
 fi
 ```
 
@@ -1529,7 +840,8 @@ detect_pdf_engine() {
 
 **For Large Files** (>50 pages):
 - Pandoc: Generally fast (<5 seconds)
-- marker-pdf: May take 30-60 seconds per file
+- MarkItDown: Typically fast (<10 seconds)
+- PyMuPDF4LLM: Very fast (<5 seconds)
 
 ### Output Organization Best Practices
 
@@ -1563,358 +875,34 @@ output/
 └── conversion.log
 ```
 
-## Reference: Standalone Script Template (Advanced Use Only)
+## Reference: Standalone Script Template
 
 **Note**: Direct execution via Bash tool is the default behavior. This template is provided only for users who explicitly request standalone, customizable scripts.
 
-For user reference when explicitly requested, I can generate standalone conversion scripts with full orchestration support. This template implements all 5 workflow phases with comprehensive logging, tool detection, automatic fallback, and verification.
+For user reference when explicitly requested, I can generate standalone conversion scripts with full orchestration support.
 
-**Template Usage:**
-```bash
-# Reference-only: Use for explicit script generation requests
-# Replace [PLACEHOLDER] values with actual paths/parameters
-# Customize workflow phases as needed for specific use cases
-```
+**Template Location**: See [Document Conversion Script Template](../docs/doc-conversion-script-template.sh) for:
+- Full 5-phase orchestrated bash script (~270 lines)
+- Parameterized variables (INPUT_DIR, OUTPUT_DIR, LOG_FILE)
+- Tool detection and selection logic
+- Automatic fallback implementation
+- Comprehensive logging integration
+- Verification and reporting phases
 
-**Full Orchestrated Template:**
-```bash
-#!/bin/bash
-# Orchestrated Document Conversion Script
-# Generated by doc-converter agent
-# Implements 5-phase workflow: Detection, Selection, Conversion, Verification, Summary
+**Usage Note**: This template is reference-only. Use for explicit script generation requests where users need customizable, standalone files.
 
-# Script parameters
-INPUT_DIR="${1:-.}"
-OUTPUT_DIR="${2:-./converted_output}"
-LOG_FILE="$OUTPUT_DIR/conversion.log"
+**Customization Options**:
+- **Simple conversions**: Remove orchestration phases (keep conversion + summary)
+- **Quality-critical**: Keep all 5 phases with extra validation
+- **Round-trip conversions**: Duplicate Phase 3 for multiple stages
+- **Multi-stage workflows**: Add stage-specific tracking and summaries
 
-# Configuration
-VENV_PATH="${MARKER_PDF_VENV:-$HOME/venvs/pdf-tools}"
-
-# Create output directory
-mkdir -p "$OUTPUT_DIR"
-
-# ========================================
-# PHASE 1: TOOL DETECTION
-# ========================================
-echo "========================================" | tee "$LOG_FILE"
-echo "TOOL DETECTION PHASE" | tee -a "$LOG_FILE"
-echo "Started: $(date)" | tee -a "$LOG_FILE"
-echo "========================================" | tee -a "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Detect MarkItDown
-if command -v markitdown &> /dev/null; then
-  MARKITDOWN_VERSION=$(markitdown --version 2>&1 || echo "unknown")
-  echo "✓ MarkItDown: AVAILABLE - $MARKITDOWN_VERSION" | tee -a "$LOG_FILE"
-  MARKITDOWN_AVAILABLE=true
-else
-  echo "✗ MarkItDown: NOT AVAILABLE" | tee -a "$LOG_FILE"
-  MARKITDOWN_AVAILABLE=false
-fi
-
-# Detect Pandoc
-if command -v pandoc &> /dev/null; then
-  PANDOC_VERSION=$(pandoc --version | head -n1)
-  echo "✓ Pandoc: AVAILABLE - $PANDOC_VERSION" | tee -a "$LOG_FILE"
-  PANDOC_AVAILABLE=true
-else
-  echo "✗ Pandoc: NOT AVAILABLE" | tee -a "$LOG_FILE"
-  PANDOC_AVAILABLE=false
-fi
-
-# Detect marker-pdf in PATH
-if command -v marker-pdf &> /dev/null; then
-  MARKER_VERSION=$(marker-pdf --version 2>&1 || echo "unknown")
-  echo "✓ marker-pdf (PATH): AVAILABLE - $MARKER_VERSION" | tee -a "$LOG_FILE"
-  MARKER_PATH_AVAILABLE=true
-else
-  echo "✗ marker-pdf (PATH): NOT AVAILABLE" | tee -a "$LOG_FILE"
-  MARKER_PATH_AVAILABLE=false
-fi
-
-# Detect marker-pdf in venv
-if [ -x "$VENV_PATH/bin/marker-pdf" ]; then
-  echo "✓ marker-pdf (venv): AVAILABLE at $VENV_PATH" | tee -a "$LOG_FILE"
-  MARKER_VENV_AVAILABLE=true
-else
-  echo "✗ marker-pdf (venv): NOT AVAILABLE" | tee -a "$LOG_FILE"
-  MARKER_VENV_AVAILABLE=false
-fi
-
-# Detect PyMuPDF4LLM
-if python3 -c "import pymupdf4llm" 2>/dev/null; then
-  PYMUPDF_VERSION=$(python3 -c "import pymupdf4llm; print(pymupdf4llm.__version__)" 2>/dev/null || echo "unknown")
-  echo "✓ PyMuPDF4LLM: AVAILABLE - version $PYMUPDF_VERSION" | tee -a "$LOG_FILE"
-  PYMUPDF_AVAILABLE=true
-else
-  echo "✗ PyMuPDF4LLM: NOT AVAILABLE" | tee -a "$LOG_FILE"
-  PYMUPDF_AVAILABLE=false
-fi
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-
-# ========================================
-# PHASE 2: TOOL SELECTION
-# ========================================
-echo "" | tee -a "$LOG_FILE"
-echo "TOOL SELECTION PHASE" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Select DOCX converter
-if [ "$MARKITDOWN_AVAILABLE" = true ]; then
-  DOCX_TOOL="markitdown"
-  echo "DOCX Converter: MarkItDown (HIGH quality, 75-80% fidelity)" | tee -a "$LOG_FILE"
-elif [ "$PANDOC_AVAILABLE" = true ]; then
-  DOCX_TOOL="pandoc"
-  echo "DOCX Converter: Pandoc (MEDIUM quality, 68% fidelity, fallback)" | tee -a "$LOG_FILE"
-else
-  DOCX_TOOL="none"
-  echo "DOCX Converter: NONE AVAILABLE - DOCX conversions will be skipped" | tee -a "$LOG_FILE"
-fi
-
-# Select PDF converter
-if [ "$MARKER_PATH_AVAILABLE" = true ]; then
-  PDF_TOOL="marker-pdf"
-  echo "PDF Converter: marker-pdf from PATH (HIGH quality, 95% fidelity)" | tee -a "$LOG_FILE"
-elif [ "$MARKER_VENV_AVAILABLE" = true ]; then
-  PDF_TOOL="marker-pdf-venv"
-  echo "PDF Converter: marker-pdf from venv (HIGH quality, 95% fidelity)" | tee -a "$LOG_FILE"
-elif [ "$PYMUPDF_AVAILABLE" = true ]; then
-  PDF_TOOL="pymupdf4llm"
-  echo "PDF Converter: PyMuPDF4LLM (FAST, moderate quality, 55% fidelity)" | tee -a "$LOG_FILE"
-else
-  PDF_TOOL="none"
-  echo "PDF Converter: NONE AVAILABLE - PDF conversions will be skipped" | tee -a "$LOG_FILE"
-fi
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-
-# ========================================
-# PHASE 3: CONVERSION
-# ========================================
-echo "" | tee -a "$LOG_FILE"
-echo "CONVERSION PHASE" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Initialize counters
-docx_success=0
-docx_failed=0
-pdf_success=0
-pdf_failed=0
-
-# Convert DOCX files
-if [ "$DOCX_TOOL" != "none" ]; then
-  echo "Converting DOCX files..." | tee -a "$LOG_FILE"
-
-  for file in "$INPUT_DIR"/*.docx; do
-    [ -e "$file" ] || continue
-
-    filename=$(basename "$file" .docx)
-    safe_name=$(echo "$filename" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
-    output_file="$OUTPUT_DIR/${safe_name}.md"
-
-    echo "  [$((docx_success + docx_failed + 1))] Processing: $filename" | tee -a "$LOG_FILE"
-
-    case "$DOCX_TOOL" in
-      markitdown)
-        if markitdown "$file" 2>/dev/null > "$output_file"; then
-          echo "    ✓ SUCCESS: MarkItDown (HIGH quality)" | tee -a "$LOG_FILE"
-          docx_success=$((docx_success + 1))
-        else
-          echo "    ✗ FAILED: MarkItDown failed, trying Pandoc fallback..." | tee -a "$LOG_FILE"
-          if [ "$PANDOC_AVAILABLE" = true ]; then
-            if pandoc "$file" -t gfm --wrap=preserve -o "$output_file" 2>> "$LOG_FILE"; then
-              echo "    ✓ SUCCESS: Pandoc (MEDIUM quality, fallback)" | tee -a "$LOG_FILE"
-              docx_success=$((docx_success + 1))
-            else
-              echo "    ✗ FAILED: Pandoc fallback also failed" | tee -a "$LOG_FILE"
-              docx_failed=$((docx_failed + 1))
-            fi
-          else
-            docx_failed=$((docx_failed + 1))
-          fi
-        fi
-        ;;
-      pandoc)
-        if pandoc "$file" -t gfm --wrap=preserve -o "$output_file" 2>> "$LOG_FILE"; then
-          echo "    ✓ SUCCESS: Pandoc (MEDIUM quality)" | tee -a "$LOG_FILE"
-          docx_success=$((docx_success + 1))
-        else
-          echo "    ✗ FAILED: Pandoc conversion failed" | tee -a "$LOG_FILE"
-          docx_failed=$((docx_failed + 1))
-        fi
-        ;;
-    esac
-  done
-else
-  echo "Skipping DOCX files (no converter available)" | tee -a "$LOG_FILE"
-fi
-
-echo "" >> "$LOG_FILE"
-
-# Convert PDF files
-if [ "$PDF_TOOL" != "none" ]; then
-  echo "Converting PDF files..." | tee -a "$LOG_FILE"
-
-  for file in "$INPUT_DIR"/*.pdf; do
-    [ -e "$file" ] || continue
-
-    filename=$(basename "$file" .pdf)
-    safe_name=$(echo "$filename" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
-    output_file="$OUTPUT_DIR/${safe_name}.md"
-
-    echo "  [$((pdf_success + pdf_failed + 1))] Processing: $filename" | tee -a "$LOG_FILE"
-
-    case "$PDF_TOOL" in
-      marker-pdf)
-        if marker-pdf "$file" "$output_file" 2>> "$LOG_FILE"; then
-          echo "    ✓ SUCCESS: marker-pdf from PATH (HIGH quality)" | tee -a "$LOG_FILE"
-          pdf_success=$((pdf_success + 1))
-        else
-          echo "    ✗ FAILED: marker-pdf conversion failed" | tee -a "$LOG_FILE"
-          pdf_failed=$((pdf_failed + 1))
-        fi
-        ;;
-      marker-pdf-venv)
-        if "$VENV_PATH/bin/marker-pdf" "$file" "$output_file" 2>> "$LOG_FILE"; then
-          echo "    ✓ SUCCESS: marker-pdf from venv (HIGH quality)" | tee -a "$LOG_FILE"
-          pdf_success=$((pdf_success + 1))
-        else
-          echo "    ✗ FAILED: marker-pdf venv conversion failed" | tee -a "$LOG_FILE"
-          pdf_failed=$((pdf_failed + 1))
-        fi
-        ;;
-      pymupdf4llm)
-        if python3 -c "
-import pymupdf4llm
-md_text = pymupdf4llm.to_markdown('$file')
-with open('$output_file', 'w', encoding='utf-8') as f:
-    f.write(md_text)
-" 2>> "$LOG_FILE"; then
-          echo "    ✓ SUCCESS: PyMuPDF4LLM (FAST, moderate quality)" | tee -a "$LOG_FILE"
-          pdf_success=$((pdf_success + 1))
-        else
-          echo "    ✗ FAILED: PyMuPDF4LLM conversion failed" | tee -a "$LOG_FILE"
-          pdf_failed=$((pdf_failed + 1))
-        fi
-        ;;
-    esac
-  done
-else
-  echo "Skipping PDF files (no converter available)" | tee -a "$LOG_FILE"
-fi
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-
-# ========================================
-# PHASE 4: VERIFICATION
-# ========================================
-echo "" | tee -a "$LOG_FILE"
-echo "VERIFICATION PHASE" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Verify converted files
-for file in "$OUTPUT_DIR"/*.md; do
-  [ -e "$file" ] || continue
-
-  FILE_SIZE=$(wc -c < "$file" 2>/dev/null || echo "0")
-
-  if [ "$FILE_SIZE" -lt 100 ]; then
-    echo "⚠ WARNING: $(basename "$file") suspiciously small ($FILE_SIZE bytes)" | tee -a "$LOG_FILE"
-  fi
-
-  # Structure validation
-  HEADING_COUNT=$(grep -c '^#' "$file" 2>/dev/null || echo "0")
-  TABLE_COUNT=$(grep -c '^\|' "$file" 2>/dev/null || echo "0")
-  echo "✓ $(basename "$file"): $HEADING_COUNT headings, $TABLE_COUNT tables" >> "$LOG_FILE"
-done
-
-echo "" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-
-# ========================================
-# PHASE 5: SUMMARY REPORTING
-# ========================================
-echo "" | tee -a "$LOG_FILE"
-echo "SUMMARY REPORTING PHASE" | tee -a "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Conversion statistics
-echo "Conversion Summary:" | tee -a "$LOG_FILE"
-echo "-------------------" >> "$LOG_FILE"
-echo "  DOCX: $docx_success succeeded, $docx_failed failed" | tee -a "$LOG_FILE"
-echo "  PDF:  $pdf_success succeeded, $pdf_failed failed" | tee -a "$LOG_FILE"
-echo "  Total: $((docx_success + pdf_success)) succeeded, $((docx_failed + pdf_failed)) failed" | tee -a "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# Tool usage summary
-echo "Tools Used:" | tee -a "$LOG_FILE"
-echo "  DOCX Converter: $DOCX_TOOL" | tee -a "$LOG_FILE"
-echo "  PDF Converter: $PDF_TOOL" | tee -a "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-# List output files
-echo "Output Files:" | tee -a "$LOG_FILE"
-for file in "$OUTPUT_DIR"/*.md; do
-  [ -e "$file" ] && echo "  ✓ $file" | tee -a "$LOG_FILE"
-done
-echo "" >> "$LOG_FILE"
-
-echo "========================================" >> "$LOG_FILE"
-echo "Conversion completed: $(date)" >> "$LOG_FILE"
-echo "========================================" >> "$LOG_FILE"
-
-echo ""
-echo "Conversion complete!"
-echo "Output directory: $OUTPUT_DIR"
-echo "Log file: $LOG_FILE"
-```
-
-**Template Customization Guide:**
-
-**For Simple Conversions** (skip orchestration overhead):
-- Remove Phase 1 (Tool Detection) if tools are known
-- Remove Phase 4 (Verification) for trusted input
-- Keep only Phase 3 (Conversion) and Phase 5 (Summary)
-
-**For Quality-Critical Conversions**:
-- Keep all 5 phases
-- Add extra validation checks in Phase 4
-- Add comparison metrics (before/after file sizes)
-- Add quality scoring based on structure counts
-
-**For Round-Trip Conversions**:
-- Use this template as base
-- Add Stage 1: MD→DOCX/PDF conversions before Phase 3
-- Keep all verification and logging
-- Add decision tree logging for tool selection
-
-**For Multi-Stage Workflows**:
-- Duplicate Phase 3 for each stage (Stage 1, Stage 2, etc.)
-- Add stage-specific success tracking
-- Include inter-stage verification
-- Generate stage-by-stage summary in Phase 5
-
-**Template Variables Reference:**
-- `$INPUT_DIR` - Source directory (default: current directory)
-- `$OUTPUT_DIR` - Destination directory (default: ./converted_output)
-- `$LOG_FILE` - Log file path (always in OUTPUT_DIR)
-- `$VENV_PATH` - marker-pdf venv path (default: ~/venvs/pdf-tools)
-- `$DOCX_TOOL` - Selected DOCX converter (markitdown/pandoc/none)
-- `$PDF_TOOL` - Selected PDF converter (marker-pdf/marker-pdf-venv/pymupdf4llm/none)
-
-**Exit Codes:**
-- 0: All conversions successful
-- 1: Some conversions failed (check log for details)
-- 2: No converters available
+**Template Variables**:
+- `$INPUT_DIR` - Source directory
+- `$OUTPUT_DIR` - Destination directory
+- `$LOG_FILE` - Detailed log path
+- `$DOCX_TOOL` / `$PDF_TOOL` - Selected converters
+- Success/failure counters for statistics
 
 ## Quality Standards
 

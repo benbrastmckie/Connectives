@@ -1,6 +1,6 @@
 # Docs Directory
 
-Comprehensive documentation and integration guides for Claude Code configuration, including TTS system, agent development, command standardization, and CLAUDE.md schema.
+Comprehensive documentation and integration guides for Claude Code configuration, including command development, agent integration, adaptive planning, and standards implementation.
 
 ## Purpose
 
@@ -9,213 +9,461 @@ This directory provides:
 - **Integration guides** for TTS, agents, and commands
 - **Development guides** for creating custom components
 - **Standards documentation** for consistent patterns
-- **Schema definitions** for CLAUDE.md sections
+- **Reference materials** for quick lookup
 - **Examples** demonstrating best practices
 
 ## Documentation Structure
 
 ```
 docs/
-├── agent-development-guide.md       Agent creation guide
-├── agent-integration-guide.md       Agent invocation patterns
-├── claude-md-section-schema.md      CLAUDE.md section format
-├── command-standardization-checklist.md  Command quality checklist
-├── command-standards-flow.md        Standards discovery flow
-├── standards-integration-examples.md     Standards usage examples
-├── standards-integration-pattern.md Standards application pattern
-├── tts-integration-guide.md         TTS system guide
-└── tts-message-examples.md          TTS message examples
+├── README.md                          Main documentation index
+│
+Core System Guides (5)
+├── command-reference.md               Complete command catalog
+├── agent-reference.md                 Complete agent catalog
+├── claude-md-section-schema.md        CLAUDE.md section format
+├── command_architecture_standards.md  Command/agent architecture standards
+└── phase_dependencies.md              Wave-based parallel execution
+│
+Advanced Features (7)
+├── orchestration-guide.md             Multi-agent workflows
+├── adaptive-planning-guide.md         Progressive plans and checkpointing
+├── template-system-guide.md           Template-based planning
+├── efficiency-guide.md                Performance optimization
+├── error-enhancement-guide.md         Error handling patterns
+├── artifact_organization.md           Topic-based artifact structure
+└── spec_updater_guide.md              Spec updater agent guide
+│
+Development Guides (8)
+├── creating-commands.md               Command development guide
+├── creating-agents.md                 Agent creation guide
+├── using-agents.md                    Agent integration patterns
+├── standards-integration.md           Standards discovery and application
+├── command-patterns.md                Command pattern catalog
+├── command-examples.md                Reusable command patterns
+└── logging-patterns.md                Standardized logging formats
+│
+Integration Guides (2)
+├── tts-integration-guide.md           TTS system setup
+└── conversion-guide.md                Document conversion
+│
+Archive/
+└── archive/                           Historical documentation
 ```
+
+## Quick Start by Role
+
+### For New Users
+1. [Orchestration Guide](orchestration-guide.md) - Understanding multi-agent workflows
+2. [Command Reference](command-reference.md) - Browse available commands
+3. [Agent Reference](agent-reference.md) - See what agents can do
+
+### For Command Developers
+1. [Creating Commands](creating-commands.md) - Complete development guide
+2. [Standards Integration](standards-integration.md) - Using CLAUDE.md standards
+3. [Command Patterns](command-patterns.md) - Reusable patterns
+4. [Using Agents](using-agents.md) - Integrate agents in commands
+
+### For Agent Developers
+1. [Creating Agents](creating-agents.md) - Agent development guide
+2. [Using Agents](using-agents.md) - Agent invocation patterns
+3. [Agent Reference](agent-reference.md) - Existing agent catalog
+
+### For Contributors
+1. [CLAUDE.md Section Schema](claude-md-section-schema.md) - Section format specification
+2. [Standards Integration](standards-integration.md) - Standards system overview
+3. [Documentation Standards](#documentation-standards) - Style guide
 
 ## Key Documents
 
-### Agent Documentation
+### Core System Guides
 
-#### agent-development-guide.md
-**Purpose**: Complete guide for creating custom agents
+#### command-reference.md
+**Purpose**: Alphabetical catalog of all available commands with usage syntax
 
 **Contents**:
-- Agent definition format
-- Tool selection guidelines
-- Capability documentation
-- Testing and validation
-- Best practices
+- Complete command listing
+- Usage syntax for each command
+- Command categories and organization
+- Quick lookup reference
 
 **Use Cases**:
-- Creating new specialized agents
-- Understanding agent architecture
-- Learning agent design patterns
+- Discovering available commands
+- Finding command syntax quickly
+- Understanding command relationships
+- Planning workflow automation
 
 ---
 
-#### agent-integration-guide.md
-**Purpose**: Guide for invoking and coordinating agents
+#### agent-reference.md
+**Purpose**: Alphabetical catalog of all specialized agents with capabilities
 
 **Contents**:
-- Agent invocation patterns
-- Context passing
-- Result handling
-- Multi-agent coordination
-- Error handling
+- Complete agent directory (15 agents)
+- Tool restrictions per agent
+- Commands that use each agent
+- Capabilities summary
+- Tool access matrix
 
 **Use Cases**:
-- Invoking agents from commands
-- Building agent workflows
-- Debugging agent issues
+- Selecting appropriate agent for task
+- Understanding agent capabilities
+- Finding which commands use agents
+- Planning agent workflows
 
 ---
 
-### Command Documentation
-
-#### command-standardization-checklist.md
-**Purpose**: Quality checklist for command definitions
+#### command_architecture_standards.md
+**Purpose**: Architecture standards for command and agent files to ensure execution clarity
 
 **Contents**:
-- Metadata completeness
-- Standards discovery implementation
-- Documentation requirements
-- Testing coverage
-- Error handling
+- Fundamental understanding: Command files as AI execution scripts
+- Core standards: Executable instructions must be inline
+- Reference patterns: When and how to use external references
+- Refactoring guidelines: What to extract vs keep inline
+- Testing standards: Validation criteria before commits
+- Anti-patterns: Common mistakes to avoid
+- Pre-commit validation scripts
 
 **Use Cases**:
-- Creating new commands
-- Reviewing command quality
-- Ensuring consistency
+- Creating or modifying command files
+- Refactoring commands without breaking execution
+- Reviewing pull requests for command changes
+- Understanding why certain patterns are required
+- Preventing regression of command functionality
+
+**Critical**: This document must be followed when modifying any files in `.claude/commands/` or `.claude/agents/`
 
 ---
-
-#### command-standards-flow.md
-**Purpose**: Standards discovery and application flow
-
-**Contents**:
-- Discovery process diagram
-- Section parsing logic
-- Standards merging rules
-- Application patterns
-- Fallback behavior
-
-**Use Cases**:
-- Understanding standards system
-- Implementing discovery in commands
-- Debugging standards issues
-
----
-
-### Standards Documentation
 
 #### claude-md-section-schema.md
-**Purpose**: Schema for CLAUDE.md sections
+**Purpose**: Schema for CLAUDE.md section format
 
 **Contents**:
 - Section format specification
-- Metadata requirements
-- Content structure
-- Usage markers
+- Metadata requirements (`[Used by: ...]`)
+- Content structure guidelines
+- Standard section names
 - Examples
 
 **Use Cases**:
 - Creating CLAUDE.md files
 - Validating section format
 - Understanding section purpose
+- Adding new sections
 
 ---
 
-#### standards-integration-pattern.md
-**Purpose**: Pattern for applying standards in commands
+#### phase_dependencies.md
+**Purpose**: Wave-based parallel execution with phase dependencies
 
 **Contents**:
-- Discovery algorithm
-- Parsing implementation
-- Application logic
-- Error handling
-- Examples
+- Dependency syntax and formats
+- Validation rules (no cycles, no forward deps)
+- Wave calculation using Kahn's algorithm
+- Common dependency patterns (fan-out, fan-in, diamond)
+- Performance optimization strategies
+- Integration with /orchestrate and /implement
+
+**Use Cases**:
+- Declaring phase dependencies in implementation plans
+- Understanding wave-based execution
+- Optimizing parallelization (40-60% time savings)
+- Troubleshooting dependency errors
+
+---
+
+### Advanced Features
+
+#### orchestration-guide.md
+**Purpose**: Multi-agent workflows and parallel execution patterns
+
+**Contents**:
+- /orchestrate command usage
+- Parallel execution architecture
+- Agent coordination patterns
+- Troubleshooting workflows
+- Performance optimization
+
+**Use Cases**:
+- Running multi-phase workflows
+- Coordinating multiple agents
+- Parallel task execution
+- Debugging workflow issues
+
+---
+
+#### adaptive-planning-guide.md
+**Purpose**: Progressive plan structures (L0/L1/L2) and workflow checkpointing
+
+**Contents**:
+- Plan structure levels (single file, phase directory, hierarchical)
+- Complexity scoring and thresholds
+- Automatic expansion triggers
+- Checkpoint system and resume workflows
+- Migration between tiers
+
+**Use Cases**:
+- Creating scalable implementation plans
+- Managing complex projects
+- Resuming interrupted workflows
+- Understanding plan organization
+
+---
+
+#### template-system-guide.md
+**Purpose**: Template-based plan generation
+
+**Contents**:
+- Template structure and format
+- Variable substitution
+- Template creation guidelines
+- Using templates with /plan-from-template
+
+**Use Cases**:
+- Creating reusable plan templates
+- Standardizing project structures
+- Rapid plan generation
+
+---
+
+#### efficiency-guide.md
+**Purpose**: Performance optimization patterns
+
+**Contents**:
+- Tool usage optimization
+- Context management
+- Parallel execution patterns
+- Resource conservation
+
+**Use Cases**:
+- Optimizing command performance
+- Reducing token usage
+- Improving workflow speed
+
+---
+
+#### error-enhancement-guide.md
+**Purpose**: Error handling and enhancement patterns
+
+**Contents**:
+- Error detection patterns
+- Error enhancement strategies
+- Recovery workflows
+- User feedback guidelines
+
+**Use Cases**:
+- Improving error messages
+- Implementing error recovery
+- Debugging command failures
+
+---
+
+#### artifact_organization.md
+**Purpose**: Topic-based artifact organization system
+
+**Contents**:
+- Directory structure (`specs/{NNN_topic}/`)
+- Artifact taxonomy (reports, plans, summaries, debug, scripts, outputs)
+- Gitignore rules (debug/ committed, others gitignored)
+- Artifact lifecycle management
+- Shell utilities for artifact operations
+- Cleanup patterns for temporary artifacts
+
+**Use Cases**:
+- Understanding spec directory organization
+- Managing workflow artifacts
+- Creating debug reports and investigation scripts
+- Cleaning up temporary files after workflows
+
+---
+
+#### spec_updater_guide.md
+**Purpose**: Spec updater agent usage and integration
+
+**Contents**:
+- Agent responsibilities (artifact management, cross-references, organization)
+- Usage patterns from /orchestrate, /implement, /plan
+- Debug report creation workflows
+- Investigation script creation
+- Implementation summary generation
+- Gitignore compliance verification
+
+**Use Cases**:
+- Using spec updater agent in commands
+- Creating properly structured artifacts
+- Maintaining cross-references between artifacts
+- Understanding topic-based artifact structure
+
+---
+
+### Development Guides
+
+#### creating-commands.md
+**Purpose**: Complete guide for command development
+
+**Contents**:
+- Command file structure
+- Frontmatter fields
+- Standards discovery implementation
+- Testing protocols
+- Quality checklist
+- Agent integration
+
+**Use Cases**:
+- Creating new slash commands
+- Understanding command architecture
+- Implementing standards compliance
+- Integrating agents in commands
+
+---
+
+#### creating-agents.md
+**Purpose**: Guide for creating custom agents
+
+**Contents**:
+- Agent file structure
+- Frontmatter fields (allowed-tools, description)
+- System prompt structure
+- Behavioral guidelines
+- Testing and validation
+- Best practices
+
+**Use Cases**:
+- Creating specialized agents
+- Understanding agent design
+- Selecting appropriate tools
+- Defining agent capabilities
+
+---
+
+#### using-agents.md
+**Purpose**: Agent invocation patterns and multi-agent coordination
+
+**Contents**:
+- Critical invocation pattern (general-purpose + behavioral injection)
+- Agent directory with purposes and tools
+- Integration patterns (single, parallel, sequential, conditional, optional)
+- Context passing and error handling
+- Command-agent matrix
+
+**Use Cases**:
+- Invoking agents from commands
+- Building agent workflows
+- Understanding agent coordination
+- Debugging agent issues
+
+---
+
+#### standards-integration.md
+**Purpose**: Standards discovery and application from CLAUDE.md
+
+**Contents**:
+- Discovery process (4 steps)
+- Section parsing examples
+- Standards application patterns
+- Verification and compliance
+- Error handling and fallbacks
+- 10 concrete examples with code
 
 **Use Cases**:
 - Implementing standards in commands
-- Understanding integration flow
-- Debugging standards application
+- Understanding discovery flow
+- Parsing CLAUDE.md sections
+- Applying standards to code generation
 
 ---
 
-#### standards-integration-examples.md
-**Purpose**: Real-world examples of standards usage
+#### command-patterns.md
+**Purpose**: Reusable command patterns and best practices
 
 **Contents**:
-- Code generation with standards
-- Test execution with standards
-- Documentation with standards
-- Multi-section usage
-- Edge cases
+- Common command patterns
+- Error handling patterns
+- Testing patterns
+- Documentation patterns
 
 **Use Cases**:
-- Learning by example
-- Understanding best practices
-- Solving specific problems
+- Learning command development
+- Implementing consistent patterns
+- Solving common problems
 
 ---
 
-### TTS Documentation
+#### command-examples.md
+**Purpose**: Reusable command patterns and examples
+
+**Contents**:
+- Dry-run mode examples with analysis output
+- Dashboard progress tracking patterns
+- Checkpoint save/restore workflows
+- Test execution patterns
+- Git commit patterns with pre-commit validation
+
+**Use Cases**:
+- Implementing dry-run mode in commands
+- Adding progress dashboards
+- Creating resumable workflows with checkpoints
+- Standardizing test execution
+- Automating git commits
+
+---
+
+#### logging-patterns.md
+**Purpose**: Standardized logging patterns for agents and commands
+
+**Contents**:
+- Progress markers (PROGRESS: format)
+- Structured logging format
+- Error logging patterns with recovery suggestions
+- Summary report format
+- File path output format (REPORT_PATH, PLAN_PATH, etc.)
+
+**Use Cases**:
+- Implementing consistent logging in commands
+- Parsing agent output programmatically
+- Providing actionable error messages
+- Creating workflow summaries
+
+---
+
+### Integration Guides
 
 #### tts-integration-guide.md
-**Purpose**: Comprehensive TTS system guide
+**Purpose**: TTS system setup and configuration
 
 **Contents**:
 - Architecture overview
 - Configuration guide
-- Category descriptions
-- Message customization
+- Category descriptions (completion and permission notifications)
+- Message customization (uniform "directory, branch" format)
+- Integration with commands
 - Troubleshooting
 
 **Use Cases**:
-- Setting up TTS
+- Setting up TTS notifications
 - Understanding TTS flow
-- Customizing notifications
+- Customizing voice parameters
 - Debugging TTS issues
 
 ---
 
-#### tts-message-examples.md
-**Purpose**: Example TTS messages for all categories
+#### conversion-guide.md
+**Purpose**: Document format conversion (Markdown, DOCX, PDF)
 
 **Contents**:
-- Message format examples
-- Context variations
-- Voice parameter effects
-- Customization examples
-- Common patterns
+- Conversion workflows
+- Format support
+- Batch processing
+- Metadata preservation
+- Troubleshooting
 
 **Use Cases**:
-- Understanding message format
-- Customizing messages
-- Testing TTS output
+- Converting between document formats
+- Batch document processing
+- Preserving formatting
 
 ---
-
-## Using the Documentation
-
-### For New Users
-Start with:
-1. [TTS Integration Guide](tts-integration-guide.md) - Set up notifications
-2. [Command Standards Flow](command-standards-flow.md) - Understand standards
-3. [Standards Integration Examples](standards-integration-examples.md) - Learn by example
-
-### For Command Developers
-Read:
-1. [Command Standardization Checklist](command-standardization-checklist.md) - Quality requirements
-2. [Standards Integration Pattern](standards-integration-pattern.md) - Implementation pattern
-3. [CLAUDE.md Section Schema](claude-md-section-schema.md) - Section format
-
-### For Agent Developers
-Study:
-1. [Agent Development Guide](agent-development-guide.md) - Create agents
-2. [Agent Integration Guide](agent-integration-guide.md) - Use agents
-3. Examples in [../agents/](../agents/README.md) - Real implementations
-
-### For Troubleshooting
-Consult:
-1. [TTS Integration Guide](tts-integration-guide.md) - TTS issues
-2. [Command Standards Flow](command-standards-flow.md) - Standards discovery
-3. [Agent Integration Guide](agent-integration-guide.md) - Agent problems
 
 ## Neovim Integration
 
@@ -330,101 +578,188 @@ Before committing:
 
 ## Navigation
 
-### Integration Guides
-- [agent-development-guide.md](agent-development-guide.md) - Agent creation
-- [agent-integration-guide.md](agent-integration-guide.md) - Agent usage
-- [tts-integration-guide.md](tts-integration-guide.md) - TTS setup
-- [tts-message-examples.md](tts-message-examples.md) - TTS messages
+### By Document Type
 
-### Standards Documentation
+**Core System Guides**:
+- [command-reference.md](command-reference.md) - Command catalog
+- [agent-reference.md](agent-reference.md) - Agent catalog
 - [claude-md-section-schema.md](claude-md-section-schema.md) - Section schema
-- [command-standardization-checklist.md](command-standardization-checklist.md) - Quality checklist
-- [command-standards-flow.md](command-standards-flow.md) - Discovery flow
-- [standards-integration-examples.md](standards-integration-examples.md) - Examples
-- [standards-integration-pattern.md](standards-integration-pattern.md) - Pattern
+- [command_architecture_standards.md](command_architecture_standards.md) - Architecture standards
+- [phase_dependencies.md](phase_dependencies.md) - Wave-based execution
 
-### Related
+**Advanced Features**:
+- [orchestration-guide.md](orchestration-guide.md) - Multi-agent workflows
+- [adaptive-planning-guide.md](adaptive-planning-guide.md) - Progressive plans
+- [template-system-guide.md](template-system-guide.md) - Plan templates
+- [efficiency-guide.md](efficiency-guide.md) - Performance optimization
+- [error-enhancement-guide.md](error-enhancement-guide.md) - Error handling
+- [artifact_organization.md](artifact_organization.md) - Artifact structure
+- [spec_updater_guide.md](spec_updater_guide.md) - Spec updater agent
+
+**Development Guides**:
+- [creating-commands.md](creating-commands.md) - Command development
+- [creating-agents.md](creating-agents.md) - Agent creation
+- [using-agents.md](using-agents.md) - Agent integration
+- [standards-integration.md](standards-integration.md) - Standards usage
+- [command-patterns.md](command-patterns.md) - Pattern catalog
+- [command-examples.md](command-examples.md) - Command examples
+- [logging-patterns.md](logging-patterns.md) - Logging standards
+
+**Integration Guides**:
+- [tts-integration-guide.md](tts-integration-guide.md) - TTS setup
+- [conversion-guide.md](conversion-guide.md) - Document conversion
+
+### By Topic
+
+**Orchestration**:
+- [orchestration-guide.md](orchestration-guide.md)
+- [command-reference.md](command-reference.md)
+- [agent-reference.md](agent-reference.md)
+
+**Planning**:
+- [adaptive-planning-guide.md](adaptive-planning-guide.md)
+- [creating-commands.md](creating-commands.md)
+- [template-system-guide.md](template-system-guide.md)
+
+**Standards**:
+- [standards-integration.md](standards-integration.md)
+- [claude-md-section-schema.md](claude-md-section-schema.md)
+- [command_architecture_standards.md](command_architecture_standards.md)
+- [creating-commands.md](creating-commands.md#standards-discovery)
+
+**Testing**:
+- [creating-commands.md](creating-commands.md#testing)
+- [orchestration-guide.md](orchestration-guide.md#validation)
+
+**Agents**:
+- [creating-agents.md](creating-agents.md)
+- [using-agents.md](using-agents.md)
+- [agent-reference.md](agent-reference.md)
+
+**Commands**:
+- [creating-commands.md](creating-commands.md)
+- [command-reference.md](command-reference.md)
+- [command-patterns.md](command-patterns.md)
+
+**TTS**:
+- [tts-integration-guide.md](tts-integration-guide.md)
+
+**Conversion**:
+- [conversion-guide.md](conversion-guide.md)
+
+### Related Directories
+
 - [← Parent Directory](../README.md)
 - [agents/](../agents/README.md) - Agent definitions
 - [commands/](../commands/README.md) - Command definitions
 - [tts/](../tts/README.md) - TTS implementation
 - [hooks/](../hooks/README.md) - Hook scripts
+- [lib/](../lib/README.md) - Shared utilities
 
 ## Quick Reference
 
-### TTS Setup
-See: [tts-integration-guide.md](tts-integration-guide.md)
+### Orchestration Workflow
+See: [orchestration-guide.md](orchestration-guide.md)
 
 ```bash
-# Edit config
-nvim .claude/tts/tts-config.sh
+# Run multi-agent workflow
+/orchestrate "Implement user authentication"
 
-# Set TTS_ENABLED=true
-# Enable desired categories
-# Test: espeak-ng "Test"
+# Workflow phases:
+# 1. Research (parallel agents)
+# 2. Planning (plan-architect)
+# 3. Implementation (code-writer)
+# 4. Testing (test-specialist)
+# 5. Documentation (doc-writer)
 ```
 
-### Create Agent
-See: [agent-development-guide.md](agent-development-guide.md)
-
-```markdown
----
-allowed-tools: Read, Write, Bash
-description: Your agent description
----
-
-# Agent Name
-
-[Agent definition content]
-```
-
-### Create Command
-See: [command-standardization-checklist.md](command-standardization-checklist.md)
+### Command Development
+See: [creating-commands.md](creating-commands.md)
 
 ```markdown
 ---
 allowed-tools: Read, Edit, Bash
-argument-hint: <required> [optional]
+argument-hint: <feature> [options]
 description: Command description
 command-type: primary
 ---
 
 # Command Name
 
-[Command implementation]
+[Command implementation with standards discovery]
 ```
 
-### Use Standards
-See: [standards-integration-pattern.md](standards-integration-pattern.md)
+### Agent Usage
+See: [using-agents.md](using-agents.md)
+
+```yaml
+Task {
+  subagent_type: "general-purpose"
+  description: "Task description using agent-name protocol"
+  prompt: "
+    Read and follow: .claude/agents/agent-name.md
+    You are acting as [Agent Name].
+
+    [Task details]
+  "
+}
+```
+
+### Standards Discovery
+See: [standards-integration.md](standards-integration.md)
 
 ```markdown
 ## Standards Discovery
-1. Locate CLAUDE.md
-2. Parse relevant sections
-3. Apply to code generation
-4. Fall back if missing
+1. Locate CLAUDE.md (recursive upward)
+2. Check subdirectory-specific CLAUDE.md
+3. Parse relevant sections ([Used by: ...])
+4. Apply to code generation
+5. Fall back to language defaults if missing
 ```
 
 ## Index by Topic
 
+### Orchestration and Workflows
+- [orchestration-guide.md](orchestration-guide.md)
+- [agent-reference.md](agent-reference.md)
+- [using-agents.md](using-agents.md)
+- [command-reference.md](command-reference.md)
+
+### Implementation Planning
+- [adaptive-planning-guide.md](adaptive-planning-guide.md)
+- [template-system-guide.md](template-system-guide.md)
+- [creating-commands.md](creating-commands.md)
+
+### Standards and Quality
+- [command_architecture_standards.md](command_architecture_standards.md)
+- [standards-integration.md](standards-integration.md)
+- [claude-md-section-schema.md](claude-md-section-schema.md)
+- [creating-commands.md](creating-commands.md#quality-checklist)
+- [command-patterns.md](command-patterns.md)
+
+### Agent System
+- [creating-agents.md](creating-agents.md)
+- [using-agents.md](using-agents.md)
+- [agent-reference.md](agent-reference.md)
+- [../agents/README.md](../agents/README.md)
+
+### Command System
+- [creating-commands.md](creating-commands.md)
+- [command-reference.md](command-reference.md)
+- [command-patterns.md](command-patterns.md)
+- [../commands/README.md](../commands/README.md)
+
 ### TTS System
 - [tts-integration-guide.md](tts-integration-guide.md)
-- [tts-message-examples.md](tts-message-examples.md)
 - [../tts/README.md](../tts/README.md)
 - [../hooks/tts-dispatcher.sh](../hooks/tts-dispatcher.sh)
 
-### Agents
-- [agent-development-guide.md](agent-development-guide.md)
-- [agent-integration-guide.md](agent-integration-guide.md)
-- [../agents/README.md](../agents/README.md)
+### Document Conversion
+- [conversion-guide.md](conversion-guide.md)
+- [../agents/doc-converter.md](../agents/doc-converter.md)
+- [../commands/convert-docs.md](../commands/convert-docs.md)
 
-### Commands
-- [command-standardization-checklist.md](command-standardization-checklist.md)
-- [command-standards-flow.md](command-standards-flow.md)
-- [../commands/README.md](../commands/README.md)
-
-### Standards
-- [claude-md-section-schema.md](claude-md-section-schema.md)
-- [standards-integration-pattern.md](standards-integration-pattern.md)
-- [standards-integration-examples.md](standards-integration-examples.md)
-- [/home/benjamin/.config/CLAUDE.md](../../CLAUDE.md)
+### Performance and Optimization
+- [efficiency-guide.md](efficiency-guide.md)
+- [error-enhancement-guide.md](error-enhancement-guide.md)
+- [orchestration-guide.md](orchestration-guide.md#troubleshooting)

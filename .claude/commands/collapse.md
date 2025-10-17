@@ -61,7 +61,8 @@ Reverse phase expansion by merging expanded phase content back into the main pla
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/detect-project-dir.sh"
 
-source "$CLAUDE_PROJECT_DIR/.claude/lib/parse-adaptive-plan.sh"
+# Source consolidated planning utilities
+source "$CLAUDE_PROJECT_DIR/.claude/lib/plan-core-bundle.sh"
 
 # Normalize plan path (handle both directory and file paths)
 if [[ -f "$plan_path" ]] && [[ "$plan_path" == *.md ]]; then
@@ -400,7 +401,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/detect-project-dir.sh"
 
 # Source utilities
-source "$CLAUDE_PROJECT_DIR/.claude/lib/parse-adaptive-plan.sh"
+# Source consolidated planning utilities
+source "$CLAUDE_PROJECT_DIR/.claude/lib/plan-core-bundle.sh"
 source "$CLAUDE_PROJECT_DIR/.claude/lib/auto-analysis-utils.sh"
 
 # Validate plan path
@@ -428,7 +430,7 @@ Task {
   subagent_type: "general-purpose"
   description: "Analyze plan complexity for collapse decisions"
   prompt: "Read and follow the behavioral guidelines from:
-          /home/benjamin/.config/.claude/agents/complexity_estimator.md
+          /home/benjamin/.config/.claude/agents/complexity-estimator.md
 
           You are acting as a Complexity Estimator.
 

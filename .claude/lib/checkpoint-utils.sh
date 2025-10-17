@@ -1,22 +1,51 @@
 #!/usr/bin/env bash
 # Shared checkpoint management utilities
 # Provides functions for checkpoint save, load, validate, and migrate
+#
+# Checkpoint Storage Locations:
+# - .claude/checkpoints/ - Primary checkpoint storage (used by this utility)
+#   - Workflow checkpoints (implement, orchestrate, etc.)
+#   - parallel_ops/ - Temporary parallel operation checkpoints
+# - .claude/data/checkpoints/ - Alternative persistent storage (legacy, not currently used)
+#   - Kept for backward compatibility
+#   - See .claude/data/checkpoints/README.md for historical documentation
 
 set -euo pipefail
 
 # Detect project directory dynamically
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/detect-project-dir.sh"
+source "$SCRIPT_DIR/timestamp-utils.sh"
 
 # ==============================================================================
 # Checkpoint Schema
 # ==============================================================================
 
 # Schema version for checkpoint format
-readonly CHECKPOINT_SCHEMA_VERSION="1.1"
+readonly CHECKPOINT_SCHEMA_VERSION="1.2"
 
 # Checkpoint directory
-readonly CHECKPOINTS_DIR="${CLAUDE_PROJECT_DIR}/.claude/checkpoints"
+readonly CHECKPOINTS_DIR="${CLAUDE_PROJECT_DIR}/.claude/data/checkpoints"
+
+# Wave Tracking Fields (for parallel execution - Phase 2):
+# When implementing parallel phase execution, the following fields should be
+# included in the workflow_state JSON passed to save_checkpoint():
+#
+# - current_wave: Current wave number (1-indexed)
+# - total_waves: Total number of waves in dependency graph
+# - wave_structure: Map of wave number to phase numbers
+#   Example: {"1": [1], "2": [2, 3], "3": [4]}
+# - parallel_execution_enabled: Boolean flag for --sequential override
+# - max_wave_parallelism: Maximum concurrent phases per wave (default: 3)
+# - wave_results: Detailed results for each completed/in-progress wave
+#   Example: {
+#     "1": {"phases": [1], "status": "completed", "duration_ms": 185000},
+#     "2": {"phases": [2, 3], "status": "in_progress", "parallel": true}
+#   }
+#
+# These fields enable proper wave state tracking for checkpoint resume
+# after wave failures, allowing retry of failed waves while preserving
+# completed wave progress.
 
 # ==============================================================================
 # Core Functions
@@ -52,6 +81,13 @@ save_checkpoint() {
   # Build checkpoint data with schema
   local checkpoint_data
   if command -v jq &> /dev/null; then
+    # Capture plan file modification time if plan_path provided in state
+    local plan_mtime=""
+    local plan_path=$(echo "$state_json" | jq -r '.plan_path // empty')
+    if [ -n "$plan_path" ] && [ -f "$plan_path" ]; then
+      plan_mtime=$(stat -c %Y "$plan_path" 2>/dev/null || stat -f %m "$plan_path" 2>/dev/null || echo "")
+    fi
+
     # Use jq for robust JSON handling
     checkpoint_data=$(jq -n \
       --arg version "$CHECKPOINT_SCHEMA_VERSION" \
@@ -59,6 +95,7 @@ save_checkpoint() {
       --arg type "$workflow_type" \
       --arg project "$project_name" \
       --arg created "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      --arg plan_mtime "$plan_mtime" \
       --argjson state "$state_json" \
       '{
         schema_version: $version,
@@ -74,10 +111,15 @@ save_checkpoint() {
         completed_phases: ($state.completed_phases // []),
         workflow_state: $state,
         last_error: ($state.last_error // null),
+        tests_passing: ($state.tests_passing // true),
+        plan_modification_time: (if $plan_mtime != "" then ($plan_mtime | tonumber) else null end),
         replanning_count: ($state.replanning_count // 0),
         last_replan_reason: ($state.last_replan_reason // null),
         replan_phase_counts: ($state.replan_phase_counts // {}),
-        replan_history: ($state.replan_history // [])
+        replan_history: ($state.replan_history // []),
+        debug_report_path: ($state.debug_report_path // null),
+        user_last_choice: ($state.user_last_choice // null),
+        debug_iteration_count: ($state.debug_iteration_count // 0)
       }')
   else
     # Fallback: Basic JSON construction without jq
@@ -259,11 +301,25 @@ migrate_checkpoint_format() {
   # Migrate from 1.0 to 1.1 (add replanning fields)
   if [ "$current_version" = "1.0" ]; then
     jq '. + {
-      schema_version: "'$CHECKPOINT_SCHEMA_VERSION'",
+      schema_version: "1.1",
       replanning_count: (.replanning_count // 0),
       last_replan_reason: (.last_replan_reason // null),
       replan_phase_counts: (.replan_phase_counts // {}),
       replan_history: (.replan_history // [])
+    }' "$checkpoint_file" > "${checkpoint_file}.migrated"
+
+    # Replace original with migrated version
+    mv "${checkpoint_file}.migrated" "$checkpoint_file"
+    current_version="1.1"
+  fi
+
+  # Migrate from 1.1 to 1.2 (add debug fields)
+  if [ "$current_version" = "1.1" ]; then
+    jq '. + {
+      schema_version: "'$CHECKPOINT_SCHEMA_VERSION'",
+      debug_report_path: (.debug_report_path // null),
+      user_last_choice: (.user_last_choice // null),
+      debug_iteration_count: (.debug_iteration_count // 0)
     }' "$checkpoint_file" > "${checkpoint_file}.migrated"
 
     # Replace original with migrated version
@@ -557,6 +613,153 @@ validate_checkpoint_integrity() {
   return 0
 }
 
+# ==============================================================================
+# Smart Checkpoint Auto-Resume Functions (Phase 1)
+# ==============================================================================
+
+# check_safe_resume_conditions: Check if checkpoint can be auto-resumed without user prompt
+# Usage: check_safe_resume_conditions <checkpoint-file>
+# Returns: 0 if safe to auto-resume, 1 if interactive prompt needed
+# Example: check_safe_resume_conditions ".claude/checkpoints/implement_*.json"
+check_safe_resume_conditions() {
+  local checkpoint_file="${1:-}"
+
+  if [ -z "$checkpoint_file" ]; then
+    echo "Usage: check_safe_resume_conditions <checkpoint-file>" >&2
+    return 1
+  fi
+
+  if [ ! -f "$checkpoint_file" ]; then
+    echo "Checkpoint file not found: $checkpoint_file" >&2
+    return 1
+  fi
+
+  if ! command -v jq &> /dev/null; then
+    echo "Warning: jq not found, cannot check resume conditions" >&2
+    return 1
+  fi
+
+  # Extract checkpoint fields
+  local tests_passing=$(jq -r 'if .tests_passing == null then "true" else (.tests_passing | tostring) end' "$checkpoint_file")
+  local last_error=$(jq -r '.last_error // null' "$checkpoint_file")
+  local status=$(jq -r '.status // "unknown"' "$checkpoint_file")
+  local created_at=$(jq -r '.created_at // ""' "$checkpoint_file")
+  local plan_modification_time=$(jq -r '.plan_modification_time // null' "$checkpoint_file")
+  local plan_path=$(jq -r '.workflow_state.plan_path // ""' "$checkpoint_file")
+
+  # Condition 1: Tests must be passing
+  if [ "$tests_passing" != "true" ]; then
+    return 1
+  fi
+
+  # Condition 2: No recent errors
+  if [ "$last_error" != "null" ]; then
+    return 1
+  fi
+
+  # Condition 3: Status must be in_progress
+  if [ "$status" != "in_progress" ]; then
+    return 1
+  fi
+
+  # Condition 4: Checkpoint age must be < 7 days
+  if [ -n "$created_at" ]; then
+    local checkpoint_timestamp=$(date -d "$created_at" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created_at" +%s 2>/dev/null || echo "0")
+    local current_timestamp=$(date +%s)
+    local age_seconds=$((current_timestamp - checkpoint_timestamp))
+    local seven_days_seconds=$((7 * 24 * 60 * 60))
+
+    if [ "$age_seconds" -gt "$seven_days_seconds" ]; then
+      return 1
+    fi
+  fi
+
+  # Condition 5: Plan not modified since checkpoint (if plan_modification_time available)
+  if [ "$plan_modification_time" != "null" ] && [ -n "$plan_path" ] && [ -f "$plan_path" ]; then
+    local current_plan_mtime=$(stat -c %Y "$plan_path" 2>/dev/null || stat -f %m "$plan_path" 2>/dev/null || echo "0")
+    if [ "$current_plan_mtime" != "$plan_modification_time" ]; then
+      return 1
+    fi
+  fi
+
+  # All conditions met - safe to auto-resume
+  return 0
+}
+
+# get_skip_reason: Get human-readable reason why auto-resume was skipped
+# Usage: get_skip_reason <checkpoint-file>
+# Returns: String describing why auto-resume was skipped
+# Example: get_skip_reason ".claude/checkpoints/implement_*.json"
+get_skip_reason() {
+  local checkpoint_file="${1:-}"
+
+  if [ -z "$checkpoint_file" ]; then
+    echo "Checkpoint file not provided"
+    return 0
+  fi
+
+  if [ ! -f "$checkpoint_file" ]; then
+    echo "Checkpoint file not found"
+    return 0
+  fi
+
+  if ! command -v jq &> /dev/null; then
+    echo "Unable to determine reason (jq not available)"
+    return 0
+  fi
+
+  # Extract checkpoint fields
+  local tests_passing=$(jq -r 'if .tests_passing == null then "true" else (.tests_passing | tostring) end' "$checkpoint_file")
+  local last_error=$(jq -r '.last_error // null' "$checkpoint_file")
+  local status=$(jq -r '.status // "unknown"' "$checkpoint_file")
+  local created_at=$(jq -r '.created_at // ""' "$checkpoint_file")
+  local plan_modification_time=$(jq -r '.plan_modification_time // null' "$checkpoint_file")
+  local plan_path=$(jq -r '.workflow_state.plan_path // ""' "$checkpoint_file")
+
+  # Check each condition and return first failure reason
+  if [ "$tests_passing" != "true" ]; then
+    echo "Tests failing in last run"
+    return 0
+  fi
+
+  if [ "$last_error" != "null" ]; then
+    echo "Last run had errors"
+    return 0
+  fi
+
+  if [ "$status" != "in_progress" ]; then
+    echo "Checkpoint status: $status (expected: in_progress)"
+    return 0
+  fi
+
+  # Check checkpoint age
+  if [ -n "$created_at" ]; then
+    local checkpoint_timestamp=$(date -d "$created_at" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$created_at" +%s 2>/dev/null || echo "0")
+    local current_timestamp=$(date +%s)
+    local age_seconds=$((current_timestamp - checkpoint_timestamp))
+    local seven_days_seconds=$((7 * 24 * 60 * 60))
+
+    if [ "$age_seconds" -gt "$seven_days_seconds" ]; then
+      local age_days=$((age_seconds / 86400))
+      echo "Checkpoint $age_days days old (max: 7 days)"
+      return 0
+    fi
+  fi
+
+  # Check plan modification
+  if [ "$plan_modification_time" != "null" ] && [ -n "$plan_path" ] && [ -f "$plan_path" ]; then
+    local current_plan_mtime=$(stat -c %Y "$plan_path" 2>/dev/null || stat -f %m "$plan_path" 2>/dev/null || echo "0")
+    if [ "$current_plan_mtime" != "$plan_modification_time" ]; then
+      echo "Plan file modified since checkpoint"
+      return 0
+    fi
+  fi
+
+  # All conditions passed (shouldn't reach here if used correctly)
+  echo "All conditions met"
+  return 0
+}
+
 # Export functions for use in other scripts
 if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
   export -f save_checkpoint
@@ -570,4 +773,6 @@ if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
   export -f save_parallel_operation_checkpoint
   export -f restore_from_checkpoint
   export -f validate_checkpoint_integrity
+  export -f check_safe_resume_conditions
+  export -f get_skip_reason
 fi

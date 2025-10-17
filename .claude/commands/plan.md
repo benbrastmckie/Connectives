@@ -109,40 +109,71 @@ I'll analyze the feature requirements to determine:
 - If complexity score ≥50: Show hint about using `/expand phase` during implementation
 - Complexity score stored in metadata for future reference
 
-### 3. Location Determination and Registration
-I'll determine the specs directory location using this process:
+### 3. Topic-Based Location Determination
+I'll determine the topic directory location using the uniform structure:
 
-**Step 1: Check Report Metadata (if reports provided)**
-- If research reports are provided as arguments:
+**Step 1: Source Required Utilities**
+```bash
+source .claude/lib/artifact-operations.sh
+source .claude/lib/template-integration.sh
+```
+
+**Step 2: Extract Topic from Report or Feature**
+- If research reports are provided:
   - Read the first report file
-  - Extract "Specs Directory" from metadata section
-  - Use this same specs directory for the plan
+  - Extract topic directory from report path (e.g., `specs/042_auth/reports/001_*.md` → `specs/042_auth`)
+  - Use the same topic directory for the plan
+- If no reports:
+  - Use feature description to determine topic
+  - Create new topic directory using `get_or_create_topic_dir()`
 
-**Step 2: Detect Project Directory (if no reports)**
-- Analyze the feature and identify components to be modified
-- Find the deepest directory that encompasses all relevant content
-- This becomes the "project directory" for this plan
+**Step 3: Get or Create Topic Directory**
+```bash
+# If using existing topic from report
+TOPIC_DIR=$(dirname "$(dirname "$REPORT_PATH")")
 
-**Step 3: Check SPECS.md Registry**
-- Read `.claude/SPECS.md` to see if this project is already registered
-- Look for a section matching the project directory path
+# If creating new topic
+TOPIC_DIR=$(get_or_create_topic_dir "$FEATURE_DESCRIPTION" "specs")
+# Creates: specs/{NNN_topic}/ with subdirectories (plans/, reports/, summaries/, debug/, etc.)
+```
 
-**Step 4: Use Registered or Auto-Detect**
-- If found in SPECS.md: Use the registered specs directory
-- If not found: Auto-detect best location (project-dir/specs/) and register it
+**Step 4: Verify Topic Structure**
+- Ensure topic directory has all standard subdirectories:
+  - `plans/` - Implementation plans
+  - `reports/` - Research reports
+  - `summaries/` - Implementation summaries
+  - `debug/` - Debug reports (committed to git)
+  - `scripts/` - Investigation scripts (gitignored)
+  - `outputs/` - Test outputs (gitignored)
+  - `artifacts/` - Operation artifacts (gitignored)
+  - `backups/` - Backups (gitignored)
 
-**Step 5: Register/Update in SPECS.md**
-- If new project: Create new section in SPECS.md
-- Update "Last Updated" date and increment "Plans" count
-- Use Edit tool to update SPECS.md
+### 4. Plan Creation Using Uniform Structure
+I'll create the plan using `create_topic_artifact()`:
 
-### 4. Plan Numbering
-I'll assign the plan number by:
-- Checking existing plans in the target `specs/plans/` directory
-- Finding the highest numbered plan (e.g., `002_*.md`)
-- Using the next sequential number (e.g., `003`)
-- Starting with `001` if no numbered plans exist
-- Format: `NNN_feature_name.md` with three-digit numbering
+**Step 1: Get Next Plan Number Within Topic**
+```bash
+# Get next number in topic's plans/ subdirectory
+NEXT_NUM=$(get_next_artifact_number "${TOPIC_DIR}/plans")
+```
+
+**Step 2: Generate Plan Name**
+- Convert feature description to snake_case (e.g., "Add User Auth" → "add_user_auth")
+- Truncate to reasonable length (50 chars)
+
+**Step 3: Create Plan File**
+```bash
+PLAN_PATH=$(create_topic_artifact "$TOPIC_DIR" "plans" "$PLAN_NAME" "$PLAN_CONTENT")
+# Creates: ${TOPIC_DIR}/plans/NNN_plan_name.md
+# Auto-numbers, registers in artifact registry
+```
+
+**Benefits of Uniform Structure**:
+- All artifacts for a topic in one directory
+- Easy cross-referencing between plans, reports, summaries
+- Consistent numbering within topic
+- Automatic subdirectory creation
+- Single utility manages all artifact creation
 
 ### 5. Standards Discovery
 For standards discovery process, see [Standards Discovery Patterns](../docs/command-patterns.md#standards-discovery-patterns).
@@ -184,10 +215,19 @@ Tasks:
 - [ ] Task description with file reference
 - [ ] Another specific task
 - [ ] Testing task
+- [ ] Update plan checkboxes across hierarchy (use checkbox-utils.sh)
 
 Testing:
 - Test command or approach
 - Expected outcomes
+
+**Phase Completion Protocol**:
+When phase is complete, update checkboxes across all hierarchy levels:
+```bash
+source .claude/lib/checkbox-utils.sh
+mark_phase_complete <plan_path> <phase_num>
+verify_checkbox_consistency <plan_path> <phase_num>
+```
 ```
 
 ### 7. Standards Integration
@@ -201,7 +241,8 @@ Based on discovered standards, I'll ensure:
 ### 8. Progressive Plan Creation
 
 **All plans start as single files** (Structure Level 0):
-- Path: `specs/plans/NNN_feature_name.md`
+- Path: `specs/{NNN_topic}/plans/NNN_feature_name.md`
+- Topic directory: `{NNN_topic}` = three-digit numbered topic (e.g., `042_authentication`)
 - Single file with all phases and tasks inline
 - Feature name converted to lowercase with underscores
 - Comprehensive yet actionable content
@@ -212,6 +253,11 @@ Based on discovered standards, I'll ensure:
 - Use `/expand phase <plan> <phase-num>` to extract complex phases to separate files (Level 0 → 1)
 - Use `/expand stage <phase> <stage-num>` to extract complex stages to separate files (Level 1 → 2)
 - Structure grows organically based on actual implementation needs, not predictions
+
+**Path Format**:
+- Level 0: `specs/{NNN_topic}/plans/NNN_plan.md`
+- Level 1: `specs/{NNN_topic}/plans/NNN_plan/NNN_plan.md` + `phase_N_name.md`
+- Level 2: `specs/{NNN_topic}/plans/NNN_plan/phase_N_name/phase_N_overview.md` + `stage_M_name.md`
 
 ### 8.5. Agent-Based Plan Phase Analysis
 
@@ -541,8 +587,8 @@ FINAL_PLAN_PATH="$plan_file"
 
 ## Metadata
 - **Date**: [YYYY-MM-DD]
-- **Specs Directory**: [path/to/specs/]
-- **Plan Number**: [NNN]
+- **Topic Directory**: [specs/{NNN_topic}/ or .claude/specs/{NNN_topic}/]
+- **Plan Number**: [NNN] (within topic)
 - **Feature**: [Feature name]
 - **Scope**: [Brief scope description]
 - **Structure Level**: 0
@@ -567,7 +613,10 @@ FINAL_PLAN_PATH="$plan_file"
 
 ### Phase 1: [Foundation/Setup]
 **Objective**: [What this phase accomplishes]
+**Dependencies**: []
 **Complexity**: [Low/Medium/High]
+**Risk**: [Low/Medium/High]
+**Estimated Time**: [X-Y hours]
 
 Tasks:
 - [ ] Specific task with file reference
@@ -579,7 +628,57 @@ Testing:
 ```
 
 ### Phase 2: [Core Implementation]
+**Dependencies**: [1]
 [Continue with subsequent phases...]
+
+## Phase Dependencies
+
+Phase dependencies enable wave-based parallel execution during implementation. Phases with no dependencies (or satisfied dependencies) can execute in parallel, significantly reducing implementation time.
+
+**Dependency Syntax**:
+- `Dependencies: []` - No dependencies (independent phase, can run in wave 1)
+- `Dependencies: [1]` - Depends on phase 1 completing first
+- `Dependencies: [1, 2]` - Depends on phases 1 and 2 both completing first
+- `Dependencies: [2, 3, 5]` - Depends on multiple non-consecutive phases
+
+**Rules**:
+- Dependencies are phase numbers (integers)
+- A phase can only depend on earlier phases (no forward dependencies)
+- Circular dependencies are invalid and will be detected
+- Self-dependencies are invalid
+- If no Dependencies field specified, defaults to `[]` (independent)
+
+**Wave Calculation**:
+The `/orchestrate` command uses topological sorting (Kahn's algorithm) to calculate execution waves:
+- **Wave 1**: All phases with no dependencies execute in parallel
+- **Wave 2**: All phases that only depend on Wave 1 phases execute in parallel
+- **Wave N**: Continues until all phases scheduled
+
+**Example**:
+```markdown
+### Phase 1: Database Setup
+**Dependencies**: []
+
+### Phase 2: API Layer
+**Dependencies**: [1]
+
+### Phase 3: Frontend Components
+**Dependencies**: [1]
+
+### Phase 4: Integration Tests
+**Dependencies**: [2, 3]
+```
+
+**Execution Waves**:
+- Wave 1: Phase 1
+- Wave 2: Phases 2, 3 (parallel)
+- Wave 3: Phase 4
+
+**Performance Impact**:
+- Example above: 40-50% time savings compared to sequential execution
+- Wave-based execution typically achieves 30-60% time savings depending on dependency structure
+
+For detailed dependency documentation, see `.claude/docs/phase_dependencies.md`
 
 ## Testing Strategy
 [Overall testing approach]
